@@ -1,8 +1,8 @@
-import { EVENT_REFRESH, eventService, workspace } from '@hawtio/react'
+import { EVENT_REFRESH, eventService, workspace, MBeanNode } from '@hawtio/react'
 import { TreeViewDataItem } from '@patternfly/react-core'
 import { MemoryIcon, MicrochipIcon, MonitoringIcon, RunningIcon } from '@patternfly/react-icons'
 import React, { createContext, useEffect, useState } from 'react'
-import { pluginName, pluginTitle } from './globals'
+import { log, pluginName, pluginTitle } from './globals'
 import { preferencesService } from './preferences-service'
 
 type CustomNode = TreeViewDataItem & {
@@ -38,7 +38,7 @@ export function useCustomTree() {
 }
 
 async function populateTree(): Promise<CustomNode[]> {
-  const domain = preferencesService.loadDomain()
+  const domain = "org.apache.activemq.artemis"
   const tree = await workspace.getTree()
   const target = tree.findDescendant(node => node.name === domain)
   if (!target) {
@@ -46,25 +46,36 @@ async function populateTree(): Promise<CustomNode[]> {
   }
 
   const root: CustomNode = {
-    name: pluginTitle,
+    name: target.name,
     id: pluginName,
     mbean: domain,
     icon: React.createElement(MonitoringIcon),
     defaultExpanded: true,
     children: [],
   }
-  target.children?.forEach(child => {
+  log.info("name ="+target.name)
+  var broker: MBeanNode = target.getChildren()[0]
+  const brokerNode : CustomNode = {
+    name:broker.name,
+    id: broker.id,
+    mbean: broker.objectName,
+    icon: React.createElement(MonitoringIcon),
+    children: [],
+  }
+  root.children?.push(brokerNode);
+  broker.children?.forEach(child => {
     const node: CustomNode = {
       name: child.name,
       id: child.name.replace(/\s/, '-'),
       mbean: child.objectName,
     }
+    log.info(child.name);
     switch (child.name) {
-      case 'Memory':
+      case 'acceptors':
         node.icon = React.createElement(MemoryIcon)
         root.children?.push(node)
         break
-      case 'OperatingSystem':
+      case 'addresses':
         node.icon = React.createElement(MicrochipIcon)
         root.children?.push(node)
         break

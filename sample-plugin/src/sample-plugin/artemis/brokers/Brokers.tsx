@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { log } from '../globals'
 import { Connections, connectService } from '@hawtio/react'
-import { BrokerConnections, brokerService } from './brokers-service';
+import { BrokerConnection, BrokerConnections, brokerService } from './brokers-service';
 import { TableComposable, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { Link } from 'react-router-dom'
+import { Breadcrumb, BreadcrumbItem, Button, Text } from '@patternfly/react-core';
+import { ArtemisTabs } from '../ArtemisTabs';
+import { Artemis } from '../Artemis';
+import { Broker } from './Broker';
 
 export type State = {
   selectedDataListItemId: string
@@ -13,8 +17,8 @@ export type State = {
 export const Brokers: React.FunctionComponent = () => {
 
   const  connections: Connections = connectService.loadConnections();
-  const [ brokerConnections, setbrokerConnections ] = useState<BrokerConnections>({});
-  const [ brokersLoaded, setBrokersLoaded ] = useState(false);
+  const brokerConnections = brokerService.createBrokers(connections);
+  const [currentBroker, setCurrentBroker] = useState<BrokerConnection | null>()
 
   const columnNames = {
     name: 'Name',
@@ -25,16 +29,27 @@ export const Brokers: React.FunctionComponent = () => {
 
   useEffect(() => {
     log.info("rendered status")  
-    if(!brokersLoaded) {
-      setbrokerConnections(brokerService.createBrokers(connections));
-      setBrokersLoaded(true);
-    }
-   
-  }, [ brokerConnections, brokersLoaded, connections ]);
-
-
-  if(!brokersLoaded) return <React.Fragment></React.Fragment>;
+  }, [ currentBroker ]);
   
+  function handleSetBroker(name: string) {
+    setCurrentBroker(brokerConnections[name]);
+  }
+
+  function unSetBroker() {
+    setCurrentBroker(null);
+  }
+
+  if(currentBroker) 
+    return (
+      <>
+        <Breadcrumb>
+          <BreadcrumbItem to="" onClick={() => unSetBroker()}>Home</BreadcrumbItem>
+          <BreadcrumbItem>{currentBroker.brokerDetails.name}</BreadcrumbItem>
+        </Breadcrumb>
+        <Broker connection={currentBroker.connection} brokerDetails={currentBroker.brokerDetails} brokerStatus={currentBroker.brokerStatus} getJolokiaService={currentBroker.getJolokiaService} />
+      </>
+    )
+
   return (
 
     <React.Fragment>
@@ -50,7 +65,7 @@ export const Brokers: React.FunctionComponent = () => {
         <Tbody>
         {Object.entries(brokerConnections).map(([name, connection]) => (
           <Tr key={name}>
-            <Td dataLabel={columnNames.name}><Link to="/artemis" state={{name: name, connection: connection}}>{name}</Link></Td>
+            <Td dataLabel={columnNames.name}><Link onClick={() => {handleSetBroker(name)}} to="#">{name}</Link></Td>
             <Td dataLabel={columnNames.version}>{connection.brokerDetails.version}</Td>
             <Td dataLabel={columnNames.uptime}>{connection.brokerStatus.uptime}</Td>
             <Td dataLabel={columnNames.addressMemoryUsage}>{connection.brokerStatus.addressMemoryUsage + 'MB(' + connection.brokerStatus.used + '%)'}</Td>

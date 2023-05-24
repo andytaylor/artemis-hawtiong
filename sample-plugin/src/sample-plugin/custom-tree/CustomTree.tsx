@@ -99,6 +99,7 @@ const CustomTreeContent: React.FunctionComponent = () => {
   }
 
   let customTreeContent = null
+  log.info("selected node " + selectedNode.name);
   switch (selectedNode.name) {
     case 'Memory':
       customTreeContent = <MemoryView />

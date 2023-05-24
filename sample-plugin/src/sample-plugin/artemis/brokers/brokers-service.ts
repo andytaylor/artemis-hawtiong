@@ -22,6 +22,7 @@ export interface BrokerConnection {
   connection: Connection
   brokerDetails: BrokerDetails
   brokerStatus: BrokerStatus
+  getJolokiaService(): IJolokiaService
 }
 
 export interface BrokerConnections {
@@ -115,7 +116,7 @@ class BrokerService {
         } else {
           brokerDetails =  {name: 'unknown', brokerMBean: '', version: 'unknown', updated: false};
         }
-      brokerConnections[key] = {connection: connection, brokerDetails: brokerDetails, brokerStatus: brokerStatus} 
+      brokerConnections[key] = {connection: connection, brokerDetails: brokerDetails, brokerStatus: brokerStatus, getJolokiaService: () => this.createJolokiaService(connection)} 
     }
     return brokerConnections
   }
@@ -135,8 +136,8 @@ class BrokerService {
       var addressMemoryUsage = response.AddressMemoryUsage as number;
       var uptime = response.Uptime as string;
       var brokerStatus = brokerService.loadStatus(globalMaxSize as number, addressMemoryUsage, uptime as string);
-      return {connection: {host: "", path: "", port: 0, scheme: "", name: name}, brokerDetails: brokerDetails, brokerStatus: brokerStatus}
-    } 
+      return {connection: {host: "", path: "", port: 0, scheme: "", name: name}, brokerDetails: brokerDetails, brokerStatus: brokerStatus, getJolokiaService: () => {return jolokiaService}}
+    }
     throw new Error("foo");
   }
 

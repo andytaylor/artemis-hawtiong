@@ -4,40 +4,37 @@ import { log } from './globals'
 import { ArtemisTabs } from './ArtemisTabs';
 import { useLocation } from 'react-router-dom'
 import { BrokerConnection, brokerService } from './brokers/brokers-service';
-import { jolokiaService, workspace } from '@hawtio/react';
+import { IJolokiaService, jolokiaService, workspace } from '@hawtio/react';
 
 
-export const Artemis: React.FunctionComponent = () => {
-  const location = useLocation();
-  const [connection, setConnection] = useState<BrokerConnection>(location.state?location.state["connection"]:null)
+export const Artemis: React.FunctionComponent<BrokerConnection> = () => {
 
-  log.debug("Using broker Connection Configuration: " + JSON.stringify(connection))
+  const [brokerConnection, setBrokerConnection] = useState<BrokerConnection>()
 
   useEffect(() => {
-    const getJolokia = async () => {
-      if (connection) 
-        return
-
-      log.info("Creating connection as embedded");
-      setConnection(await brokerService.createBroker(jolokiaService));
+    const getJolokia = async () => { 
+        var newBrokerConnection = await brokerService.createBroker(jolokiaService);
+        log.info("Creating connection as ruunning embedded with JolokiaService, connection=" + newBrokerConnection.connection.host);
+        setBrokerConnection(newBrokerConnection);
     }
     getJolokia();
-  }, [connection])
+  }, [])
 
-  if (connection == null) return (<></>)
+  log.debug("using connection=="+JSON.stringify(brokerConnection))
+  if (brokerConnection == null) return (<></>)
 
   return (
     <React.Fragment>
       <PageSection variant={PageSectionVariants.light}>
           <TextContent>
-            <Text component="h1">{connection.brokerDetails.name}</Text>
+            <Text component="h1">{brokerConnection.brokerDetails.name}</Text>
           </TextContent>
         </PageSection>
 
         <Divider component="div"/>
         
         <PageSection isFilled padding={{ default: 'noPadding' }}>
-          <ArtemisTabs connection={connection.connection} brokerDetails={connection.brokerDetails} brokerStatus={connection.brokerStatus} />
+          <ArtemisTabs connection={brokerConnection.connection} brokerDetails={brokerConnection.brokerDetails} brokerStatus={brokerConnection.brokerStatus} getJolokiaService={brokerConnection.getJolokiaService} />
       </PageSection>
      </React.Fragment>
   )

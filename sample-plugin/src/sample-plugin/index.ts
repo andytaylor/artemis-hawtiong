@@ -1,7 +1,6 @@
 import { HawtioPlugin, configManager } from '@hawtio/react'
 import { artemis } from './artemis'
 import { customTree } from './custom-tree'
-import { simple } from './simple'
 
 /**
  * The entry function for the plugin exposed to Hawtio.
@@ -18,7 +17,6 @@ import { simple } from './simple'
  * @see src/main/java/io/hawt/examples/sampleplugin/PluginContextListener.java
  */
 export const plugin: HawtioPlugin = () => {
-  simple()
   customTree()
   artemis()
 }
