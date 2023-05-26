@@ -1,7 +1,10 @@
-import React, { } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Broker } from '../ArtemisTabs.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from './ArtemisTable';
 import { artemisService } from '../artemis-service';
+import { IAction } from '@patternfly/react-table';
+import { log } from '../globals';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 
 export const QueuesTable: React.FunctionComponent<Broker> = broker => {
     const allColumns: Column[] = [
@@ -44,6 +47,53 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
         const data = JSON.parse(response);
         return data;
       }
+
+      const [showDialog, setShowDialog] = useState(false);
+      const [ queueToDelete, setQueueToDelete ] = useState("");
+      useEffect(() => {
+        log.info("rendering Queuestable " + showDialog);
+      }, [showDialog]);
       
-    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} loaded={true} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues}/>
+      const closeDialog = () => {
+        setShowDialog(false);
+      };
+
+      const getRowActions = (row: any, rowIndex: number): IAction[] => {
+        log.info("row=" + row.name);
+        log.info("row=" + rowIndex);
+        return [
+        {
+          title: 'delete',
+          onClick: () => { 
+            console.log(`clicked on Some action, on row delete ` + row.name);
+            setQueueToDelete(row.name);
+            setShowDialog(true);
+          }
+        },
+        {
+          title: 'purge',
+          onClick: () => console.log(`clicked on Another action, on row purge ` + row.name)
+        },
+        {
+          title: 'browse',
+          onClick: () => console.log(`clicked on Another action, on row browse ` + row.name)
+        }
+      ]};
+      
+    return (
+      <>
+        <ArtemisTable brokerMBeanName={broker.brokerMBeanName} loaded={true} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} />
+        <Modal
+          variant={ModalVariant.medium}
+          title="Delete Queue?"
+          isOpen={showDialog}
+          actions={[
+            <Button key="confirm" variant="primary" onClick={closeDialog}>
+              Confirm
+            </Button>,
+            <Button key="cancel" variant="secondary" onClick={closeDialog}>
+              Cancel
+            </Button>
+          ]}>Are you sure you would like to delete queue {queueToDelete}</Modal></>
+    )
 }

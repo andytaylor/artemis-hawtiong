@@ -27,7 +27,7 @@ import {
   SelectOptionObject
 } from '@patternfly/react-core';
 import SortAmountDownIcon from '@patternfly/react-icons/dist/esm/icons/sort-amount-down-icon';
-import { TableComposable, Thead, Tr, Th, Tbody, Td, Caption } from '@patternfly/react-table';
+import { TableComposable, Thead, Tr, Th, Tbody, Td, Caption, IAction, ActionsColumn } from '@patternfly/react-table';
 import { log } from '../globals'
 import { IJolokiaService } from '@hawtio/react';
 
@@ -59,6 +59,7 @@ export type TableData = {
   loaded: boolean,
   jolokia: IJolokiaService,
   allColumns: Column[],
+  getRowActions?: Function,
   getData: Function
 }
 
@@ -76,6 +77,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     id: broker.allColumns[0].id,
     order: SortDirection.ASCENDING
   }
+  const defaultRowActions: IAction[] = [];
   const [rows, setRows] = useState([])
   const [resultsSize, setresultsSize] = useState(0)
   const [columns, setColumns] = useState(broker.allColumns);
@@ -106,6 +108,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
 
   useEffect(() => {
+    log.info("rendering Artemistable");
     const listData = async () => {
       var data = await broker.getData(page, perPage, activeSort, filter);
       log.info("data="+JSON.stringify(data));
@@ -199,6 +202,12 @@ const onPerPageSelect = (
   setPerPage(newPerPage);
   setPage(newPage);
 };
+const getRowActions = (row: never, rowIndex: number): IAction[] => {
+  if(broker.getRowActions) {
+    return broker.getRowActions(row, rowIndex);
+  }
+  return [];
+}
 
 const handleSetPage =(_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
   setPage(newPage);
@@ -262,23 +271,23 @@ const renderModal = () => {
         <DataList aria-label="Table column management" id="table-column-management" isCompact>
         {columns.map((column, id) => (
           <DataListItem key={`table-column-management-${column.id}`} aria-labelledby={`table-column-management-${column.id}`}>
-          <DataListItemRow>
-            <DataListCheck
-              aria-labelledby={`table-column-management-item-${column.id}`}
-              checked={column.visible}
-              name={`check-${column.id}`}
-              id={`check-${column.id}`}
-              onChange={checked => updateColumnStatus(id, column)}
-            />
-            <DataListItemCells
-              dataListCells={[
-                <DataListCell id={`table-column-management-item-${column.id}`} key={`table-column-management-item-${column.id}`}>
-                  <label htmlFor={`check-${column.id}`}>{column.name}</label>
-                </DataListCell>
-              ]}
-            />
-          </DataListItemRow>
-        </DataListItem>
+            <DataListItemRow>
+              <DataListCheck
+                aria-labelledby={`table-column-management-item-${column.id}`}
+                checked={column.visible}
+                name={`check-${column.id}`}
+                id={`check-${column.id}`}
+                onChange={checked => updateColumnStatus(id, column)}
+              />
+              <DataListItemCells
+                dataListCells={[
+                  <DataListCell id={`table-column-management-item-${column.id}`} key={`table-column-management-item-${column.id}`}>
+                    <label htmlFor={`check-${column.id}`}>{column.name}</label>
+                  </DataListCell>
+                ]}
+              />
+            </DataListItemRow>
+          </DataListItem>
         ))}
         </DataList>
       </Modal>
@@ -412,6 +421,11 @@ const renderModal = () => {
               } else return ''
             }
           )}
+          <td>
+          <ActionsColumn
+            items={getRowActions(row, rowIndex)}
+          />
+          </td>
             </>
           </Tr>
         ))}

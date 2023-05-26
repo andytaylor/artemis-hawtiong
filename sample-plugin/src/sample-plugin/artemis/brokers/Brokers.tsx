@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { log } from '../globals'
 import { Connections, connectService } from '@hawtio/react'
 import { BrokerConnection, BrokerConnections, brokerService } from './brokers-service';
-import { TableComposable, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { TableComposable, TableText, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { Link } from 'react-router-dom'
 import { Breadcrumb, BreadcrumbItem, Button, Text } from '@patternfly/react-core';
 import { ArtemisTabs } from '../ArtemisTabs';
@@ -24,7 +24,8 @@ export const Brokers: React.FunctionComponent = () => {
     name: 'Name',
     version: 'Version',
     uptime: 'Uptime',
-    addressMemoryUsage: 'Address Memory Usage'
+    addressMemoryUsage: 'Address Memory Usage',
+    connectAction: "Connect"
   };
 
   useEffect(() => {
@@ -60,6 +61,7 @@ export const Brokers: React.FunctionComponent = () => {
             <Th>{columnNames.version}</Th>
             <Th>{columnNames.uptime}</Th>
             <Th>{columnNames.addressMemoryUsage}</Th>
+            <Td></Td>
           </Tr>
         </Thead>
         <Tbody>
@@ -69,6 +71,11 @@ export const Brokers: React.FunctionComponent = () => {
             <Td dataLabel={columnNames.version}>{connection.brokerDetails.version}</Td>
             <Td dataLabel={columnNames.uptime}>{connection.brokerStatus.uptime}</Td>
             <Td dataLabel={columnNames.addressMemoryUsage}>{connection.brokerStatus.addressMemoryUsage + 'MB(' + connection.brokerStatus.used + '%)'}</Td>
+            <Td dataLabel={columnNames.connectAction} modifier="fitContent">
+              <TableText>
+                  <Button variant="secondary" onClick={() => connectService.connect(connection.connection)}>Connect</Button>
+              </TableText>
+            </Td>
           </Tr>
         ))}
           
