@@ -27,7 +27,7 @@ import {
   SelectOptionObject
 } from '@patternfly/react-core';
 import SortAmountDownIcon from '@patternfly/react-icons/dist/esm/icons/sort-amount-down-icon';
-import { TableComposable, Thead, Tr, Th, Tbody, Td, Caption, IAction, ActionsColumn } from '@patternfly/react-table';
+import { TableComposable, Thead, Tr, Th, Tbody, Td, IAction, ActionsColumn } from '@patternfly/react-table';
 import { log } from '../globals'
 import { IJolokiaService } from '@hawtio/react';
 
@@ -56,11 +56,11 @@ export type Filter = {
 
 export type TableData = {
   brokerMBeanName: string,
-  loaded: boolean,
   jolokia: IJolokiaService,
   allColumns: Column[],
+  getData: Function,
   getRowActions?: Function,
-  getData: Function
+  loadData?: number
 }
 
 export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
@@ -105,19 +105,17 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
   const onFilterColumnOperationToggle = (isExpanded: boolean) => {
     setFilterColumnOperationIsExpanded(isExpanded);
   };
-
-
+  
   useEffect(() => {
     log.info("rendering Artemistable");
     const listData = async () => {
       var data = await broker.getData(page, perPage, activeSort, filter);
-      log.info("data="+JSON.stringify(data));
       setRows(data.data);
       setresultsSize(data.count);
     }
     listData();
    
-  }, [columns, resultsSize])
+  }, [columns, page, broker.loadData])
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -202,12 +200,13 @@ const onPerPageSelect = (
   setPerPage(newPerPage);
   setPage(newPage);
 };
+
 const getRowActions = (row: never, rowIndex: number): IAction[] => {
   if(broker.getRowActions) {
     return broker.getRowActions(row, rowIndex);
   }
   return [];
-}
+};
 
 const handleSetPage =(_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
   setPage(newPage);
@@ -218,18 +217,18 @@ const handlePerPageSelect = ( _event: React.MouseEvent | React.KeyboardEvent | M
 };
 
 const getKeyByValue = (producer: never, columnName: string) => {
-  //const key = Object.keys(producer).find(key => producer[key] === columnName);
   return producer[columnName];
 }
 
 const applyFilter = () => {
   const operation = operationOptions.find(operation => operation.name === filterColumnOperationSelected);
   const column = columns.find(column => column.name === filterColumnStatusSelected);
- // log.info("filtering with " + filterColumnStatusSelected + " " + filterColumnOperationSelected + ' ' + inputValue) + ' ' + operation;
   if (operation && column) {
     setFilter({column: column.id, operation: operation.id, input: inputValue});
   }
 }
+
+log.info("bloadData=" + broker.loadData);
 
 const renderPagination = (variant: PaginationVariant | undefined) => (
   <Pagination

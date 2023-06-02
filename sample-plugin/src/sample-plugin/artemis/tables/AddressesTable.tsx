@@ -17,5 +17,5 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
         return data;
       }
       
-    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} loaded={true} jolokia={broker.jolokia} allColumns={allColumns} getData={listAddresses}/>
+    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listAddresses}/>
 }

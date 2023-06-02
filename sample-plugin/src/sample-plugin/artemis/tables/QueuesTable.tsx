@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Broker } from '../ArtemisTabs.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from './ArtemisTable';
 import { artemisService } from '../artemis-service';
@@ -48,31 +48,54 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
         return data;
       }
 
-      const [showDialog, setShowDialog] = useState(false);
+      const [ showDeleteDialog, setShowDeleteDialog ] = useState(false);
+      const [ showPurgeDialog, setShowPurgeDialog ] = useState(false);
       const [ queueToDelete, setQueueToDelete ] = useState("");
+      const [ queueToPurge, setQueueToPurge ] = useState("");
+      const [ queueToPurgeAddress, setQueueToPurgeAddress ] = useState("");
+      const [ queueToPurgeRoutingType, setQueueToPurgeRoutingType ] = useState("");
+      const [ loadData, setLoadData ] = useState(0);
+
       useEffect(() => {
-        log.info("rendering Queuestable " + showDialog);
-      }, [showDialog]);
+        log.info("rendering Queuestable " + showDeleteDialog);
+      }, [showDeleteDialog, showPurgeDialog]);
       
       const closeDialog = () => {
-        setShowDialog(false);
+        setShowDeleteDialog(false);
       };
 
+      const deleteQueue = (name:string) => {
+        artemisService.deleteQueue(broker.jolokia, broker.brokerMBeanName, name);
+        setShowDeleteDialog(false);
+        setLoadData(loadData + 1);
+      };
+
+      const purgeQueue = (name:string, address: string, routingType: string) => {
+        artemisService.purgeQueue(broker.jolokia, broker.brokerMBeanName, name, address, routingType);
+        setShowPurgeDialog(false);
+        //refresh();
+        setLoadData(loadData + 1);
+      };
+      
       const getRowActions = (row: any, rowIndex: number): IAction[] => {
-        log.info("row=" + row.name);
-        log.info("row=" + rowIndex);
         return [
         {
           title: 'delete',
           onClick: () => { 
             console.log(`clicked on Some action, on row delete ` + row.name);
             setQueueToDelete(row.name);
-            setShowDialog(true);
+            setShowDeleteDialog(true);
           }
         },
         {
           title: 'purge',
-          onClick: () => console.log(`clicked on Another action, on row purge ` + row.name)
+          onClick: () =>  {
+            console.log(`clicked on Another action, on row purge ` + JSON.stringify(row))
+            setQueueToPurge(row.name);
+            setQueueToPurgeAddress(row.address);
+            setQueueToPurgeRoutingType(row.routingType);
+            setShowPurgeDialog(true);
+          }
         },
         {
           title: 'browse',
@@ -82,18 +105,36 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
       
     return (
       <>
-        <ArtemisTable brokerMBeanName={broker.brokerMBeanName} loaded={true} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} />
+        <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData}/>
         <Modal
           variant={ModalVariant.medium}
           title="Delete Queue?"
-          isOpen={showDialog}
+          isOpen={showDeleteDialog}
           actions={[
-            <Button key="confirm" variant="primary" onClick={closeDialog}>
+            <Button key="confirm" variant="primary" onClick={() => deleteQueue(queueToDelete)}>
               Confirm
             </Button>,
             <Button key="cancel" variant="secondary" onClick={closeDialog}>
               Cancel
             </Button>
-          ]}>Are you sure you would like to delete queue {queueToDelete}</Modal></>
+          ]}><p>You are about to delete queue <b>{queueToDelete}</b>.</p>
+          <p>This operation cannot be undone so please be careful.</p>
+        </Modal>
+        
+        <Modal
+          variant={ModalVariant.medium}
+          title="Purge Queue?"
+          isOpen={showPurgeDialog}
+          actions={[
+            <Button key="confirm" variant="primary" onClick={() => purgeQueue(queueToPurge, queueToPurgeAddress, queueToPurgeRoutingType)}>
+              Confirm
+            </Button>,
+            <Button key="cancel" variant="secondary" onClick={closeDialog}>
+              Cancel
+            </Button>
+          ]}><p>You are about to remove all messages from queue <b>{queueToDelete}</b>.</p>
+          <p>This operation cannot be undone so please be careful.</p>
+        </Modal>
+        </>
     )
 }

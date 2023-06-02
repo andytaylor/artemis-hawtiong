@@ -189,7 +189,6 @@ function isBlank(str: string) {
   return str.trim().length === 0
 }
 
-
 class BrokerJolokiaService implements IJolokiaService {
 
   private jolokia: IJolokia;

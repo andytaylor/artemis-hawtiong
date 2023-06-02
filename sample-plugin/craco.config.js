@@ -69,6 +69,18 @@ module.exports = {
       const plugin = []
       const hawtconfig = {}
 
+      /*const hawtconfig = {
+        "keycloak": {
+          "enabled": true,
+          "client-config": {
+            url: 'http://localhost:18080/',
+            realm: 'hawtio-demo',
+            clientId: 'hawtio-client',
+            jaas: false,
+          }
+        }
+      }*/
+
       // Hawtio backend API mock
       devServer.app.get('/hawtio/user', (req, res) => res.send(`"${username}"`))
       devServer.app.post('/hawtio/auth/login', (req, res) => res.send(String(login)))

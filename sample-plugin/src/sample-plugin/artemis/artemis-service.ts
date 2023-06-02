@@ -1,7 +1,7 @@
 import { jmxDomain, log } from './globals'
 import { ActiveSort, Filter } from './tables/ArtemisTable'
 import { IJolokia, IRequest, IResponse, IResponseFn, ISimpleOptions } from 'jolokia.js'
-import { AttributeValues, IJolokiaService, JolokiaListMethod, JolokiaStoredOptions } from '@hawtio/react'
+import { AttributeValues, eventService, IJolokiaService, JolokiaListMethod, JolokiaStoredOptions } from '@hawtio/react'
 
 export interface IArtemisService {
     getBrokerMBean(jolokia: IJolokia): string
@@ -107,6 +107,44 @@ class ArtemisService implements IArtemisService {
         log.info("invoking with mbean " + mBean + " with " + JSON.stringify(queuesFilter) + " page " + page + " per page " + perPage);
         const queues = await jolokia.execute(mBean, 'listQueues(java.lang.String, int, int)', [JSON.stringify(queuesFilter), page, perPage] ) as string;
         return queues;
+    }
+
+    async deleteQueue(jolokia: IJolokiaService, brokerMBean: string, name: string) {
+        log.info("deleting queue " + name + " " + brokerMBean)
+        jolokia.execute(brokerMBean, 'destroyQueue(java.lang.String)', [name])
+        .then((value: unknown) => {
+            eventService.notify({
+            type: 'success',
+            message: 'Queue Deleted',
+            duration: 3000,
+            })
+            })
+            .catch((error: string) => {
+            eventService.notify({
+                type: 'danger',
+                message: 'Queue Not Deleted: '+ error,
+            })
+        });
+    }
+
+    async purgeQueue(jolokia: IJolokiaService, brokerMBean: string, name: string, address: string, routingType: string) {
+        // get mbean name like org.apache.activemq.artemis:broker="127.0.0.1",component=addresses,address="q1",subcomponent=queues,routing-type="anycast",queue="q1"
+        var  queueMBean: string = brokerMBean + ",component=addresses,address=\"" + address + "\",subcomponent=queues,routing-type=\"" + routingType.toLowerCase() + "\".queue=\"" + name + "\"";
+        log.info("purging queue " + name + " " + queueMBean)
+        jolokia.execute(queueMBean, 'removeAllMessages()')
+        .then(() => {
+            eventService.notify({
+            type: 'success',
+            message: 'Queue Purged',
+            duration: 3000,
+            })
+            })
+            .catch((error: string) => {
+            eventService.notify({
+                type: 'danger',
+                message: 'Queue Not Purged: '+ error,
+            })
+        });
     }
     
 }

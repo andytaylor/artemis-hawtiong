@@ -3,7 +3,6 @@ import { PageSection, TextContent, PageSectionVariants, Text, Divider } from '@p
 import { Brokers } from './brokers/Brokers'
 
 export const ArtemisNetwork: React.FunctionComponent = () => {
-
   
   return (
     <React.Fragment>

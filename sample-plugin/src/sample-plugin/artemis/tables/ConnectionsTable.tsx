@@ -22,5 +22,5 @@ export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
         return data;
       }
       
-    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} loaded={true} jolokia={broker.jolokia} allColumns={allColumns} getData={listConnections}/>
+    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listConnections}/>
 }
