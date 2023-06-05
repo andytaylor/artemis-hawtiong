@@ -69,17 +69,14 @@ module.exports = {
       const plugin = []
       const hawtconfig = {}
 
-      /*const hawtconfig = {
-        "keycloak": {
-          "enabled": true,
-          "client-config": {
-            url: 'http://localhost:18080/',
-            realm: 'hawtio-demo',
-            clientId: 'hawtio-client',
-            jaas: false,
-          }
-        }
-      }*/
+      const keycloakEnabled = true
+      const keycloakClientConfig = {
+        realm: 'artemis-demo',
+        clientId: 'artemis-client',
+        url: 'http://localhost:18080/',
+        jaas: false,
+        pkceMethod: 'S256',
+      }
 
       // Hawtio backend API mock
       devServer.app.get('/hawtio/user', (req, res) => res.send(`"${username}"`))
@@ -87,6 +84,9 @@ module.exports = {
       devServer.app.get('/hawtio/auth/logout', (req, res) => res.redirect('/hawtio/login'))
       devServer.app.get('/hawtio/proxy/enabled', (req, res) => res.send(String(proxyEnabled)))
       devServer.app.get('/hawtio/plugin', (req, res) => res.send(JSON.stringify(plugin)))
+      devServer.app.get('/hawtio/keycloak/enabled', (_, res) => res.send(String(keycloakEnabled)))
+      devServer.app.get('/hawtio/keycloak/client-config', (_, res) => res.send(JSON.stringify(keycloakClientConfig)))
+      devServer.app.get('/hawtio/keycloak/validate-subject-matches', (_, res) => res.send('true'))
 
       // hawtconfig.json mock
       devServer.app.get('/hawtio/hawtconfig.json', (req, res) => res.send(JSON.stringify(hawtconfig)))

@@ -98,7 +98,7 @@ class BrokerService {
     for (const [key, connection] of Object.entries(connections)) {
       var jolokia = this.createJolokia(connection);
         var response = jolokia.request({ type: "read",  mbean: "org.apache.activemq.artemis:broker=*",  attribute: "Name"}, {}) as AttributeValues;
-        log.info("resp=" + JSON.stringify(response))
+        log.debug("resp=" + JSON.stringify(response))
         var brokerDetails: BrokerDetails;
         var brokerStatus: BrokerStatus = {addressMemoryUsage: 0, uptime: 'unknown', globalMaxSize: 0, used: 0};
         if(response) {
@@ -124,10 +124,9 @@ class BrokerService {
   async createBroker(jolokiaService: IJolokiaService): Promise<BrokerConnection> {  
     var search = await jolokiaService.search("org.apache.activemq.artemis:broker=*");
     var brokerMBeanName = search[0];
-    log.info("resp=" + JSON.stringify(search[0]))
+    log.debug("resp=" + JSON.stringify(search[0]))
     var response = await jolokiaService.readAttributes(brokerMBeanName);
-    log.info("resp=" + JSON.stringify(response.Name))
-    log.info("resp=" + JSON.stringify(response))
+    log.debug("resp=" + JSON.stringify(response.Name))
     if(response) {
       var name = response.Name as string;
       var version = response.Version as string;
