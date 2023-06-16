@@ -33,6 +33,7 @@ export const Brokers: React.FunctionComponent = () => {
   }, [ currentBroker ]);
   
   function handleSetBroker(name: string) {
+    //connectService.setCurrentConnection(brokerConnections[name].connection.name);
     setCurrentBroker(brokerConnections[name]);
   }
 

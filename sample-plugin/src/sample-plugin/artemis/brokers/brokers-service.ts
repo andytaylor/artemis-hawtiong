@@ -1,4 +1,4 @@
-import { AttributeValues, Connection, Connections, IJolokiaService, JolokiaListMethod, jolokiaService, JolokiaStoredOptions } from '@hawtio/react'
+import { AttributeValues, Connection, Connections, IJolokiaService, JolokiaListMethod, JolokiaService, jolokiaService, JolokiaStoredOptions } from '@hawtio/react'
 import Jolokia, { IJolokia, IRequest, IResponse, IResponseFn, ISimpleOptions, IErrorResponse, ISimpleResponseFn, IErrorResponseFn, IOptionsBase } from 'jolokia.js'
 
 //import { joinPaths } from '@hawtio/react'

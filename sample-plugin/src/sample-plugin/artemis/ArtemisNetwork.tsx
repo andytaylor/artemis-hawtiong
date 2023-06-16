@@ -1,8 +1,10 @@
 import React from 'react'
 import { PageSection, TextContent, PageSectionVariants, Text, Divider } from '@patternfly/react-core';
 import { Brokers } from './brokers/Brokers'
+import { log } from './globals';
 
 export const ArtemisNetwork: React.FunctionComponent = () => {
+  log.info("***********an")
   
   return (
     <React.Fragment>

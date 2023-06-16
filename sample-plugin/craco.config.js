@@ -67,13 +67,13 @@ module.exports = {
       const login = true
       const proxyEnabled = true
       const plugin = []
-      const hawtconfig = {}
+      const hawtconfig = {realm: 'console'}
 
       const keycloakEnabled = true
       const keycloakClientConfig = {
-        realm: 'artemis-demo',
-        clientId: 'artemis-client',
-        url: 'http://localhost:18080/',
+        realm: 'artemis-keycloak-demo',
+        clientId: 'artemis-console',
+        url: 'http://localhost:8080/',
         jaas: false,
         pkceMethod: 'S256',
       }
