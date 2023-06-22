@@ -127,23 +127,19 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
   const selectAllColumns = () => {
     const updatedColumns = [...columns]
-    updatedColumns.map((column, columnIndex) => {
+    updatedColumns.map((column) => {
       column.visible = true;
     })
     setColumns(updatedColumns);
   };
 
-  const onSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
+  /*const onSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
     setPage(newPage);
-  };
+  };*/
 
   const onInputChange = (newValue: string) => {
     log.info(newValue)
     setInputValue(newValue);
-  };
-
-  const unfilterAllData = () => {
-
   };
 
   const updateColumnStatus = (index: number, column: Column) => {
@@ -183,7 +179,7 @@ const onFilterColumnOperationSelect = (
   setFilterColumnOperationIsExpanded(false);
 };
 
-const handleFilterColumn = (column: Column) => {
+/*const handleFilterColumn = (column: Column) => {
   log.info(column.id, column.name);
 }
 
@@ -199,7 +195,7 @@ const onPerPageSelect = (
 ) => {
   setPerPage(newPerPage);
   setPage(newPage);
-};
+};*/
 
 const getRowActions = (row: never, rowIndex: number): IAction[] => {
   if(broker.getRowActions) {

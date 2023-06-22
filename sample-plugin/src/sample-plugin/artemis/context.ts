@@ -18,10 +18,6 @@ export function useArtemisTree() {
     const { selectedNode, setSelectedNode } = useContext(PluginNodeSelectionContext)
     const navigate = useNavigate();
 
-    const logit = () => {
-        log.info("***********************************************************************")
-    }
-
 
     const populateTree = async () => {
         const wkspTree: MBeanTree = await workspace.getTree();
@@ -67,7 +63,7 @@ export function useArtemisTree() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    return { tree, loaded, selectedNode, setSelectedNode, logit }
+    return { tree, loaded, selectedNode, setSelectedNode }
 }
 
 

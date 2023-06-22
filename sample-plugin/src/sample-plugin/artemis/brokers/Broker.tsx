@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { PageSection, TextContent, PageSectionVariants, Text, Divider } from '@patternfly/react-core';
 import { log } from '../globals'
 import { ArtemisTabs } from '../ArtemisTabs';

@@ -2,8 +2,7 @@ import { EVENT_REFRESH, eventService, workspace, MBeanNode } from '@hawtio/react
 import { TreeViewDataItem } from '@patternfly/react-core'
 import { MemoryIcon, MicrochipIcon, MonitoringIcon, RunningIcon } from '@patternfly/react-icons'
 import React, { createContext, useEffect, useState } from 'react'
-import { log, pluginName, pluginTitle } from './globals'
-import { preferencesService } from './preferences-service'
+import { log, pluginName } from './globals'
 
 type CustomNode = TreeViewDataItem & {
   mbean?: string

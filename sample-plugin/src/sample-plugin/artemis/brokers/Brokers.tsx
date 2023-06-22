@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { log } from '../globals'
 import { Connections, connectService } from '@hawtio/react'
-import { BrokerConnection, BrokerConnections, brokerService } from './brokers-service';
+import { BrokerConnection, brokerService } from './brokers-service';
 import { TableComposable, TableText, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { Link } from 'react-router-dom'
-import { Breadcrumb, BreadcrumbItem, Button, Text } from '@patternfly/react-core';
-import { ArtemisTabs } from '../ArtemisTabs';
-import { Artemis } from '../Artemis';
+import { Breadcrumb, BreadcrumbItem, Button } from '@patternfly/react-core';
 import { Broker } from './Broker';
 
 export type State = {
@@ -33,7 +31,6 @@ export const Brokers: React.FunctionComponent = () => {
   }, [ currentBroker ]);
   
   function handleSetBroker(name: string) {
-    //connectService.setCurrentConnection(brokerConnections[name].connection.name);
     setCurrentBroker(brokerConnections[name]);
   }
 

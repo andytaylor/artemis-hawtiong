@@ -7873,7 +7873,7 @@ __metadata:
   dependencies:
     "@craco/craco": ^7.1.0
     "@hawtio/backend-middleware": ^1.0.3
-    "@hawtio/react": ^0.3.0-dev.3
+    "@hawtio/react": ^0.3.0-dev.6
     "@patternfly/react-charts": ^6.94.19
     "@patternfly/react-core": ^4.276.8
     "@patternfly/react-table": ^4.113.0

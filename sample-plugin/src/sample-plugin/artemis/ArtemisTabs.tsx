@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Text, PageSection, TextContent, PageSectionVariants, Tabs, Tab, TabTitleText, EmptyState, EmptyStateBody, EmptyStateIcon, Title } from '@patternfly/react-core';
 import DisconnectedIcon from '@patternfly/react-icons/dist/esm/icons/disconnected-icon';
-import { IJolokia } from 'jolokia.js';
-import { BrokerConnection, brokerService } from './brokers/brokers-service';
+import { BrokerConnection } from './brokers/brokers-service';
 import { ProducerTable } from './tables/ProducerTable';
 import { ConsumerTable } from './tables/ConsumerTable';
 import { ConnectionsTable } from './tables/ConnectionsTable';
@@ -10,7 +9,7 @@ import { SessionsTable } from './tables/SessionsTable';
 import { AddressesTable } from './tables/AddressesTable';
 import { QueuesTable } from './tables/QueuesTable';
 import { log } from './globals';
-import { IJolokiaService, jolokiaService } from '@hawtio/react';
+import { IJolokiaService } from '@hawtio/react';
 
 
 export type Broker = {

@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import { PageSection, TextContent, PageSectionVariants, Text, Divider } from '@patternfly/react-core';
 import { log } from './globals'
 import { ArtemisTabs } from './ArtemisTabs';
 import { BrokerConnection, brokerService } from './brokers/brokers-service';
-import { IJolokiaService, jolokiaService, workspace } from '@hawtio/react';
+import { jolokiaService } from '@hawtio/react';
 import Split from 'react-split'
 import { ArtemisContext, useArtemisTree } from './context';
 import { ArtemisTreeView } from './ArtemisTreeView';
 import './Artemis.css'
+import { PageSection } from '@patternfly/react-core';
 
 
 
 export const Artemis: React.FunctionComponent<BrokerConnection> = () => {
 
   const [brokerConnection, setBrokerConnection] = useState<BrokerConnection>()
-  const { tree, loaded, selectedNode, setSelectedNode, logit } = useArtemisTree()
+  const { tree, selectedNode, setSelectedNode } = useArtemisTree()
 
   useEffect(() => {
     const getJolokia = async () => { 
         var newBrokerConnection = await brokerService.createBroker(jolokiaService);
         log.info("Creating connection as ruunning embedded with JolokiaService, connection=" + newBrokerConnection.connection.host);
         setBrokerConnection(newBrokerConnection);
-        logit();
     }
     getJolokia();
   }, [])

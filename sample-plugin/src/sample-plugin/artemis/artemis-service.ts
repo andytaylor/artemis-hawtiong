@@ -1,7 +1,7 @@
 import { jmxDomain, log } from './globals'
 import { ActiveSort, Filter } from './tables/ArtemisTable'
-import { IJolokia, IRequest, IResponse, IResponseFn, ISimpleOptions } from 'jolokia.js'
-import { AttributeValues, eventService, IJolokiaService, JolokiaListMethod, JolokiaStoredOptions } from '@hawtio/react'
+import { IJolokia } from 'jolokia.js'
+import { eventService, IJolokiaService } from '@hawtio/react'
 
 export interface IArtemisService {
     getBrokerMBean(jolokia: IJolokia): string
