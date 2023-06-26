@@ -14,10 +14,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-
+ 
     <!-- Versions -->
     <spring-boot-version>2.7.9</spring-boot-version>
-    <hawtio-version>3.0-M5</hawtio-version>
+    <hawtio-version>3.0-M7</hawtio-version>
     <servlet-api-version>4.0.1</servlet-api-version>
     <slf4j-version>2.0.7</slf4j-version>
     <logback-version>1.4.6</logback-version>
