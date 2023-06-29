@@ -46,11 +46,6 @@ export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connectio
   
   return (
     <div>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{connection.connection.name}</Text>
-        </TextContent>
-      </PageSection>
       <Tabs activeKey={activeTabKey}
             onSelect={handleTabClick} 
             aria-label="artemistabs" >

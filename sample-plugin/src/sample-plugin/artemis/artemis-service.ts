@@ -1,7 +1,7 @@
 import { jmxDomain, log } from './globals'
 import { ActiveSort, Filter } from './tables/ArtemisTable'
 import { IJolokia } from 'jolokia.js'
-import { eventService, IJolokiaService } from '@hawtio/react'
+import { eventService, IJolokiaService, MBeanNode } from '@hawtio/react'
 
 export interface IArtemisService {
     getBrokerMBean(jolokia: IJolokia): string
@@ -9,6 +9,7 @@ export interface IArtemisService {
   }
 
 class ArtemisService implements IArtemisService {
+    
   
     getBrokerMBean(jolokia: IJolokia): string {
         log.info("using domain " +jmxDomain + ":broker=* ")
@@ -16,6 +17,28 @@ class ArtemisService implements IArtemisService {
         const attr = jolokia.getAttribute(jmxDomain + ":broker=*", "Name") ;
         log.info("*************" + attr);
         return attr as string;
+    }
+
+
+
+    isQueue(node: MBeanNode): boolean {
+        if(node != null)
+            log.debug("isQprop=" + node.objectName?.includes("component=queues"))
+        return node != null && node.objectName != null && node.objectName?.includes("component=queues") as boolean;
+    }
+
+    async createQueue(jolokia: IJolokiaService, mBean: string, queueConfiguration: string) {
+        return await jolokia.execute(mBean, 'createQueue(java.lang.String, boolean)', [queueConfiguration, false] ).then().catch() as string;
+    }
+
+    isAddress(node: MBeanNode): boolean {
+        if(node != null)
+            log.debug("isQprop=" + node.objectName?.includes("component=queues"))
+        return node != null && node.objectName != null && node.objectName?.includes("component=addresses") && !node.objectName?.includes("component=queues")
+    }
+
+    hasDomain(node: MBeanNode): boolean {
+        return node && jmxDomain === node.getProperty('domain')
     }
 
     async getProducers(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {

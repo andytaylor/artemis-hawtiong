@@ -1785,18 +1785,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hawtio/camel-model@npm:^3.20.6":
+"@hawtio/camel-model@npm:^3.20.3":
   version: 3.20.6
   resolution: "@hawtio/camel-model@npm:3.20.6"
   checksum: 248009173137ddf31ddda834e3a2adaf83b3f471fd0d0311c8c21d05847e16a0659f506ced8f3202dc528b198cfc7433f35d6f1f6b03f5f2016d9821607d62cd
   languageName: node
   linkType: hard
 
-"@hawtio/react@portal:/home/ataylor/IdeaProjects/hawtio-next/packages/hawtio::locator=hawtio-sample-plugin%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "@hawtio/react@portal:/home/ataylor/IdeaProjects/hawtio-next/packages/hawtio::locator=hawtio-sample-plugin%40workspace%3A."
+"@hawtio/react@npm:0.3.0-dev.6":
+  version: 0.3.0-dev.6
+  resolution: "@hawtio/react@npm:0.3.0-dev.6"
   dependencies:
-    "@hawtio/camel-model": ^3.20.6
+    "@hawtio/camel-model": ^3.20.3
     "@module-federation/utilities": ^1.6.0
     "@patternfly/react-charts": ^6.94.19
     "@patternfly/react-code-editor": ^4.82.113
@@ -1809,7 +1809,7 @@ __metadata:
     "@types/dagre-layout": ^0.8.2
     "@types/jest": ^29.5.2
     "@types/node": ^18.16.18
-    "@types/react": ^18.2.14
+    "@types/react": ^18.2.13
     "@types/react-dom": ^18.2.6
     "@types/react-router-dom": ^5.3.3
     dagre: ^0.8.5
@@ -1823,9 +1823,9 @@ __metadata:
     react-dom: ^18.2.0
     react-markdown: ^8.0.7
     react-monaco-editor: ^0.52.0
-    react-router-dom: ^6.14.0
+    react-router-dom: ^6.13.0
     react-split: ^2.0.14
-    reactflow: ^11.7.4
+    reactflow: ^11.7.3
     superstruct: ^1.0.3
     typescript: ^4.9.5
     xml-formatter: ^3.4.1
@@ -1837,8 +1837,9 @@ __metadata:
   peerDependenciesMeta:
     keycloak-js:
       optional: true
+  checksum: 327324d97cf34b58c6e32b8a2696ebd899d89442807413f460e1119b2e161e40f53ab6c899a6d8c88732ea7f6f02bf013e9269b7b6a2074214ccf53140980628
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "@humanwhocodes/config-array@npm:^0.11.8":
   version: 0.11.8
@@ -3633,7 +3634,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^18.2.14":
+"@types/react@npm:^18.2.13":
   version: 18.2.14
   resolution: "@types/react@npm:18.2.14"
   dependencies:
@@ -12317,7 +12318,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.14.0":
+"react-router-dom@npm:^6.13.0":
   version: 6.14.0
   resolution: "react-router-dom@npm:6.14.0"
   dependencies:
@@ -12429,7 +12430,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reactflow@npm:^11.7.4":
+"reactflow@npm:^11.7.3":
   version: 11.7.4
   resolution: "reactflow@npm:11.7.4"
   dependencies:

@@ -43,8 +43,5 @@
       "last 1 safari version"
     ]
   },
-  "packageManager": "yarn@3.5.0",
-  "resolutions": {
-    "@hawtio/react": "portal:/home/ataylor/IdeaProjects/hawtio-next/packages/hawtio"
-  }
+  "packageManager": "yarn@3.5.0"
 }

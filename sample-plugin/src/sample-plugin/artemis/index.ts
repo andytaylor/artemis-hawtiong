@@ -10,7 +10,7 @@ export const artemis: HawtioPlugin = () => {
   log.info('Loading', artemisNetworkPluginName);
 
   hawtio.addPlugin({
-    id: artemisNetworkPluginName,
+    id: artemisNetworkPluginName, 
     title: artemisNetworkPluginTitle,
     path: artemisNetworkPluginPath,
     component: ArtemisNetwork,
