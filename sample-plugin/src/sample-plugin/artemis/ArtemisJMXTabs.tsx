@@ -13,6 +13,7 @@ import { Attributes, Chart, IJolokiaService, MBeanNode, Operations } from '@hawt
 import { artemisService } from './artemis-service';
 import { CreateQueue } from './components/CreateQueue';
 import { Broker } from './ArtemisTabs';
+import { DeleteAddress } from './components/DeleteAddress';
 
 
 export type JMXData = {
@@ -61,9 +62,20 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
           <Tab eventKey={3} title={<TabTitleText>Create Queue</TabTitleText>} aria-label="Create Queue">
               {activeTabKey === 3 &&
                 <CreateQueue address={data.node.name} broker={{
-                brokerMBeanName: data.brokerConnection.brokerDetails.brokerMBean,
-                loaded: true,
-                jolokia: data.brokerConnection.getJolokiaService()
+                  brokerMBeanName: data.brokerConnection.brokerDetails.brokerMBean,
+                  loaded: true,
+                  jolokia: data.brokerConnection.getJolokiaService()
+              }}  />
+            }
+          </Tab> 
+        }
+        { isAddress && 
+          <Tab eventKey={4} title={<TabTitleText>Delete Address</TabTitleText>} aria-label="">
+              {activeTabKey === 4 &&
+                <DeleteAddress address={data.node.name} broker={{
+                  brokerMBeanName: data.brokerConnection.brokerDetails.brokerMBean,
+                  loaded: true,
+                  jolokia: data.brokerConnection.getJolokiaService()
               }}  />
             }
           </Tab> 

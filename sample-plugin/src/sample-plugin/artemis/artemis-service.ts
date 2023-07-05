@@ -9,6 +9,7 @@ export interface IArtemisService {
   }
 
 class ArtemisService implements IArtemisService {
+   
     
   
     getBrokerMBean(jolokia: IJolokia): string {
@@ -27,10 +28,17 @@ class ArtemisService implements IArtemisService {
         return node != null && node.objectName != null && node.objectName?.includes("component=queues") as boolean;
     }
 
+    async deleteAddress(jolokia: IJolokiaService, brokerMBeanName: string, address: string) {
+        return await jolokia.execute(brokerMBeanName, 'deleteAddress(java.lang.String)', [address])
+    }
+
     async createQueue(jolokia: IJolokiaService, mBean: string, queueConfiguration: string) {
         return await jolokia.execute(mBean, 'createQueue(java.lang.String, boolean)', [queueConfiguration, false] ).then().catch() as string;
     }
 
+    async createAddress(jolokia: IJolokiaService, brokerMBeanName: string, address: string, routingType: string) {
+        return await jolokia.execute(brokerMBeanName, 'createAddress(java.lang.String, java.lang.String)', [address, routingType])
+    }
     isAddress(node: MBeanNode): boolean {
         if(node != null)
             log.debug("isQprop=" + node.objectName?.includes("component=queues"))

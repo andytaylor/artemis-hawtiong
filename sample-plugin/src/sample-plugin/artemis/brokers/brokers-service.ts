@@ -1,4 +1,5 @@
-import { AttributeValues, Connection, Connections, IJolokiaService, JolokiaListMethod, JolokiaStoredOptions } from '@hawtio/react'
+
+import { AttributeValues, Connection, Connections, hawtio, IJolokiaService, JolokiaListMethod, JolokiaStoredOptions, PARAM_KEY_CONNECTION } from '@hawtio/react'
 import Jolokia, { IJolokia, IRequest, IResponse, IResponseFn, ISimpleOptions, IErrorResponse, ISimpleResponseFn, IErrorResponseFn, IOptionsBase } from 'jolokia.js'
 
 //import { joinPaths } from '@hawtio/react'
@@ -29,8 +30,10 @@ export interface BrokerConnections {
   [key: string]: BrokerConnection
 }
 
-class BrokerService {
 
+class BrokerService {
+ 
+ 
   loadStatus = (globalMaxSize: number, addressMemoryUsage: number, uptime: string) => {
     var used = 0;
     var addressMemoryUsageMB = 0;

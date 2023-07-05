@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { log } from './globals'
+import {useNavigate } from 'react-router-dom'
 import { CubesIcon } from '@patternfly/react-icons'
 import { ArtemisTabs } from './ArtemisTabs';
 import { BrokerConnection, brokerService } from './brokers/brokers-service';
@@ -21,10 +22,15 @@ export const Artemis: React.FunctionComponent<BrokerConnection> = () => {
   const [brokerConnection, setBrokerConnection] = useState<BrokerConnection>()
   const [jmxView, setJmxView] = React.useState(false);
   const { tree, selectedNode, setSelectedNode } = useArtemisTree();
-
+  const navigate = useNavigate();
   const toggleJmxView = () => {
     setJmxView(!jmxView);
   };
+
+  function connect() {
+    navigate('/artemis-network');
+    navigate(0);
+  }
 
   useEffect(() => {
     const getJolokia = async () => { 
@@ -63,6 +69,9 @@ export const Artemis: React.FunctionComponent<BrokerConnection> = () => {
           </GridItem>
           <GridItem span={1}>
             <Button onClick={toggleJmxView}>{jmxView ? 'Table View' : 'JMX View'}</Button>
+          </GridItem>
+          <GridItem span={1}>
+            <Button onClick={connect}>Back</Button>
           </GridItem>
       </Grid>
     </PageSection>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import {useNavigate } from 'react-router-dom'
 import { log } from '../globals'
-import { Connections, connectService } from '@hawtio/react'
+import { Connection, Connections, connectService, PARAM_KEY_CONNECTION } from '@hawtio/react'
 import { BrokerConnection, brokerService } from './brokers-service';
 import { TableComposable, TableText, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { Link } from 'react-router-dom'
@@ -18,6 +19,7 @@ export const Brokers: React.FunctionComponent = () => {
   const brokerConnections = brokerService.createBrokers(connections);
   const [currentBroker, setCurrentBroker] = useState<BrokerConnection | null>()
 
+  const navigate = useNavigate();
   const columnNames = {
     name: 'Name',
     version: 'Version',
@@ -37,6 +39,12 @@ export const Brokers: React.FunctionComponent = () => {
   function unSetBroker() {
     setCurrentBroker(null);
   }
+
+  function connect(connection: Connection) {
+    navigate('/artemis?' + PARAM_KEY_CONNECTION + "=" + connection.name);
+    navigate(0);
+  }
+
 
   if(currentBroker) 
     return (
@@ -71,7 +79,7 @@ export const Brokers: React.FunctionComponent = () => {
             <Td dataLabel={columnNames.addressMemoryUsage}>{connection.brokerStatus.addressMemoryUsage + 'MB(' + connection.brokerStatus.used + '%)'}</Td>
             <Td dataLabel={columnNames.connectAction} modifier="fitContent">
               <TableText>
-                  <Button variant="secondary" onClick={() => connectService.connect(connection.connection)}>Connect</Button>
+                  <Button variant="secondary" onClick={() => connect(connection.connection)}>Connect</Button>
               </TableText>
             </Td>
           </Tr>

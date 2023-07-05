@@ -52,7 +52,13 @@ export type ActiveSort = {
 export type Filter = {
   column: string
   operation: string
-  input: string }
+  input: string 
+}
+
+export type ToolbarAction = {
+  name: string
+  action: Function
+}
 
 export type TableData = {
   brokerMBeanName: string,
@@ -60,6 +66,7 @@ export type TableData = {
   allColumns: Column[],
   getData: Function,
   getRowActions?: Function,
+  toolbarActions?: ToolbarAction[],
   loadData?: number
 }
 
@@ -387,6 +394,12 @@ const renderModal = () => {
           <ToolbarItem>
             <Button variant='link' onClick={handleModalToggle}>Manage Columns</Button>
           </ToolbarItem>
+          {
+            broker.toolbarActions?.map(action => (
+              <ToolbarItem>
+                <Button variant='link' onClick={() => action.action()}>{action.name}</Button>
+              </ToolbarItem>))
+          }
         </ToolbarContent>
       </Toolbar>
     </React.Fragment>

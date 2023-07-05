@@ -10,6 +10,7 @@ import { AddressesTable } from './tables/AddressesTable';
 import { QueuesTable } from './tables/QueuesTable';
 import { log } from './globals';
 import { IJolokiaService } from '@hawtio/react';
+import { ArtemisContext, useArtemisTree } from './context';
 
 
 export type Broker = {
@@ -19,6 +20,8 @@ export type Broker = {
 }
 
 export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connection: BrokerConnection) => {
+
+  const { tree, selectedNode, setSelectedNode } = useArtemisTree();
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(1);
 
@@ -45,6 +48,7 @@ export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connectio
     )
   
   return (
+    <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode }}>
     <div>
       <Tabs activeKey={activeTabKey}
             onSelect={handleTabClick} 
@@ -81,6 +85,7 @@ export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connectio
         </Tab>
       </Tabs> 
     </div>
+    </ArtemisContext.Provider>
   )
 
 }
