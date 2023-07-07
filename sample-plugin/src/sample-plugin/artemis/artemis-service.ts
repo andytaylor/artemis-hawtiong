@@ -9,6 +9,20 @@ export interface IArtemisService {
   }
 
 class ArtemisService implements IArtemisService {
+    async doSendMessage(jolokia: IJolokiaService, mbean: string, body: string, theHeaders: {name: string; value:string}[], durable: boolean, createMessageId: boolean, useCurrentlogon: boolean, username: string, password: string) {
+        var type = 3;
+        var user = useCurrentlogon ? null : username;
+        var pwd = useCurrentlogon ? null : password;
+        var headers: { [id: string]: string; } = {};
+        theHeaders.forEach(function (object) {
+            var key = object.name;
+            if (key) {
+                headers[key] = object.value;
+            }
+        });
+        log.info("About to send headers: " + JSON.stringify(headers));
+        return await jolokia.execute(mbean, "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String, boolean)", [headers, type, body, durable, user, pwd, createMessageId]);
+    }
    
     
   

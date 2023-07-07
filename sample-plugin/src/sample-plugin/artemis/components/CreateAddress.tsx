@@ -1,15 +1,14 @@
 import { ActionGroup, Button, Checkbox, ExpandableSection, Flex, FlexItem, Form, FormGroup, NumberInput, Radio, TextInput, Title, Text } from '@patternfly/react-core';
 import React, { useState } from 'react'
-import { TrashIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons'
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons'
 import { log } from '../globals';
 import { artemisService } from '../artemis-service';
-import { BrokerConnection } from '../brokers/brokers-service';
 import { Broker } from '../ArtemisTabs';
 import { eventService } from '@hawtio/react';
   
 export const CreateAddress: React.FunctionComponent<Broker> = (broker: Broker) => {
-    const [addressName, setAddressName] = React.useState('');
-    const [routingType, setRoutingType] = React.useState('');
+    const [addressName, setAddressName] = useState('');
+    const [routingType, setRoutingType] = useState('');
 
     const handleQueueNameChange = (name: string) => {
         setAddressName(name);

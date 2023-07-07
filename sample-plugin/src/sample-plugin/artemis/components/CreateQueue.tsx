@@ -12,12 +12,12 @@ type CreateQueueInfo = {
     broker: Broker
 }
 export const CreateQueue: React.FunctionComponent<CreateQueueInfo> = (info: CreateQueueInfo) => {
-    const [queueName, setQueueName] = React.useState('');
-    const [filter, setFilter] = React.useState('');
-    const [queueRoutingType, setQueueRoutingType] = React.useState('');
-    const [isDurableChecked, setIsDurableChecked] = React.useState<boolean>(true);
-    const [maxConsumers, setMaxConsumers] = React.useState<number | ''>(-1);
-    const [isPurgeChecked, setPurgeChecked] = React.useState<boolean>(false);
+    const [queueName, setQueueName] = useState('');
+    const [filter, setFilter] = useState('');
+    const [queueRoutingType, setQueueRoutingType] = useState('');
+    const [isDurableChecked, setIsDurableChecked] = useState<boolean>(true);
+    const [maxConsumers, setMaxConsumers] = useState<number | ''>(-1);
+    const [isPurgeChecked, setPurgeChecked] = useState<boolean>(false);
     const [configurations, setConfigurations] = useState<Array<{ name: string; value: string }>>([])
 
     const handleQueueNameChange = (name: string) => {

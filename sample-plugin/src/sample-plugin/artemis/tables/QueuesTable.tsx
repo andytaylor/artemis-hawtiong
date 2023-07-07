@@ -5,6 +5,7 @@ import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
 import { log } from '../globals';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
+import { SendMessage } from '../components/SendMessage';
 
 export const QueuesTable: React.FunctionComponent<Broker> = broker => {
     const allColumns: Column[] = [
@@ -37,7 +38,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
         {id: 'groupFirstKey', name: 'Group First Key', visible: false, sortable: true, filterable: true},
         {id: 'enabled', name: 'Queue Enabled', visible: false, sortable: true, filterable: true},
         {id: 'ringSize', name: 'Ring Size', visible: false, sortable: true, filterable: true},
-        {id: 'consumersBeforeDispatch', name: 'Consumers Before Dispatch', visible: false, sortable: true, filterable: true},
+        {id: 'consumersBeforeDispatch', name: 'Consumers Before Dispatch', visible: false, sortable: true, filterable: true}, 
         {id: 'delayBeforeDispatch', name: 'Delay Before Dispatch', visible: false, sortable: true, filterable: true},
         {id: 'autoDelete', name: 'Auto Delete', visible: false, sortable: true, filterable: true}
       ];
@@ -50,8 +51,10 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
 
       const [ showDeleteDialog, setShowDeleteDialog ] = useState(false);
       const [ showPurgeDialog, setShowPurgeDialog ] = useState(false);
-      const [ queueToDelete, setQueueToDelete ] = useState("");
-      const [ queueToPurge, setQueueToPurge ] = useState("");
+      const [ showSendDialog, setShowSendDialog ] = useState(false);
+      const [ queue, setQueue ] = useState("");
+      const [ address, setAddress] = useState("");
+      const [ routingType, setRoutingType ] = useState("");
       const [ queueToPurgeAddress, setQueueToPurgeAddress ] = useState("");
       const [ queueToPurgeRoutingType, setQueueToPurgeRoutingType ] = useState("");
       const [ loadData, setLoadData ] = useState(0);
@@ -60,8 +63,16 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
         log.info("rendering Queuestable " + showDeleteDialog);
       }, [showDeleteDialog, showPurgeDialog]);
       
-      const closeDialog = () => {
+      const closeDeleteDialog = () => {
         setShowDeleteDialog(false);
+      };
+
+      const closePurgeDialog = () => {
+        setShowPurgeDialog(false);
+      };
+
+      const closeSendDialog = () => {
+        setShowSendDialog(false);
       };
 
       const deleteQueue = (name:string) => {
@@ -83,7 +94,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
           title: 'delete',
           onClick: () => { 
             console.log(`clicked on Some action, on row delete ` + row.name);
-            setQueueToDelete(row.name);
+            setQueue(row.name);
             setShowDeleteDialog(true);
           }
         },
@@ -91,15 +102,22 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
           title: 'purge',
           onClick: () =>  {
             console.log(`clicked on Another action, on row purge ` + JSON.stringify(row))
-            setQueueToPurge(row.name);
+            setQueue(row.name);
             setQueueToPurgeAddress(row.address);
             setQueueToPurgeRoutingType(row.routingType);
             setShowPurgeDialog(true);
           }
         },
         {
-          title: 'browse',
-          onClick: () => console.log(`clicked on Another action, on row browse ` + row.name)
+          title: 'send message',
+          onClick: () => {
+            console.log(`clicked on Another action, on row browse ` + row.name);
+            setQueue(row.name);
+            setAddress(row.address);
+            setRoutingType(row.routingType)
+            setShowSendDialog(true);
+          }
+          
         }
       ]};
       
@@ -111,13 +129,13 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
           title="Delete Queue?"
           isOpen={showDeleteDialog}
           actions={[
-            <Button key="confirm" variant="primary" onClick={() => deleteQueue(queueToDelete)}>
+            <Button key="confirm" variant="primary" onClick={() => deleteQueue(queue)}>
               Confirm
             </Button>,
-            <Button key="cancel" variant="secondary" onClick={closeDialog}>
+            <Button key="cancel" variant="secondary" onClick={closeDeleteDialog}>
               Cancel
             </Button>
-          ]}><p>You are about to delete queue <b>{queueToDelete}</b>.</p>
+          ]}><p>You are about to delete queue <b>{queue}</b>.</p>
           <p>This operation cannot be undone so please be careful.</p>
         </Modal>
         
@@ -126,14 +144,29 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
           title="Purge Queue?"
           isOpen={showPurgeDialog}
           actions={[
-            <Button key="confirm" variant="primary" onClick={() => purgeQueue(queueToPurge, queueToPurgeAddress, queueToPurgeRoutingType)}>
+            <Button key="confirm" variant="primary" onClick={() => purgeQueue(queue, queueToPurgeAddress, queueToPurgeRoutingType)}>
               Confirm
             </Button>,
-            <Button key="cancel" variant="secondary" onClick={closeDialog}>
+            <Button key="cancel" variant="secondary" onClick={closePurgeDialog}>
               Cancel
             </Button>
-          ]}><p>You are about to remove all messages from queue <b>{queueToDelete}</b>.</p>
+          ]}><p>You are about to remove all messages from queue <b>{queue}</b>.</p>
           <p>This operation cannot be undone so please be careful.</p>
+        </Modal>
+
+        <Modal
+          variant={ModalVariant.medium}
+          isOpen={showSendDialog}
+          actions={[
+            <Button key="close" variant="secondary" onClick={closeSendDialog}>
+              Cancel
+            </Button>
+          ]}>
+            <SendMessage address={address} queue={queue} routingType={routingType} isAddress={false} broker={{
+            brokerMBeanName: broker.brokerMBeanName,
+            loaded: false,
+            jolokia: broker.jolokia
+          }}/>
         </Modal>
         </>
     )

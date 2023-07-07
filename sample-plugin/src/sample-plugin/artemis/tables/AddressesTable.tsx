@@ -9,7 +9,8 @@ import { jmxDomain, log } from '../globals';
 import { DeleteAddressModal } from '../components/DeleteAddressModal';
 import { Attributes, MBeanNode, Operations } from '@hawtio/react';
 import { ArtemisContext } from '../context';
-import { CreateAddress } from '../components/createAddress';
+import { CreateAddress } from '../components/CreateAddress';
+import { SendMessage } from '../components/SendMessage';
 
 export const AddressesTable: React.FunctionComponent<Broker> = broker => {
   const allColumns: Column[] = [
@@ -32,6 +33,7 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
   const [showAttributesDialog, setShowAttributesDialog] = useState(false);
   const [showOperationsDialog, setShowOperationsDialog] = useState(false);
   const [showCreateAddressDialog, setShowCreateAddressDialog] = useState(false);
+  const [ showSendDialog, setShowSendDialog ] = useState(false);
   const [address, setAddress] = useState("");
 
   useEffect(() => {
@@ -73,8 +75,10 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
           var addressObjectName = broker.brokerMBeanName + ",component=addresses,address=\"" + row.name + "\"";
           var addressNode: MBeanNode | null = tree.findDescendant(node => {return isAddress(node, addressObjectName)});
           if (!addressNode) {
-            const addressesNode = tree.findDescendant(node => node.name === jmxDomain)
-            addressNode = new MBeanNode(addressesNode, row.name, false)
+            const addressesNode = tree.findDescendant(node => node.name === "addresses");
+            addressNode = new MBeanNode(addressesNode, row.name, false);
+            addressNode.objectName = addressObjectName;
+            addressesNode?.children?.push(addressNode);
           }
           setSelectedNode(addressNode);
           setShowAttributesDialog(true);
@@ -90,6 +94,15 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
           setSelectedNode(addressNode);
           setShowOperationsDialog(true);
         }
+      },
+      {
+        title: 'send message',
+        onClick: () => {
+          console.log(`clicked on Another action, on row browse ` + row.name);
+          setAddress(row.name);
+          setShowSendDialog(true);
+        }
+        
       }
     ]
   };
@@ -150,6 +163,20 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
         ]}>
         <CreateAddress brokerMBeanName={broker.brokerMBeanName} loaded={true} jolokia={broker.jolokia}/>
       </Modal>
+      <Modal
+          variant={ModalVariant.medium}
+          isOpen={showSendDialog}
+          actions={[
+            <Button key="close" variant="secondary" onClick={() => setShowSendDialog(false)}>
+              Cancel
+            </Button>
+          ]}>
+            <SendMessage address={address} queue={''} routingType={''} isAddress={true} broker={{
+            brokerMBeanName: broker.brokerMBeanName,
+            loaded: false,
+            jolokia: broker.jolokia
+          }}/>
+        </Modal>
     </ArtemisContext.Provider>
   )
 
