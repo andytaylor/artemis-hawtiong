@@ -4,7 +4,6 @@ import xmlFormat from 'xml-formatter'
 
 import {
   Button,
-  ExpandableSection,
   Flex,
   FlexItem,
   Form,
@@ -19,12 +18,10 @@ import {
   Text,
   Checkbox,
   Tooltip,
-  TextVariants,
   Popover,
-  TextContent,
-  TextArea
+  TextContent
 } from '@patternfly/react-core'
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons'
+import { OutlinedQuestionCircleIcon, InfoCircleIcon } from '@patternfly/react-icons'
 import { TrashIcon } from '@patternfly/react-icons'
 import { CodeEditor, Language } from '@patternfly/react-code-editor'
 import { ArtemisContext } from '../context'
@@ -105,9 +102,9 @@ const MessageBody: React.FunctionComponent<SendBodyMessageProps> = props => {
               selections={selectedFormat}
               isOpen={isDropdownOpen}
             >
+              <SelectOption label='plaintext' value={Language.plaintext} />
               <SelectOption label='xml' value={Language.xml} />
               <SelectOption label='json' value={Language.json} />
-              <SelectOption label='plaintext' value={Language.plaintext} />
             </Select>
           </FlexItem>{' '}
           <FlexItem flex={{ default: 'flexNone', md: 'flex_1' }}>
@@ -254,18 +251,18 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
         message and it will be possible to add headers to the message. The sending of the message will be authenticated
         using the current logon user, unselect <code>use current logon user</code> to use a different user.
       </Text>
-      </TextContent>
+    </TextContent>
   )
 
   return (
     <PageSection variant='light'>
       <Title headingLevel='h1'>Send Message to {props.isAddress ? 'Address' : 'Queue'} {props.address} 
       <Popover bodyContent={Hint}><OutlinedQuestionCircleIcon /></Popover></Title>
-      <Text component='p'/>
+      <Text component='p'>  <br /></Text>
       <Form onSubmit={handleSubmit}>
         <FormGroup
           label="Durable"
-          labelIcon={<Tooltip content='If durable the message will be marked persistent and written to the brokers journal if the destination queue is durable.'><OutlinedQuestionCircleIcon /></Tooltip>}
+          labelIcon={<Tooltip content='If durable the message will be marked persistent and written to the brokers journal if the destination queue is durable.'><InfoCircleIcon /></Tooltip>}
         >
           <Checkbox
             isChecked={isDurableChecked}
@@ -277,7 +274,7 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
           labelIcon={
             <Tooltip content='The Message ID is an automatically generated UUID that is set on the Message by the broker before it is routed.
           If using a JMS client this would be the JMS Message ID on the JMS Message, this typically would not get
-          set for non JMS clients. Historically and on some other tabs this is also referred to as the User ID..'><OutlinedQuestionCircleIcon />
+          set for non JMS clients. Historically and on some other tabs this is also referred to as the User ID..'><InfoCircleIcon />
             </Tooltip>}>
           <Checkbox
             isChecked={isCreateIDChecked}
@@ -285,7 +282,7 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
             id="createid" />
         </FormGroup>
         <FormGroup label="Use Current Logged in User"
-          labelIcon={<Tooltip content='This option allows a user to send messages with the permissions of the users current logon, disable it to send messages with different permissions than the users current logon provides'><OutlinedQuestionCircleIcon /></Tooltip>}
+          labelIcon={<Tooltip content='This option allows a user to send messages with the permissions of the users current logon, disable it to send messages with different permissions than the users current logon provides'><InfoCircleIcon /></Tooltip>}
         >
           <Checkbox
             isChecked={isUseLogonChecked}

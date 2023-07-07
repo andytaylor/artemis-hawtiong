@@ -8,18 +8,18 @@ import { Broker } from '../ArtemisTabs';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { eventService } from '@hawtio/react';
   
-type DeleteAddressInfo = {
+type DeleteAddressProps = {
     address: string
     show: boolean
     onClick: Function;
     broker: Broker
 }
-export const DeleteAddressModal: React.FunctionComponent<DeleteAddressInfo> = (info: DeleteAddressInfo) => {
+export const DeleteAddressModal: React.FunctionComponent<DeleteAddressProps> = (props: DeleteAddressProps) => {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const handleDeleteAddress = () => {
-        artemisService.deleteAddress(info.broker.jolokia, info.broker.brokerMBeanName, info.address).
+        artemisService.deleteAddress(props.broker.jolokia, props.broker.brokerMBeanName, props.address).
         then(() => {
             eventService.notify({
                 type: 'success',
@@ -32,21 +32,21 @@ export const DeleteAddressModal: React.FunctionComponent<DeleteAddressInfo> = (i
             message: error,
           })
         })
-      info.onClick();   
+        props.onClick();   
     };
 
     const handleShowModal = () => {
-      info.onClick();
+      props.onClick();
 
-      log.info(info.address + "££££")
+      log.info(props.address + "££££")
     }
 
-    log.info(info.address)
+    log.info(props.address)
 
     return (
       <Modal
         variant={ModalVariant.medium}
-        isOpen={info.show}
+        isOpen={props.show}
         actions={[
           <Button key="cancel" variant="secondary" onClick={handleShowModal}>
             Cancel
@@ -63,7 +63,7 @@ export const DeleteAddressModal: React.FunctionComponent<DeleteAddressInfo> = (i
             <Icon isInline status='warning'>
               <ExclamationCircleIcon />
             </Icon>
-            You are about to delete address {info.address}
+            You are about to delete address {props.address}
           </Text>
           <Text component="p">
             This operation cannot be undone so please be careful.

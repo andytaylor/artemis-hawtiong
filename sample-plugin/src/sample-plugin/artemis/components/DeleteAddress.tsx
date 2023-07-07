@@ -8,15 +8,15 @@ import { Broker } from '../ArtemisTabs';
 import { eventService } from '@hawtio/react';
 import { DeleteAddressModal } from './DeleteAddressModal';
   
-type DeleteAddressInfo = {
+type DeleteAddressProps = {
     address: string
     broker: Broker
 }
-export const DeleteAddress: React.FunctionComponent<DeleteAddressInfo> = (info: DeleteAddressInfo) => {
+export const DeleteAddress: React.FunctionComponent<DeleteAddressProps> = (props: DeleteAddressProps) => {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const handleDeleteAddress = () => {
-        artemisService.deleteAddress(info.broker.jolokia, info.broker.brokerMBeanName, info.address).
+        artemisService.deleteAddress(props.broker.jolokia, props.broker.brokerMBeanName, props.address).
         then(() => {
             eventService.notify({
                 type: 'success',
@@ -35,7 +35,7 @@ export const DeleteAddress: React.FunctionComponent<DeleteAddressInfo> = (info: 
         log.info("rendered delete address ");
       }, [showDeleteModal])
 
-    log.info(info.address)
+    log.info(props.address)
 
     const Hint = () => (
         <ExpandableSection
@@ -56,7 +56,7 @@ export const DeleteAddress: React.FunctionComponent<DeleteAddressInfo> = (info: 
         </ExpandableSection>
       )
     return (
-        <><Title headingLevel="h2">Delete Address {info.address}</Title>
+        <><Title headingLevel="h2">Delete Address {props.address}</Title>
         <Hint/>
         <Form>
             <ActionGroup>
@@ -64,11 +64,10 @@ export const DeleteAddress: React.FunctionComponent<DeleteAddressInfo> = (info: 
             </ActionGroup>
         </Form>
         <DeleteAddressModal 
-                address={info.address}
+                address={props.address}
                 broker={{
-                    brokerMBeanName: info.broker.brokerMBeanName,
-                    loaded: true,
-                    jolokia: info.broker.jolokia
+                    brokerMBeanName: props.broker.brokerMBeanName,
+                    jolokia: props.broker.jolokia
                 }}
                 show={showDeleteModal} onClick={() => setShowDeleteModal(false)}/>
         </>

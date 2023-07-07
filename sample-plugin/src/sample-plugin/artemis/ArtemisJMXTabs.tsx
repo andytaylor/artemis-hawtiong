@@ -63,7 +63,6 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
               {activeTabKey === 3 &&
                 <CreateQueue address={data.node.name} broker={{
                   brokerMBeanName: data.brokerConnection.brokerDetails.brokerMBean,
-                  loaded: true,
                   jolokia: data.brokerConnection.getJolokiaService()
               }}  />
             }
@@ -74,7 +73,6 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
               {activeTabKey === 4 &&
                 <DeleteAddress address={data.node.name} broker={{
                   brokerMBeanName: data.brokerConnection.brokerDetails.brokerMBean,
-                  loaded: true,
                   jolokia: data.brokerConnection.getJolokiaService()
               }}  />
             }

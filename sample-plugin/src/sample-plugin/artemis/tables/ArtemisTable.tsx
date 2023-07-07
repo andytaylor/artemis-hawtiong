@@ -136,6 +136,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     const updatedColumns = [...columns]
     updatedColumns.map((column) => {
       column.visible = true;
+      return;
     })
     setColumns(updatedColumns);
   };

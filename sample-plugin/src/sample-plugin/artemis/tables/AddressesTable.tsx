@@ -5,7 +5,7 @@ import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
 import { Button, Modal, ModalVariant, TextContent, Text, ToolbarItemProps } from '@patternfly/react-core';
 import { CreateQueue } from '../components/CreateQueue';
-import { jmxDomain, log } from '../globals';
+import { log } from '../globals';
 import { DeleteAddressModal } from '../components/DeleteAddressModal';
 import { Attributes, MBeanNode, Operations } from '@hawtio/react';
 import { ArtemisContext } from '../context';
@@ -124,13 +124,11 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
         ]}>
         <CreateQueue address={address} broker={{
           brokerMBeanName: broker.brokerMBeanName,
-          loaded: true,
           jolokia: broker.jolokia
         }} />
       </Modal>
       <DeleteAddressModal address={address} broker={{
         brokerMBeanName: broker.brokerMBeanName,
-        loaded: true,
         jolokia: broker.jolokia
       }} show={showDeleteDialog} onClick={() => setShowDeleteDialog(false)} />
       <Modal
@@ -161,7 +159,7 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
             Close
           </Button>
         ]}>
-        <CreateAddress brokerMBeanName={broker.brokerMBeanName} loaded={true} jolokia={broker.jolokia}/>
+        <CreateAddress brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia}/>
       </Modal>
       <Modal
           variant={ModalVariant.medium}
@@ -173,7 +171,6 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
           ]}>
             <SendMessage address={address} queue={''} routingType={''} isAddress={true} broker={{
             brokerMBeanName: broker.brokerMBeanName,
-            loaded: false,
             jolokia: broker.jolokia
           }}/>
         </Modal>

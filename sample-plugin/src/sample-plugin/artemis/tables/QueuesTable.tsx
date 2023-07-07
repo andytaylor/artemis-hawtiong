@@ -164,7 +164,6 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
           ]}>
             <SendMessage address={address} queue={queue} routingType={routingType} isAddress={false} broker={{
             brokerMBeanName: broker.brokerMBeanName,
-            loaded: false,
             jolokia: broker.jolokia
           }}/>
         </Modal>
