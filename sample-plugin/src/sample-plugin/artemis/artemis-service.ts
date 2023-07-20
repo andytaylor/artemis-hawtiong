@@ -9,6 +9,7 @@ export interface IArtemisService {
   }
 
 class ArtemisService implements IArtemisService {
+   
     async doSendMessage(jolokia: IJolokiaService, mbean: string, body: string, theHeaders: {name: string; value:string}[], durable: boolean, createMessageId: boolean, useCurrentlogon: boolean, username: string, password: string) {
         var type = 3;
         var user = useCurrentlogon ? null : username;
@@ -34,7 +35,10 @@ class ArtemisService implements IArtemisService {
         return attr as string;
     }
 
-
+    createQueueObjectName(brokerMBean: string, address: string, routingType: string, queue: string): string {
+        // get mbean name like org.apache.activemq.artemis:broker="127.0.0.1",component=addresses,address="q1",subcomponent=queues,routing-type="anycast",queue="q1"
+        return brokerMBean + ",component=addresses,address=\"" + address + "\",subcomponent=queues,routing-type=\"" + routingType.toLowerCase() + "\".queue=\"" + queue + "\"";
+    }
 
     isQueue(node: MBeanNode): boolean {
         if(node != null)
@@ -61,6 +65,22 @@ class ArtemisService implements IArtemisService {
 
     hasDomain(node: MBeanNode): boolean {
         return node && jmxDomain === node.getProperty('domain')
+    }
+
+    async getMessages(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, filter: string) {
+        var count: number;
+        if (filter && filter.length > 0) {
+            count = await jolokia.execute(mBean, 'countMessages(java.lang.String)', [ filter] ) as number;
+        } else {
+            count = await jolokia.execute(mBean, 'countMessages()' ) as number;
+        }
+        log.info("invoking with mbean " + mBean + " with " + filter + " page " + page + " per page " + perPage);
+        const messages = await jolokia.execute(mBean, 'browse(int, int, java.lang.String)', [ page, perPage, filter] ) as string;
+        const data = {
+            data: messages,
+            count: count
+        }
+        return data;
     }
 
     async getProducers(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
@@ -104,6 +124,7 @@ class ArtemisService implements IArtemisService {
 
     async getConnections2(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
         var connectionsFilter = {
+            // get mbean name like org.apache.activemq.artemis:broker="127.0.0.1",component=addresses,address="q1",subcomponent=queues,routing-type="anycast",queue="q1"
             field: filter.input !== '' ? filter.column : '',
             operation: filter.input !== '' ? filter.operation : '',
             value: filter.input,
@@ -173,8 +194,7 @@ class ArtemisService implements IArtemisService {
     }
 
     async purgeQueue(jolokia: IJolokiaService, brokerMBean: string, name: string, address: string, routingType: string) {
-        // get mbean name like org.apache.activemq.artemis:broker="127.0.0.1",component=addresses,address="q1",subcomponent=queues,routing-type="anycast",queue="q1"
-        var  queueMBean: string = brokerMBean + ",component=addresses,address=\"" + address + "\",subcomponent=queues,routing-type=\"" + routingType.toLowerCase() + "\".queue=\"" + name + "\"";
+        var  queueMBean: string = this.createQueueObjectName(brokerMBean, address, routingType, name);
         log.info("purging queue " + name + " " + queueMBean)
         jolokia.execute(queueMBean, 'removeAllMessages()')
         .then(() => {
