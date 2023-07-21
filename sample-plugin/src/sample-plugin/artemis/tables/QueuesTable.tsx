@@ -139,7 +139,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
    const QueuesView: React.FunctionComponent = () => {
     return (
     <>
-      <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} />
+      <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" />
       <Modal
         variant={ModalVariant.medium}
         title="Delete Queue?"

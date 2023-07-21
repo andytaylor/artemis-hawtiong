@@ -159,7 +159,7 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
             Close
           </Button>
         ]}>
-        <CreateAddress brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia}/>
+        <CreateAddress brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} columnStorageLocation="addressColumnDefs"/>
       </Modal>
       <Modal
           variant={ModalVariant.medium}

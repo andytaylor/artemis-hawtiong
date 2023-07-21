@@ -2,9 +2,10 @@ import React, { } from 'react'
 import { Broker } from '../ArtemisTabs.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from './ArtemisTable';
 import { artemisService } from '../artemis-service';
+import { artemisPreferencesService } from '../artemis-preferences-service';
 
 export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
-    const allColumns: Column[] = [
+    const defaultColumns: Column[] = [
         {id: 'connectionID', name: 'ID', visible: true, sortable: true, filterable: true},
         {id: 'clientID', name: 'Client ID', visible: true, sortable: true, filterable: true},
         {id: 'users', name: 'Users', visible: true, sortable: true, filterable: true},
@@ -21,6 +22,7 @@ export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
         const data = JSON.parse(response);
         return data;
       }
+
       
-    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listConnections}/>
+    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={defaultColumns} getData={listConnections} storageColumnLocation="connectionsColumnDefs"/>
 }

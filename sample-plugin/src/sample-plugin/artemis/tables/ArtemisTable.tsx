@@ -30,6 +30,8 @@ import SortAmountDownIcon from '@patternfly/react-icons/dist/esm/icons/sort-amou
 import { TableComposable, Thead, Tr, Th, Tbody, Td, IAction, ActionsColumn } from '@patternfly/react-table';
 import { log } from '../globals'
 import { IJolokiaService } from '@hawtio/react';
+import { ArtemisPreferences } from '../ArtemisPreferences';
+import { artemisPreferencesService } from '../artemis-preferences-service';
 
 export type Column = {
   id: string
@@ -67,7 +69,8 @@ export type TableData = {
   getData: Function,
   getRowActions?: Function,
   toolbarActions?: ToolbarAction[],
-  loadData?: number
+  loadData?: number,
+  storageColumnLocation?: string
 }
 
 export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
@@ -87,6 +90,8 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
   const defaultRowActions: IAction[] = [];
   const [rows, setRows] = useState([])
   const [resultsSize, setresultsSize] = useState(0)
+  const[ columnsLoaded, setColumnsLoaded] = useState(false);
+  
   const [columns, setColumns] = useState(broker.allColumns);
   const [activeSort, setActiveSort] = useState(initialActiveSort);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
@@ -120,6 +125,11 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
       setRows(data.data);
       setresultsSize(data.count);
     }
+    if(!columnsLoaded && broker.storageColumnLocation) {
+      const updatedColumns: Column[] = artemisPreferencesService.loadColumnPreferences(broker.storageColumnLocation, broker.allColumns);
+      setColumns(updatedColumns);
+      setColumnsLoaded(true);
+    }
     listData();
    
   }, [columns, page, broker.loadData])
@@ -130,6 +140,10 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
   const onSave = () => {
     setIsModalOpen(!isModalOpen);
+
+    if (broker.storageColumnLocation) {
+      artemisPreferencesService.saveColumnPreferences(broker.storageColumnLocation, columns);
+    }
   };
 
   const selectAllColumns = () => {

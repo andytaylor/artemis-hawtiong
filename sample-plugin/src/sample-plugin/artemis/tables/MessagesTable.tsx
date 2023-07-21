@@ -17,7 +17,17 @@ type Message = {
   messageID: string, 
   text?: string, 
   BodyPreview?: number[],
-  address: string
+  address: string,
+  durable: boolean,
+  expiration: number,
+  largeMessage: boolean,
+  persistentSize: number,
+  priority: number,
+  protocol: string,
+  redelivered: boolean,
+  timestamp: number,
+  type: number,
+  userID: string
 }
 
 export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
@@ -46,7 +56,17 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
   const [messagesView, setMessagesView] = useState(true);
   const initialMessage: Message = {
     messageID: '',
-    address: ''
+    address: '',
+    durable: false,
+    expiration: 0,
+    largeMessage: false,
+    persistentSize: 0,
+    priority: 0,
+    protocol: '',
+    redelivered: false,
+    timestamp: 0,
+    type: 0,
+    userID: ''
   };
   const [currentMessage, setCurrentMessage] = useState(initialMessage);
   const [messageBody, setMessageBody] = useState("");
@@ -418,6 +438,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       <Title headingLevel="h4">Message ID: {currentMessage.messageID}</Title>
       <Title headingLevel="h4">Displaying Body as : {messageTextMode}</Title>
       <TextArea autoResize>{messageBody}</TextArea>
+      <Title headingLevel="h4">Headers</Title>
       <TableComposable variant="compact" aria-label="Headers Table">
         <Thead>
           <Tr>

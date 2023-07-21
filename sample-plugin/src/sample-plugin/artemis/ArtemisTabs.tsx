@@ -15,14 +15,15 @@ import { ArtemisContext, useArtemisTree } from './context';
 
 export type Broker = {
   brokerMBeanName: string,
-  jolokia: IJolokiaService
+  jolokia: IJolokiaService,
+  columnStorageLocation?: string 
 }
 
 export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connection: BrokerConnection) => {
 
   const { tree, selectedNode, setSelectedNode } = useArtemisTree();
 
-  const [activeTabKey, setActiveTabKey] = useState<string | number>(1);
+  const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
 
   useEffect(() => {
     log.info("rendered Artemis");

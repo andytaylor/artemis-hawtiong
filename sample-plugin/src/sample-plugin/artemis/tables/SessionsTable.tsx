@@ -20,5 +20,5 @@ export const SessionsTable: React.FunctionComponent<Broker> = broker => {
         return data;
       }
       
-    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listSessions}/>
+    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs"/>
 }
