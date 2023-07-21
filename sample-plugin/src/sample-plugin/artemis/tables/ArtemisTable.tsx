@@ -30,7 +30,6 @@ import SortAmountDownIcon from '@patternfly/react-icons/dist/esm/icons/sort-amou
 import { TableComposable, Thead, Tr, Th, Tbody, Td, IAction, ActionsColumn } from '@patternfly/react-table';
 import { log } from '../globals'
 import { IJolokiaService } from '@hawtio/react';
-import { ArtemisPreferences } from '../ArtemisPreferences';
 import { artemisPreferencesService } from '../artemis-preferences-service';
 
 export type Column = {
@@ -42,8 +41,8 @@ export type Column = {
 }
 
 export enum SortDirection {
-    ASCENDING = 'asc',
-    DESCENDING = 'desc'
+  ASCENDING = 'asc',
+  DESCENDING = 'desc'
 }
 
 export type ActiveSort = {
@@ -54,7 +53,7 @@ export type ActiveSort = {
 export type Filter = {
   column: string
   operation: string
-  input: string 
+  input: string
 }
 
 export type ToolbarAction = {
@@ -76,22 +75,21 @@ export type TableData = {
 export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
   const operationOptions = [
-    {id: 'EQUALS', name: 'Equals'},
-    {id: 'CONTAINS', name: 'Contains'},
-    {id: 'NOT_CONTAINS', name: 'Does Not Contain'},
-    {id: 'GREATER_THAN', name: 'Greater Than'},
-    {id: 'LESS_THAN', name: 'Less Than'}
+    { id: 'EQUALS', name: 'Equals' },
+    { id: 'CONTAINS', name: 'Contains' },
+    { id: 'NOT_CONTAINS', name: 'Does Not Contain' },
+    { id: 'GREATER_THAN', name: 'Greater Than' },
+    { id: 'LESS_THAN', name: 'Less Than' }
   ]
 
   const initialActiveSort: ActiveSort = {
     id: broker.allColumns[0].id,
     order: SortDirection.ASCENDING
   }
-  const defaultRowActions: IAction[] = [];
   const [rows, setRows] = useState([])
   const [resultsSize, setresultsSize] = useState(0)
-  const[ columnsLoaded, setColumnsLoaded] = useState(false);
-  
+  const [columnsLoaded, setColumnsLoaded] = useState(false);
+
   const [columns, setColumns] = useState(broker.allColumns);
   const [activeSort, setActiveSort] = useState(initialActiveSort);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
@@ -110,32 +108,32 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
   const [filterColumnStatusIsExpanded, setFilterColumnStatusIsExpanded] = useState(false);
   const [filterColumnOperationIsExpanded, setFilterColumnOperationIsExpanded] = useState(false);
 
+
+  useEffect(() => {
+    const listData = async () => {
+      var data = await broker.getData(page, perPage, activeSort, filter);
+      setRows(data.data);
+      setresultsSize(data.count);
+    }
+    if (!columnsLoaded && broker.storageColumnLocation) {
+      const updatedColumns: Column[] = artemisPreferencesService.loadColumnPreferences(broker.storageColumnLocation, broker.allColumns);
+      setColumns(updatedColumns);
+      setColumnsLoaded(true);
+    }
+    listData();
+
+  }, [columns, page, activeSort, filter,perPage, columnsLoaded, broker])
+
+  const handleModalToggle = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
   const onFilterColumnStatusToggle = (isExpanded: boolean) => {
     setFilterColumnStatusIsExpanded(isExpanded);
   };
 
   const onFilterColumnOperationToggle = (isExpanded: boolean) => {
     setFilterColumnOperationIsExpanded(isExpanded);
-  };
-  
-  useEffect(() => {
-    log.info("rendering Artemistable");
-    const listData = async () => {
-      var data = await broker.getData(page, perPage, activeSort, filter);
-      setRows(data.data);
-      setresultsSize(data.count);
-    }
-    if(!columnsLoaded && broker.storageColumnLocation) {
-      const updatedColumns: Column[] = artemisPreferencesService.loadColumnPreferences(broker.storageColumnLocation, broker.allColumns);
-      setColumns(updatedColumns);
-      setColumnsLoaded(true);
-    }
-    listData();
-   
-  }, [columns, page, broker.loadData])
-
-  const handleModalToggle = () => {
-    setIsModalOpen(!isModalOpen);
   };
 
   const onSave = () => {
@@ -150,17 +148,12 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     const updatedColumns = [...columns]
     updatedColumns.map((column) => {
       column.visible = true;
-      return;
+      return true;
     })
     setColumns(updatedColumns);
   };
 
-  /*const onSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
-    setPage(newPage);
-  };*/
-
-  const onInputChange = (newValue: string) => {
-    log.info(newValue)
+  const onSearchTextChange = (newValue: string) => {
     setInputValue(newValue);
   };
 
@@ -170,98 +163,80 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     setColumns(updatedColumns);
   }
 
-const updateActiveSort = (id: string, order: SortDirection) => {
-  log.info(id)
-  log.info(order)
-  const updatedActiveSort: ActiveSort = {
-    id: id,
-    order: order
+  const updateActiveSort = (id: string, order: SortDirection) => {
+    log.info(id)
+    log.info(order)
+    const updatedActiveSort: ActiveSort = {
+      id: id,
+      order: order
+    };
+    setActiveSort(updatedActiveSort)
+  }
+
+  const onFilterColumnStatusSelect = (
+    _event: React.MouseEvent | React.ChangeEvent,
+    selection: string | SelectOptionObject
+  ) => {
+    setFilterColumnStatusSelected(selection as string);
+    setFilterColumnStatusIsExpanded(false);
   };
-  setActiveSort(updatedActiveSort)
-}
 
-const onFilterColumnStatusSelect = (
-  _event: React.MouseEvent | React.ChangeEvent,
-  selection: string | SelectOptionObject
-) => {
-  setFilterColumnStatusSelected(selection as string);
-  setFilterColumnStatusIsExpanded(false);
-};
+  const onFilterColumnOperationSelect = (
+    _event: React.MouseEvent | React.ChangeEvent,
+    selection: string | SelectOptionObject
+  ) => {
+    const operation = operationOptions.find(operation => operation.name === selection);
+    log.info(selection)
+    log.info(operation?.name)
+    if (operation) {
+      setFilterColumnOperationSelected(selection as string);
+    }
+    setFilterColumnOperationIsExpanded(false);
+  };
 
-const onFilterColumnOperationSelect = (
-  _event: React.MouseEvent | React.ChangeEvent,
-  selection: string | SelectOptionObject
-) => {
-  const operation = operationOptions.find(operation => operation.name === selection);
-  log.info(selection)
-  log.info(operation?.name)
-  if (operation) {
-    setFilterColumnOperationSelected(selection as string);
+  const getRowActions = (row: never, rowIndex: number): IAction[] => {
+    if (broker.getRowActions) {
+      return broker.getRowActions(row, rowIndex);
+    }
+    return [];
+  };
+
+  const handleSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
+    log.info("setPage: " + newPage)
+    setPage(newPage);
+  };
+
+  const handlePerPageSelect = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number, newPage: number) => {
+    setPerPage(newPerPage);
+  };
+
+  const getKeyByValue = (producer: never, columnName: string) => {
+    return producer[columnName];
   }
-  setFilterColumnOperationIsExpanded(false);
-};
 
-/*const handleFilterColumn = (column: Column) => {
-  log.info(column.id, column.name);
-}
-
-const clearStatusSelection = () => {
-  setFilterColumnStatusSelected('');
-  setFilterColumnStatusIsExpanded(false);
-};
-
-const onPerPageSelect = (
-  _event: React.MouseEvent | React.KeyboardEvent | MouseEvent,
-  newPerPage: number,
-  newPage: number
-) => {
-  setPerPage(newPerPage);
-  setPage(newPage);
-};*/
-
-const getRowActions = (row: never, rowIndex: number): IAction[] => {
-  if(broker.getRowActions) {
-    return broker.getRowActions(row, rowIndex);
+  const applyFilter = () => {
+    const operation = operationOptions.find(operation => operation.name === filterColumnOperationSelected);
+    const column = columns.find(column => column.name === filterColumnStatusSelected);
+    if (operation && column) {
+      log.info("Applying Filter: " + operation + " on " + column)
+      setFilter({ column: column.id, operation: operation.id, input: inputValue });
+    }
   }
-  return [];
-};
 
-const handleSetPage =(_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
-  setPage(newPage);
-};
-
-const handlePerPageSelect = ( _event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number, newPage: number ) => {
-  setPerPage(newPerPage);
-};
-
-const getKeyByValue = (producer: never, columnName: string) => {
-  return producer[columnName];
-}
-
-const applyFilter = () => {
-  const operation = operationOptions.find(operation => operation.name === filterColumnOperationSelected);
-  const column = columns.find(column => column.name === filterColumnStatusSelected);
-  if (operation && column) {
-    setFilter({column: column.id, operation: operation.id, input: inputValue});
-  }
-}
-
-log.info("bloadData=" + broker.loadData);
-
-const renderPagination = (variant: PaginationVariant | undefined) => (
-  <Pagination
-    itemCount={resultsSize}
-    page={page}
-    perPage={perPage}
-    onSetPage={handleSetPage}
-    onPerPageSelect={handlePerPageSelect}
-    variant={variant}
-    titles={{
-      paginationTitle: `${variant} pagination`
-    }}
-  />
-);
-const renderModal = () => {
+  const renderPagination = (variant: PaginationVariant | undefined) => (
+    <Pagination
+      itemCount={resultsSize}
+      page={page}
+      perPage={perPage}
+      onSetPage={handleSetPage}
+      onPerPageSelect={handlePerPageSelect}
+      variant={variant}
+      titles={{
+        paginationTitle: `${variant} pagination`
+      }}
+    />
+  );
+  const renderModal = () => {
     return (
       <Modal
         title="Manage columns"
@@ -286,26 +261,26 @@ const renderModal = () => {
         ]}
       >
         <DataList aria-label="Table column management" id="table-column-management" isCompact>
-        {columns.map((column, id) => (
-          <DataListItem key={`table-column-management-${column.id}`} aria-labelledby={`table-column-management-${column.id}`}>
-            <DataListItemRow>
-              <DataListCheck
-                aria-labelledby={`table-column-management-item-${column.id}`}
-                checked={column.visible}
-                name={`check-${column.id}`}
-                id={`check-${column.id}`}
-                onChange={checked => updateColumnStatus(id, column)}
-              />
-              <DataListItemCells
-                dataListCells={[
-                  <DataListCell id={`table-column-management-item-${column.id}`} key={`table-column-management-item-${column.id}`}>
-                    <label htmlFor={`check-${column.id}`}>{column.name}</label>
-                  </DataListCell>
-                ]}
-              />
-            </DataListItemRow>
-          </DataListItem>
-        ))}
+          {columns.map((column, id) => (
+            <DataListItem key={`table-column-management-${column.id}`} aria-labelledby={`table-column-management-${column.id}`}>
+              <DataListItemRow>
+                <DataListCheck
+                  aria-labelledby={`table-column-management-item-${column.id}`}
+                  checked={column.visible}
+                  name={`check-${column.id}`}
+                  id={`check-${column.id}`}
+                  onChange={checked => updateColumnStatus(id, column)}
+                />
+                <DataListItemCells
+                  dataListCells={[
+                    <DataListCell id={`table-column-management-item-${column.id}`} key={`table-column-management-item-${column.id}`}>
+                      <label htmlFor={`check-${column.id}`}>{column.name}</label>
+                    </DataListCell>
+                  ]}
+                />
+              </DataListItemRow>
+            </DataListItem>
+          ))}
         </DataList>
       </Modal>
     );
@@ -316,7 +291,7 @@ const renderModal = () => {
     <React.Fragment>
       <Toolbar id="toolbar">
         <ToolbarContent>
-          <ToolbarItem>
+          <ToolbarItem key='address-sort'>
             <OptionsMenu
               id="options-menu-multiple-options-example"
               menuItems={[
@@ -365,97 +340,98 @@ const renderModal = () => {
               isGrouped
             />
           </ToolbarItem>
-          <ToolbarItem variant="search-filter">
-          <Select
-            variant={SelectVariant.single}
-            aria-label="Select Input"
-            onToggle={onFilterColumnStatusToggle}
-            onSelect={onFilterColumnStatusSelect}
-            selections={filterColumnStatusSelected}
-            isOpen={filterColumnStatusIsExpanded}
-          >
-            {columns.map((column, index) => (
-              <SelectOption key={column.id} value={column.name}/>
-            ))}
-          </Select>
+          <ToolbarItem variant="search-filter" key='column-id-select'>
+            <Select
+              variant={SelectVariant.single}
+              aria-label="Select Input"
+              onToggle={onFilterColumnStatusToggle}
+              onSelect={onFilterColumnStatusSelect}
+              selections={filterColumnStatusSelected}
+              isOpen={filterColumnStatusIsExpanded}
+            >
+              {columns.map((column, index) => (
+                <SelectOption key={column.id} value={column.name} />
+              ))}
+            </Select>
           </ToolbarItem>
-          <ToolbarItem variant="search-filter">
-          <Select
-            variant={SelectVariant.single}
-            aria-label="Select Input"
-            onToggle={onFilterColumnOperationToggle}
-            onSelect={onFilterColumnOperationSelect}
-            selections={filterColumnOperationSelected}
-            isOpen={filterColumnOperationIsExpanded}
-          >
-            {operationOptions.map((column, index) => (
-              <SelectOption key={column.id} value={column.name}/>
-            ))}
-          </Select>
+          <ToolbarItem variant="search-filter" key="filter-type">
+            <Select
+              variant={SelectVariant.single}
+              aria-label="Select Input"
+              onToggle={onFilterColumnOperationToggle}
+              onSelect={onFilterColumnOperationSelect}
+              selections={filterColumnOperationSelected}
+              isOpen={filterColumnOperationIsExpanded}
+            >
+              {operationOptions.map((column, index) => (
+                <SelectOption key={column.id} value={column.name} />
+              ))}
+            </Select>
           </ToolbarItem>
-          <ToolbarItem variant="search-filter">
-          <SearchInput
-            aria-label="With filters example search input"
-            onChange={(value, _event) => onInputChange(value as unknown as string)}
-            value={inputValue}
-            onClear={() => {
-              onInputChange(''); applyFilter();
-            }}
-          />
+          <ToolbarItem variant="search-filter" key="search=text">
+            <SearchInput
+              aria-label="search-text"
+              onChange={(_event, value) => onSearchTextChange(value)}
+              value={inputValue}
+              onClear={() => {
+                onSearchTextChange('');
+                applyFilter();
+              }}
+            />
           </ToolbarItem>
-          <ToolbarItem>
+          <ToolbarItem key="search-button">
             <Button onClick={applyFilter}>Search</Button>
           </ToolbarItem>
-          <ToolbarItem>
+          <ToolbarItem key="column-select">
             <Button variant='link' onClick={handleModalToggle}>Manage Columns</Button>
           </ToolbarItem>
           {
             broker.toolbarActions?.map(action => (
-              <ToolbarItem>
+              <ToolbarItem key={"toolbar-action-" + action.name}>
                 <Button variant='link' onClick={() => action.action()}>{action.name}</Button>
               </ToolbarItem>))
           }
         </ToolbarContent>
       </Toolbar>
     </React.Fragment>
-  );   
+  );
 
   return (
     <React.Fragment>
       {toolbarItems}
       <TableComposable variant="compact" aria-label="Column Management Table">
-      <Thead>
-        <Tr >
-          {columns.map((column, id) => {
-              if(column.visible) {
+        <Thead>
+          <Tr >
+            {columns.map((column, id) => {
+              if (column.visible) {
                 return <Th key={id}>{column.name}</Th>
               } else return ''
             }
-          )}
-        </Tr>
-      </Thead>
-      <Tbody>
-        {rows.map((row, rowIndex) => (
-          <Tr key={rowIndex}>
-            <>
-            {columns.map((column, id) => {
-              if(column.visible) {
-                return <Td key={id}>{getKeyByValue(row, column.id)}</Td>
-              } else return ''
-            }
-          )}
-          <td>
-          <ActionsColumn
-            items={getRowActions(row, rowIndex)}
-          />
-          </td>
-            </>
+            )}
           </Tr>
-        ))}
-      </Tbody>
-    </TableComposable>
-     {renderPagination(PaginationVariant.bottom)}
-     {renderModal()}
+        </Thead>
+        <Tbody>
+          {rows.map((row, rowIndex) => (
+            <Tr key={rowIndex}>
+              <>
+                {columns.map((column, id) => {
+                  if (column.visible) {
+                    return <Td key={id}>{getKeyByValue(row, column.id)}</Td>
+                  } else return ''
+                }
+                )}
+                <td>
+                  <ActionsColumn
+                    items={getRowActions(row, rowIndex)}
+                  />
+                </td>
+              </>
+            </Tr>
+          ))}
+        </Tbody>
+      </TableComposable>
+      {renderPagination(PaginationVariant.bottom)}
+      {renderModal()}
     </React.Fragment>
   );
 };

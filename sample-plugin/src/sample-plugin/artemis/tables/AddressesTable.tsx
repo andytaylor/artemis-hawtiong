@@ -3,7 +3,7 @@ import { Broker } from '../ArtemisTabs.js';
 import { ActiveSort, ArtemisTable, Column, Filter, ToolbarAction } from './ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
-import { Button, Modal, ModalVariant, TextContent, Text, ToolbarItemProps } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { CreateQueue } from '../components/CreateQueue';
 import { log } from '../globals';
 import { DeleteAddressModal } from '../components/DeleteAddressModal';
@@ -33,13 +33,13 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
   const [showAttributesDialog, setShowAttributesDialog] = useState(false);
   const [showOperationsDialog, setShowOperationsDialog] = useState(false);
   const [showCreateAddressDialog, setShowCreateAddressDialog] = useState(false);
-  const [ showSendDialog, setShowSendDialog ] = useState(false);
+  const [showSendDialog, setShowSendDialog] = useState(false);
   const [address, setAddress] = useState("");
 
   useEffect(() => {
     log.info("rendering Address Table ");
   }, [address, showCreateDialog]);
-    
+
 
   const createAction: ToolbarAction = {
     name: "Create Address",
@@ -73,7 +73,7 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
           console.log(`clicked on Some action, on row delete ` + JSON.stringify(row));
           setAddress(row.name);
           var addressObjectName = broker.brokerMBeanName + ",component=addresses,address=\"" + row.name + "\"";
-          var addressNode: MBeanNode | null = tree.findDescendant(node => {return isAddress(node, addressObjectName)});
+          var addressNode: MBeanNode | null = tree.findDescendant(node => { return isAddress(node, addressObjectName) });
           if (!addressNode) {
             const addressesNode = tree.findDescendant(node => node.name === "addresses");
             addressNode = new MBeanNode(addressesNode, row.name, false);
@@ -90,7 +90,7 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
           console.log(`clicked on Some action, on row delete ` + JSON.stringify(row));
           setAddress(row.name);
           var addressObjectName = broker.brokerMBeanName + ",component=addresses,address=\"" + row.name + "\"";
-          var addressNode: MBeanNode | null = tree.findDescendant(node => {return isAddress(node, addressObjectName)});
+          var addressNode: MBeanNode | null = tree.findDescendant(node => { return isAddress(node, addressObjectName) });
           setSelectedNode(addressNode);
           setShowOperationsDialog(true);
         }
@@ -102,19 +102,20 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
           setAddress(row.name);
           setShowSendDialog(true);
         }
-        
+
       }
     ]
   };
 
   function isAddress(node: MBeanNode, addressObjectName: string): boolean {
-    return node.objectName === addressObjectName; 
+    return node.objectName === addressObjectName;
   }
 
   return (
     <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode }}>
       <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} getRowActions={getRowActions} allColumns={allColumns} getData={listAddresses} toolbarActions={[createAction]} />
       <Modal
+        aria-label='create-queue-modal'
         variant={ModalVariant.medium}
         isOpen={showCreateDialog}
         actions={[
@@ -132,6 +133,7 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
         jolokia: broker.jolokia
       }} show={showDeleteDialog} onClick={() => setShowDeleteDialog(false)} />
       <Modal
+        aria-label='attributes-modal'
         variant={ModalVariant.medium}
         isOpen={showAttributesDialog}
         actions={[
@@ -139,9 +141,10 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
             Close
           </Button>
         ]}>
-        <Attributes/>
+        <Attributes />
       </Modal>
       <Modal
+        aria-label='operations-modal'
         variant={ModalVariant.medium}
         isOpen={showOperationsDialog}
         actions={[
@@ -149,9 +152,10 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
             Close
           </Button>
         ]}>
-        <Operations/>
+        <Operations />
       </Modal>
       <Modal
+        aria-label='create=address-modal'
         variant={ModalVariant.medium}
         isOpen={showCreateAddressDialog}
         actions={[
@@ -159,21 +163,22 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
             Close
           </Button>
         ]}>
-        <CreateAddress brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} columnStorageLocation="addressColumnDefs"/>
+        <CreateAddress brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} columnStorageLocation="addressColumnDefs" />
       </Modal>
       <Modal
-          variant={ModalVariant.medium}
-          isOpen={showSendDialog}
-          actions={[
-            <Button key="close" variant="secondary" onClick={() => setShowSendDialog(false)}>
-              Cancel
-            </Button>
-          ]}>
-            <SendMessage address={address} queue={''} routingType={''} isAddress={true} broker={{
-            brokerMBeanName: broker.brokerMBeanName,
-            jolokia: broker.jolokia
-          }}/>
-        </Modal>
+        aria-label='send-modal'
+        variant={ModalVariant.medium}
+        isOpen={showSendDialog}
+        actions={[
+          <Button key="close" variant="secondary" onClick={() => setShowSendDialog(false)}>
+            Cancel
+          </Button>
+        ]}>
+        <SendMessage address={address} queue={''} routingType={''} isAddress={true} broker={{
+          brokerMBeanName: broker.brokerMBeanName,
+          jolokia: broker.jolokia
+        }} />
+      </Modal>
     </ArtemisContext.Provider>
   )
 

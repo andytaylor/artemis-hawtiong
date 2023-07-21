@@ -78,6 +78,9 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
 
   const typeLabels = ["DEFAULT", "1", "object", "text", "bytes", "map", "stream", "embedded"];
 
+
+ 
+
   useEffect(() => {
     log.info("rendering Messages table");
     const listData = async () => {
@@ -85,12 +88,17 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       setRows(data.data);
       setresultsSize(data.count);
       log.info(JSON.stringify(data));
+    } 
+    const listMessages = async (): Promise<any> => {
+      const queueMBean: string = artemisService.createQueueObjectName(props.broker.brokerMBeanName, props.address, props.routingType, props.queue);
+      const response = await artemisService.getMessages(props.broker.jolokia, queueMBean, page, perPage, filter);
+      return response;
     }
     if (messagesView) {
       listData();
     }
 
-  }, [columns, page, currentMessage])
+  }, [columns, currentMessage, messagesView, props.broker.jolokia, props.broker.brokerMBeanName, props.address, props.routingType, props.queue, page, perPage, filter])
 
   const handleSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
     setPage(newPage);
@@ -138,7 +146,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
     const updatedColumns = [...columns]
     updatedColumns.map((column) => {
       column.visible = true;
-      return;
+      return true;
     })
     setColumns(updatedColumns);
   };
@@ -154,7 +162,6 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
   }
 
   const getKeyByValue = (message: any, columnID: string): string => {
-    log.info(columnID + ":" + message[columnID]);
     if (columnID === "type") {
       const idx: number = message[columnID];
       return typeLabels[idx];
@@ -182,7 +189,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
     if (isNaN(timestamp) || typeof timestamp !== "number") {
       return "" + timestamp;
     }
-    if (timestamp == 0) {
+    if (timestamp === 0) {
       return "never";
     }
     var expiresIn = timestamp - Date.now();
@@ -234,16 +241,17 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
 
   const updateBodyText = (currentMessage: Message): void =>  {
     log.debug("loading message:" + currentMessage);
+        var body: string = "";
     if (currentMessage.text) {
-        var body = currentMessage.text;
+       body = currentMessage.text;
         var lenTxt = "" + body.length;
         setMessageTextMode("text (" + lenTxt + " chars)");
         setMessageBody(body);
     } else if (currentMessage.BodyPreview) {
         var code = Number(localStorage["ArtemisBrowseBytesMessages"] || "1");
         setMessageTextMode("bytes (turned off)");
-        var body: string = "";
-        if (code != 99) {
+        var len = 0;
+        if (code !== 99) {
             var bytesArr: string[] = [];
             var textArr: string[] = [];
             currentMessage.BodyPreview.forEach(function(b: number) {
@@ -270,19 +278,19 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
             var textData = textArr.join("");
             if (code === 1 || code === 2) {
                 // bytes and text
-                var len = currentMessage.BodyPreview.length;
-                var lenTxt = "" + textArr.length;
+                len = currentMessage.BodyPreview.length;
+                lenTxt = "" + textArr.length;
                 body = "bytes:\n" + bytesData + "\n\ntext:\n" + textData;
                setMessageTextMode("bytes (" + len + " bytes) and text (" + lenTxt + " chars)");
             } else if (code === 16) {
                 // text only
-                var len = currentMessage.BodyPreview.length;
-                var lenTxt = "" + textArr.length;
+                len = currentMessage.BodyPreview.length;
+                lenTxt = "" + textArr.length;
                 body = "text:\n" + textData;
                 setMessageTextMode("text (" + lenTxt + " chars)");
             } else {
                 // bytes only
-                var len = currentMessage.BodyPreview.length;
+                len = currentMessage.BodyPreview.length;
                 body = bytesData;
                 setMessageTextMode("bytes (" + len + " bytes)");
             }
@@ -293,12 +301,6 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       setMessageBody("Unsupported message body type which cannot be displayed by hawtio");
     }
 }
-
-  const listMessages = async (): Promise<any> => {
-    const queueMBean: string = artemisService.createQueueObjectName(props.broker.brokerMBeanName, props.address, props.routingType, props.queue);
-    const response = await artemisService.getMessages(props.broker.jolokia, queueMBean, page, perPage, filter);
-    return response;
-  }
 
   const renderPagination = (variant: PaginationVariant | undefined) => (
     <Pagination
@@ -411,7 +413,6 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
                 {columns.map((column, id) => {
                   if (column.visible) {
                     const text = getKeyByValue(row, column.id);
-                    log.info("text=" + text)
                     return <Td key={id}>{text}</Td>
                   } else return ''
                 }

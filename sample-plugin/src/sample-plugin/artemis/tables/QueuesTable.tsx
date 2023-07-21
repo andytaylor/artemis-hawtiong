@@ -4,7 +4,7 @@ import { ActiveSort, ArtemisTable, Column, Filter } from './ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
 import { log } from '../globals';
-import { Breadcrumb, BreadcrumbItem, Button, Modal, ModalVariant } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { SendMessage } from '../components/SendMessage';
 import { MessagesTable } from './MessagesTable';
 
@@ -87,7 +87,6 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   const purgeQueue = (name: string, address: string, routingType: string) => {
     artemisService.purgeQueue(broker.jolokia, broker.brokerMBeanName, name, address, routingType);
     setShowPurgeDialog(false);
-    //refresh();
     setLoadData(loadData + 1);
   };
 
@@ -141,6 +140,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
     <>
       <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" />
       <Modal
+        aria-label='queue-delete-modal'
         variant={ModalVariant.medium}
         title="Delete Queue?"
         isOpen={showDeleteDialog}
@@ -156,6 +156,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
       </Modal>
 
       <Modal
+        aria-label='queue-purge-modal'
         variant={ModalVariant.medium}
         title="Purge Queue?"
         isOpen={showPurgeDialog}
@@ -171,6 +172,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
       </Modal>
 
       <Modal
+        aria-label='queue-send-modal'
         variant={ModalVariant.medium}
         isOpen={showSendDialog}
         actions={[

@@ -1,4 +1,4 @@
-import { Button, CardBody, Checkbox, Dropdown, DropdownItem, DropdownToggle, Flex, FlexItem, Form, FormGroup, FormSection, Select, SelectOption, SelectOptionObject, SelectVariant, TextInput } from '@patternfly/react-core'
+import { CardBody, Flex, FlexItem, Form, FormGroup, FormSection, Select, SelectOption, SelectOptionObject, SelectVariant, TextInput } from '@patternfly/react-core'
 import React, { useState } from 'react'
 import { artemisPreferencesService, ArtemisOptions } from './artemis-preferences-service'
 import { Icon, Tooltip } from '@patternfly/react-core'
@@ -30,19 +30,19 @@ type FormatType = {
 
 
 const ArtemisPreferencesForm: React.FunctionComponent = () => {
-  const off: FormatType = {id: "off", description: "Off", index: 99};
-  const text: FormatType = {id: "text", description: "Text", index: 16}
-  const decimal: FormatType = {id: "decimal", description: "Decimal", index: 8}
-  const hex: FormatType = {id: "hex", description: "Hex", index: 4}
-  const decimaltext: FormatType = {id: "decimaltext", description: "Decimal and Text", index: 2}
-  const hexttext: FormatType = {id: "hexttext", description: "Hex and Text", index: 1}
+  const off: FormatType = { id: "off", description: "Off", index: 99 };
+  const text: FormatType = { id: "text", description: "Text", index: 16 }
+  const decimal: FormatType = { id: "decimal", description: "Decimal", index: 8 }
+  const hex: FormatType = { id: "hex", description: "Hex", index: 4 }
+  const decimaltext: FormatType = { id: "decimaltext", description: "Decimal and Text", index: 2 }
+  const hexttext: FormatType = { id: "hexttext", description: "Hex and Text", index: 1 }
 
   const formats = [off, text, decimal, hex, decimaltext, hexttext];
 
   const [artemisPreferences, setArtemisPreferences] = useState(artemisPreferencesService.loadArtemisPreferences())
   const [isDropdownOpen, setDropdownOpen] = React.useState(false);
   const format = formats.find(format => format.index === artemisPreferences.artemisBrowseBytesMessages);
-  const [selectedFormat, setSelectedFormat] = useState(format?format.description:off.description);
+  const [selectedFormat, setSelectedFormat] = useState(format ? format.description : off.description);
 
 
   const updatePreferences = (value: string | number, key: keyof ArtemisOptions): void => {
@@ -50,19 +50,6 @@ const ArtemisPreferencesForm: React.FunctionComponent = () => {
 
     artemisPreferencesService.saveArtemisPreferences(updatedPreferences)
     setArtemisPreferences(updatedPreferences)
-  }
-
-
-
-  const updateNumberValueFor = (key: keyof ArtemisOptions): ((value: string) => void) => {
-    //Returning an arrow function to reduce boilerplate
-    return (value: string) => {
-      const intValue = parseInt(value)
-
-      if (!intValue) return
-
-      updatePreferences(intValue, key)
-    }
   }
 
   const updateStringValueFor = (key: keyof ArtemisOptions): ((value: string) => void) => {
@@ -83,7 +70,7 @@ const ArtemisPreferencesForm: React.FunctionComponent = () => {
     const format = formats.find(format => format.description === value);
     log.info("format=" + format?.index)
     if (format) {
-      updatePreferences( format?.index,'artemisBrowseBytesMessages');
+      updatePreferences(format?.index, 'artemisBrowseBytesMessages');
     }
   }
 
@@ -141,7 +128,7 @@ const ArtemisPreferencesForm: React.FunctionComponent = () => {
           </FlexItem>
         </Flex>
       </FormGroup>
-  
+
     </FormSection>
   )
 }
