@@ -229,6 +229,24 @@ class ArtemisService implements IArtemisService {
             })
         });
     }
+
+    async closeSession(jolokia: IJolokiaService, brokerMBean: string, connection: string, name: string) {
+        log.info("closing session " + name + " " + brokerMBean)
+        jolokia.execute(brokerMBean, 'closeSessionWithID(java.lang.String,java.lang.String)', [connection, name])
+        .then((value: unknown) => {
+            eventService.notify({
+            type: 'success',
+            message: 'Connection Closed',
+            duration: 3000,
+            })
+            })
+            .catch((error: string) => {
+            eventService.notify({
+                type: 'danger',
+                message: 'Session Not Closed: '+ error,
+            })
+        });
+    }
     
 }
 
