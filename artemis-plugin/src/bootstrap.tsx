@@ -1,7 +1,7 @@
 import { hawtio, Hawtio, registerPlugins } from '@hawtio/react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { plugin } from './sample-plugin'
+import { plugin } from './artemis-plugin'
 
 // Register builtin plugins
 registerPlugins()

@@ -1,8 +1,8 @@
 {
-  "name": "hawtio-sample-plugin",
+  "name": "hawtio-artemis-plugin",
   "version": "1.0.0",
   "description": "Artemis plugin",
-  "main": "./src/main/webapp/app/sample-plugin.js",
+  "main": "./src/main/webapp/app/artemis-plugin.js",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {

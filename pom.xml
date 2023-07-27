@@ -5,9 +5,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.hawt.examples</groupId>
-  <artifactId>hawtio-sample-war-plugin</artifactId>
+  <artifactId>hawtio-artemis-plugin</artifactId>
   <version>1.0.0</version>
-  <name>Hawtio Sample WAR Plugin</name>
+  <name>Hawtio Artemis Plugin</name>
   <packaging>war</packaging>
 
   <properties>
@@ -26,7 +26,7 @@
     <jetty-version>10.0.14</jetty-version>
 
     <!-- Path to the Hawtio TypeScript plugin -->
-    <plugin.path>sample-plugin</plugin.path>
+    <plugin.path>artemis-plugin</plugin.path>
   </properties>
 
   <dependencies>

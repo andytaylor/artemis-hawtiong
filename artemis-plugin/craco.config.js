@@ -12,7 +12,7 @@ module.exports = {
           filename: 'remoteEntry.js',
           // The key in exposes corresponds to 'remote' passed to HawtioPlugin
           exposes: {
-            './plugin': './src/sample-plugin',
+            './plugin': './src/artemis-plugin',
           },
           shared: {
             ...dependencies,
