@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Tabs, Tab, TabTitleText, EmptyState, EmptyStateBody, EmptyStateIcon, Title } from '@patternfly/react-core';
 import DisconnectedIcon from '@patternfly/react-icons/dist/esm/icons/disconnected-icon';
 import { BrokerConnection } from '../brokers/brokers-service';
@@ -8,7 +8,6 @@ import { ConnectionsTable } from '../connections/ConnectionsTable';
 import { SessionsTable } from '../sessions/SessionsTable';
 import { AddressesTable } from '../addresses/AddressesTable';
 import { QueuesTable } from '../queues/QueuesTable';
-import { log } from '../globals';
 import { IJolokiaService } from '@hawtio/react';
 import { ArtemisContext, useArtemisTree } from '../context';
 import { Status } from '../status/Status';
@@ -23,16 +22,11 @@ export type Broker = {
 export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connection: BrokerConnection) => {
 
   const { tree, selectedNode, setSelectedNode } = useArtemisTree();
-
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
 
-  useEffect(() => {
-    log.info("rendered Artemis");
-  }, [activeTabKey])
 
   const handleTabClick = (event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, tabIndex: string | number
   ) => {
-    log.info("setActiveTabKey Artemis:" + tabIndex);
     setActiveTabKey(tabIndex);
   };
 

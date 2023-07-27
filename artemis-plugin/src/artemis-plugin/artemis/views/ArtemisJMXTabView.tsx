@@ -1,18 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import { Text, PageSection, TextContent, PageSectionVariants, Tabs, Tab, TabTitleText, EmptyState, EmptyStateBody, EmptyStateIcon, Title } from '@patternfly/react-core';
-import DisconnectedIcon from '@patternfly/react-icons/dist/esm/icons/disconnected-icon';
+import React, { useState } from 'react'
+import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
 import { BrokerConnection } from '../brokers/brokers-service';
-import { ProducerTable } from '../producers/ProducerTable';
-import { ConsumerTable } from '../consumers/ConsumerTable';
-import { ConnectionsTable } from '../connections/ConnectionsTable';
-import { SessionsTable } from '../sessions/SessionsTable';
-import { AddressesTable } from '../addresses/AddressesTable';
-import { QueuesTable } from '../queues/QueuesTable';
-import { log } from '../globals';
-import { Attributes, Chart, IJolokiaService, MBeanNode, Operations } from '@hawtio/react';
-import { artemisService } from '../artemis-service';
+import { Attributes, Chart, MBeanNode, Operations } from '@hawtio/react';
 import { CreateQueue } from '../queues/CreateQueue';
-import { Broker } from './ArtemisTabView';
 import { DeleteAddress } from '../addresses/DeleteAddress';
 import { isAddress as isAnAddress } from '../util/jmx'
 
@@ -27,15 +17,9 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
 
   const isAddress = isAnAddress(data.node)
-  log.debug("type=" + isAddress)
-
-  useEffect(() => {
-    log.info("rendered Artemis");
-  }, [activeTabKey])
 
   const handleTabClick = ( event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, tabIndex: string | number
   ) => {
-    log.info("setActiveTabKey Artemis:" + tabIndex);
     setActiveTabKey(tabIndex);
   };
   

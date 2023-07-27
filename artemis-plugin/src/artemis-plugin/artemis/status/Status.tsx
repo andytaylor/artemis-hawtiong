@@ -1,33 +1,32 @@
-import { ChartDonut, ChartDonutUtilization } from "@patternfly/react-charts"
+import { ChartDonutUtilization } from "@patternfly/react-charts"
 import { Card, CardBody, CardTitle, Flex, FlexItem } from "@patternfly/react-core"
 import { TableComposable, Tr, Tbody, Td } from '@patternfly/react-table';
 import { Chart, eventService, jolokiaService } from '@hawtio/react';
 import { useEffect, useState } from "react";
 import { artemisService, BrokerInfo } from "../artemis-service";
-import { log } from "../globals";
 
 
 export const Status: React.FunctionComponent = () => {
 
-    const [ brokerInfo, setBrokerInfo ] = useState<BrokerInfo>()
+    const [brokerInfo, setBrokerInfo] = useState<BrokerInfo>()
     useEffect(() => {
         const getBrokerInfo = async () => {
-          artemisService.createBrokerInfo(jolokiaService)
-          .then((brokerInfo) => {
-            setBrokerInfo(brokerInfo)
-          })
-          .catch((error: string) => {
-            eventService.notify({
-                type: 'warning',
-                message: error,
-            })
-          });
+            artemisService.createBrokerInfo(jolokiaService)
+                .then((brokerInfo) => {
+                    setBrokerInfo(brokerInfo)
+                })
+                .catch((error: string) => {
+                    eventService.notify({
+                        type: 'warning',
+                        message: error,
+                    })
+                });
         }
-        if (!brokerInfo){
+        if (!brokerInfo) {
             getBrokerInfo();
         }
-    
-      }, [brokerInfo])
+
+    }, [brokerInfo])
 
     return (
         <>
@@ -41,7 +40,7 @@ export const Status: React.FunctionComponent = () => {
                                     ariaDesc="Address Memory Used"
                                     ariaTitle="Address Memory Used"
                                     constrainToVisibleArea
-                                    data={{ x: 'Used:', y: brokerInfo?.addressMemoryUsed}}
+                                    data={{ x: 'Used:', y: brokerInfo?.addressMemoryUsed }}
                                     labels={["Used: " + brokerInfo?.addressMemoryUsed.toFixed(2) + "%"]}
                                     name="chart2"
                                     padding={{
@@ -106,7 +105,7 @@ export const Status: React.FunctionComponent = () => {
                     </FlexItem>
                 </Flex>
             </Flex>
-            <Chart/>                       
+            <Chart />
         </>
     )
 }

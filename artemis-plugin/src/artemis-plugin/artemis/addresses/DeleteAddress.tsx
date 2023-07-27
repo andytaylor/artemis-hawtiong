@@ -1,9 +1,8 @@
-import { ActionGroup, Button, ExpandableSection, Form, Title, Text } from '@patternfly/react-core';
-import React, { useEffect, useState } from 'react'
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons'
-import { log } from '../globals';
+import { ActionGroup, Button, Form, Title } from '@patternfly/react-core';
+import React, { useState } from 'react'
 import { Broker } from '../views/ArtemisTabView';
 import { DeleteAddressModal } from './DeleteAddressModal';
+import { ConnectHint } from '../util/ConnectHint';
 
 type DeleteAddressProps = {
   address: string
@@ -13,33 +12,10 @@ export const DeleteAddress: React.FunctionComponent<DeleteAddressProps> = (props
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  useEffect(() => {
-    log.info("rendered delete address ");
-  }, [showDeleteModal])
-
-  log.info(props.address)
-
-  const Hint = () => (
-    <ExpandableSection
-      displaySize='large'
-      toggleContent={
-        <Text>
-          <OutlinedQuestionCircleIcon /> Hint
-        </Text>
-      }
-    >
-      <Text component='p'>
-        This page allows you to delete the chosen address on the broker.
-      </Text>
-      <Text component='p'>
-        Note that this will only succeed if the address has no queues bound to it.
-      </Text>
-
-    </ExpandableSection>
-  )
   return (
-    <><Title headingLevel="h2">Delete Address {props.address}</Title>
-      <Hint />
+    <>
+      <Title headingLevel="h2">Delete Address {props.address}</Title>
+      <ConnectHint text={["This page allows you to delete the chosen address on the broker.", "Note that this will only succeed if the address has no queues bound to it."]}/>
       <Form>
         <ActionGroup>
           <Button variant="primary" onClick={() => setShowDeleteModal(true)} >Delete</Button>

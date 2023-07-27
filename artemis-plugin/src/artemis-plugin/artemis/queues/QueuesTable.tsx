@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Broker } from '../views/ArtemisTabView.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
-import { log } from '../globals';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { SendMessage } from '../messages/SendMessage';
 import { MessagesTable } from '../messages/MessagesTable';
@@ -54,7 +53,6 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showPurgeDialog, setShowPurgeDialog] = useState(false);
   const [showSendDialog, setShowSendDialog] = useState(false);
-
   const [queue, setQueue] = useState("");
   const [address, setAddress] = useState("");
   const [routingType, setRoutingType] = useState("");
@@ -62,10 +60,6 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   const [queueToPurgeRoutingType, setQueueToPurgeRoutingType] = useState("");
   const [loadData, setLoadData] = useState(0);
   const [queueView, setQueueView] = useState(true)
-
-  useEffect(() => {
-    log.info("rendering Queuestable " + showDeleteDialog);
-  }, [showDeleteDialog, showPurgeDialog]);
 
   const closeDeleteDialog = () => {
     setShowDeleteDialog(false);
@@ -124,7 +118,6 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'delete',
         onClick: () => {
-          console.log(`clicked on Some action, on row delete ` + row.name);
           setQueue(row.name);
           setShowDeleteDialog(true);
         }
@@ -132,7 +125,6 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'purge',
         onClick: () => {
-          console.log(`clicked on Another action, on row purge ` + JSON.stringify(row))
           setQueue(row.name);
           setQueueToPurgeAddress(row.address);
           setQueueToPurgeRoutingType(row.routingType);
@@ -142,7 +134,6 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'send message',
         onClick: () => {
-          console.log(`clicked on Another action, on row browse ` + row.name);
           setQueue(row.name);
           setAddress(row.address);
           setRoutingType(row.routingType)
@@ -153,7 +144,6 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'browse messages',
         onClick: () => {
-          console.log(`clicked on Another action, on row browse ` + row.name);
           setQueue(row.name);
           setAddress(row.address);
           setRoutingType(row.routingType)

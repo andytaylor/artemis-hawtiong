@@ -16,25 +16,21 @@ export const DeleteAddressModal: React.FunctionComponent<DeleteAddressProps> = (
   const handleDeleteAddress = () => {
     artemisService.deleteAddress(props.broker.jolokia, props.broker.brokerMBeanName, props.address)
       .then(() => {
+        props.onClick();
         eventService.notify({
           type: 'success',
           message: "Address Successfully Deleted",
         })
       })
       .catch((error: string) => {
+        props.onClick();
         eventService.notify({
           type: 'warning',
           message: error,
         })
       })
-    props.onClick();
   };
 
-  const handleShowModal = () => {
-    props.onClick();
-
-    log.info(props.address + "££££")
-  }
 
   log.info(props.address)
 
@@ -44,7 +40,7 @@ export const DeleteAddressModal: React.FunctionComponent<DeleteAddressProps> = (
       variant={ModalVariant.medium}
       isOpen={props.show}
       actions={[
-        <Button key="cancel" variant="secondary" onClick={handleShowModal}>
+        <Button key="cancel" variant="secondary" onClick={props.onClick()}>
           Cancel
         </Button>,
         <Button key="delete" variant="primary" onClick={handleDeleteAddress}>

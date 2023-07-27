@@ -46,8 +46,8 @@ export const CreateQueue: React.FunctionComponent<CreateQueueProps> = (props: Cr
         })
 
         log.info("Creating queue with configuration" + JSON.stringify(queueConfiguration));
-        artemisService.createQueue(props.broker.jolokia, props.broker.brokerMBeanName, JSON.stringify(queueConfiguration)).
-            then(() => {
+        artemisService.createQueue(props.broker.jolokia, props.broker.brokerMBeanName, JSON.stringify(queueConfiguration))
+            .then(() => {
                 eventService.notify({
                     type: 'success',
                     message: "Queue Succcesfully Created",
@@ -87,10 +87,7 @@ export const CreateQueue: React.FunctionComponent<CreateQueueProps> = (props: Cr
     const handlePurgeChange = (checked: boolean) => {
         setPurgeChecked(checked)
     }
-
-    type ConfigurationProps = {
-        onConfigurationChange: (configurations: { name: string; value: string }[]) => void
-    }
+    
     const handleAddConfiguration = () => {
         const updatedConfigurations = [...configurations, { name: '', value: '' }]
         setConfigurations(updatedConfigurations)
@@ -153,7 +150,7 @@ export const CreateQueue: React.FunctionComponent<CreateQueueProps> = (props: Cr
                 </FormGroup>
                 <FormGroup label="Filter"
                     labelIcon={
-                        <Tooltip content={<Text>Adding a filter expression will mean that only messages that match that filter will be routed to this queue: see <a href="https://activemq.apache.org/components/artemis/documentation/latest/filter-expressions.html" target="_blank">Filter Expressions</a></Text>}><InfoCircleIcon /></Tooltip>}
+                        <Tooltip content={<Text>Adding a filter expression will mean that only messages that match that filter will be routed to this queue: see <a href="https://activemq.apache.org/components/artemis/documentation/latest/filter-expressions.html" rel="noreferrer" target="_blank">Filter Expressions</a></Text>}><InfoCircleIcon /></Tooltip>}
                 >
                     <TextInput
                         isRequired

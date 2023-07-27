@@ -1,9 +1,9 @@
-import { ActionGroup, Button, ExpandableSection, Form, FormGroup, Radio, TextInput, Title, Text } from '@patternfly/react-core';
+import { ActionGroup, Button, Form, FormGroup, Radio, TextInput, Title } from '@patternfly/react-core';
 import React, { useState } from 'react'
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons'
 import { artemisService } from '../artemis-service';
 import { Broker } from '../views/ArtemisTabView';
 import { eventService } from '@hawtio/react';
+import { ConnectHint } from '../util/ConnectHint';
 
 export const CreateAddress: React.FunctionComponent<Broker> = (broker: Broker) => {
   const [addressName, setAddressName] = useState('');
@@ -18,7 +18,6 @@ export const CreateAddress: React.FunctionComponent<Broker> = (broker: Broker) =
   };
 
   const handleCreateAddress = () => {
-
     artemisService.createAddress(broker.jolokia, broker.brokerMBeanName, addressName, routingType)
       .then(() => {
         eventService.notify({
@@ -34,25 +33,10 @@ export const CreateAddress: React.FunctionComponent<Broker> = (broker: Broker) =
       })
   };
 
-  const ConnectHint = () => (
-    <ExpandableSection
-      displaySize='large'
-      toggleContent={
-        <Text>
-          <OutlinedQuestionCircleIcon /> Hint
-        </Text>
-      }
-    >
-      <Text component='p'>
-        This page allows you to create a new address on the broker, if you want the address to support JMS like queues, i.e. point to point, then choose anycast. If you want your address to support JMS like topic subscriptions, publish/subscribe, then choose multicast.
-      </Text>
-    </ExpandableSection>
-  )
-
   return (
     <>
     <Title headingLevel="h2">Create Address</Title>
-      <ConnectHint />
+      <ConnectHint text={['This page allows you to create a new address on the broker, if you want the address to support JMS like queues, i.e. point to point, then choose anycast. If you want your address to support JMS like topic subscriptions, publish/subscribe, then choose multicast.']}/>
       <Form>
         <FormGroup label="Address Name">
           <TextInput

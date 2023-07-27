@@ -44,7 +44,6 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
   const createAction: ToolbarAction = {
     name: "Create Address",
     action: () => {
-      log.info("showin addressssssssss")
       setShowCreateAddressDialog(true);
     }
   }
@@ -54,7 +53,6 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'create queue',
         onClick: () => {
-          console.log(`clicked on Some action, on row delete ` + JSON.stringify(row));
           setAddress(row.name);
           setShowCreateDialog(true);
         }
@@ -62,7 +60,6 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'delete address',
         onClick: () => {
-          console.log(`clicked on Some action, on row delete ` + JSON.stringify(row));
           setAddress(row.name);
           setShowDeleteDialog(true);
         }
@@ -70,10 +67,9 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'attributes',
         onClick: () => {
-          console.log(`clicked on Some action, on row delete ` + JSON.stringify(row));
           setAddress(row.name);
           var addressObjectName = broker.brokerMBeanName + ",component=addresses,address=\"" + row.name + "\"";
-          var addressNode: MBeanNode | null = tree.findDescendant(node => { return isAddress(node, addressObjectName) });
+          var addressNode: MBeanNode | null = tree.findDescendant(node => { return node.objectName === addressObjectName });
           if (!addressNode) {
             const addressesNode = tree.findDescendant(node => node.name === "addresses");
             addressNode = new MBeanNode(addressesNode, row.name, false);
@@ -87,10 +83,9 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'operations',
         onClick: () => {
-          console.log(`clicked on Some action, on row delete ` + JSON.stringify(row));
           setAddress(row.name);
           var addressObjectName = broker.brokerMBeanName + ",component=addresses,address=\"" + row.name + "\"";
-          var addressNode: MBeanNode | null = tree.findDescendant(node => { return isAddress(node, addressObjectName) });
+          var addressNode: MBeanNode | null = tree.findDescendant(node => { return node.objectName === addressObjectName });
           setSelectedNode(addressNode);
           setShowOperationsDialog(true);
         }
@@ -98,7 +93,6 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
       {
         title: 'send message',
         onClick: () => {
-          console.log(`clicked on Another action, on row browse ` + row.name);
           setAddress(row.name);
           setShowSendDialog(true);
         }
@@ -106,10 +100,6 @@ export const AddressesTable: React.FunctionComponent<Broker> = broker => {
       }
     ]
   };
-
-  function isAddress(node: MBeanNode, addressObjectName: string): boolean {
-    return node.objectName === addressObjectName;
-  }
 
   return (
     <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode }}>
