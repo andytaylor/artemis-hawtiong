@@ -46,20 +46,14 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
         { isAddress && 
           <Tab eventKey={3} title={<TabTitleText>Create Queue</TabTitleText>} aria-label="Create Queue">
               {activeTabKey === 3 &&
-                <CreateQueue address={data.node.name} broker={{
-                  brokerMBeanName: data.brokerConnection.brokerDetails.brokerMBean,
-                  jolokia: data.brokerConnection.getJolokiaService()
-              }}  />
+                <CreateQueue address={data.node.name}/>
             }
           </Tab> 
         }
         { isAddress && 
           <Tab eventKey={4} title={<TabTitleText>Delete Address</TabTitleText>} aria-label="">
               {activeTabKey === 4 &&
-                <DeleteAddress address={data.node.name} broker={{
-                  brokerMBeanName: data.brokerConnection.brokerDetails.brokerMBean,
-                  jolokia: data.brokerConnection.getJolokiaService()
-              }}  />
+                <DeleteAddress address={data.node.name}/>
             }
           </Tab> 
         }

@@ -29,7 +29,6 @@ import {
 import SortAmountDownIcon from '@patternfly/react-icons/dist/esm/icons/sort-amount-down-icon';
 import { TableComposable, Thead, Tr, Th, Tbody, Td, IAction, ActionsColumn } from '@patternfly/react-table';
 import { log } from '../globals'
-import { IJolokiaService } from '@hawtio/react';
 import { artemisPreferencesService } from '../artemis-preferences-service';
 
 export type Column = {
@@ -62,8 +61,6 @@ export type ToolbarAction = {
 }
 
 export type TableData = {
-  brokerMBeanName: string,
-  jolokia: IJolokiaService,
   allColumns: Column[],
   getData: Function,
   getRowActions?: Function,

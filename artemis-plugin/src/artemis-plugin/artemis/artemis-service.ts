@@ -1,6 +1,6 @@
 import { ActiveSort, Filter } from './table/ArtemisTable'
-import { IJolokiaService, jolokiaService } from '@hawtio/react'
-import { createQueueObjectName } from './util/jmx'
+import { jolokiaService } from '@hawtio/react'
+import { createAddressObjectName, createQueueObjectName } from './util/jmx'
 import { log } from './globals'
 
 export type BrokerInfo = {
@@ -45,10 +45,6 @@ export type BrokerElement = {
     backup?: string
 }
 
-export interface IArtemisService {
-    getProducers(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<unknown>
-}
-
 const BROKER_SEARCH_PATTERN = "org.apache.activemq.artemis:broker=*";
 const LIST_NETWORK_TOPOLOGY_SIG="listNetworkTopology";
 const SEND_MESSAGE_SIG = "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String, boolean)";
@@ -69,7 +65,7 @@ const REMOVE_ALL_MESSAGES_SIG = "removeAllMessages()";
 const CLOSE_CONNECTION_SIG = "closeConnectionWithID(java.lang.String)";
 const CLOSE_SESSION_SIG = "closeSessionWithID(java.lang.String,java.lang.String)";
 
-class ArtemisService implements IArtemisService {
+class ArtemisService {
 
     private brokerObjectName: Promise<string>
 
@@ -82,7 +78,7 @@ class ArtemisService implements IArtemisService {
         return search[0]?search[0]:"";
     }
 
-    async createBrokerInfo(jolokiaService: IJolokiaService): Promise<BrokerInfo> {       
+    async createBrokerInfo(): Promise<BrokerInfo> {       
         return new Promise<BrokerInfo>(async (resolve, reject) => { 
             var brokerObjectName = await this.brokerObjectName;
             var response = await jolokiaService.readAttributes(brokerObjectName);
@@ -121,7 +117,17 @@ class ArtemisService implements IArtemisService {
         });
     }
 
-    async doSendMessage(jolokia: IJolokiaService, mbean: string, body: string, theHeaders: { name: string; value: string }[], durable: boolean, createMessageId: boolean, useCurrentlogon: boolean, username: string, password: string) {
+    async doSendMessageToQueue(body: string, theHeaders: { name: string; value: string }[], durable: boolean, createMessageId: boolean, useCurrentlogon: boolean, username: string, password: string, routingType: string, queue: string, address: string) {
+        const mbean = createQueueObjectName(await this.getBrokerObjectName(), address, routingType, queue);
+        return await this.doSendMessage(mbean, body, theHeaders, durable, createMessageId, useCurrentlogon, username, password);
+    }
+
+    async doSendMessageToAddress(body: string, theHeaders: { name: string; value: string }[], durable: boolean, createMessageId: boolean, useCurrentlogon: boolean, username: string, password: string, address: string) {
+        const mbean = createAddressObjectName(await this.getBrokerObjectName(), address);
+        return await this.doSendMessage(mbean, body, theHeaders, durable, createMessageId, useCurrentlogon, username, password);
+    }
+
+    async doSendMessage(mbean: string, body: string, theHeaders: { name: string; value: string }[], durable: boolean, createMessageId: boolean, useCurrentlogon: boolean, username: string, password: string) {
         var type = 3;
         var user = useCurrentlogon ? null : username;
         var pwd = useCurrentlogon ? null : password;
@@ -133,37 +139,37 @@ class ArtemisService implements IArtemisService {
             }
         });
         log.debug("About to send headers: " + JSON.stringify(headers));
-        return await jolokia.execute(mbean, SEND_MESSAGE_SIG, [headers, type, body, durable, user, pwd, createMessageId]);
+        return await jolokiaService.execute(mbean, SEND_MESSAGE_SIG, [headers, type, body, durable, user, pwd, createMessageId]);
     }
 
 
-    async deleteAddress(jolokia: IJolokiaService, brokerMBeanName: string, address: string) {
-        return await jolokia.execute(brokerMBeanName, DELETE_ADDRESS_SIG, [address])
+    async deleteAddress(address: string) {
+        return await jolokiaService.execute(await this.getBrokerObjectName(), DELETE_ADDRESS_SIG, [address])
     }
 
-    async createQueue(jolokia: IJolokiaService, mBean: string, queueConfiguration: string) {
-        return await jolokia.execute(mBean, CREATE_QUEUE_SIG, [queueConfiguration, false]).then().catch() as string;
+    async createQueue(queueConfiguration: string) {
+        return await jolokiaService.execute(await this.getBrokerObjectName() , CREATE_QUEUE_SIG, [queueConfiguration, false]).then().catch() as string;
     }
 
-    async createAddress(jolokia: IJolokiaService, brokerMBeanName: string, address: string, routingType: string) {
-        return await jolokia.execute(brokerMBeanName, CREATE_ADDRESS_SIG, [address, routingType])
+    async createAddress(address: string, routingType: string) {
+        return await jolokiaService.execute(await this.getBrokerObjectName(), CREATE_ADDRESS_SIG, [address, routingType])
     }
 
-    async getMessages(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, filter: string) {
+    async getMessages(mBean: string, page: number, perPage: number, filter: string) {
         var count: number;
         if (filter && filter.length > 0) {
-            count = await jolokia.execute(mBean, COUNT_MESSAGES_SIG2, [filter]) as number;
+            count = await jolokiaService.execute(mBean, COUNT_MESSAGES_SIG2, [filter]) as number;
         } else {
-            count = await jolokia.execute(mBean, COUNT_MESSAGES_SIG) as number;
+            count = await jolokiaService.execute(mBean, COUNT_MESSAGES_SIG) as number;
         }
-        const messages = await jolokia.execute(mBean, BROWSE_SIG, [page, perPage, filter]) as string;
+        const messages = await jolokiaService.execute(mBean, BROWSE_SIG, [page, perPage, filter]) as string;
         return {
             data: messages,
             count: count
         };
     }
 
-    async getProducers(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
+    async getProducers(page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
         var producerFilter = {
             field: filter.input !== '' ? filter.column : '',
             operation: filter.input !== '' ? filter.operation : '',
@@ -171,10 +177,10 @@ class ArtemisService implements IArtemisService {
             sortOrder: activeSort.order,
             sortColumn: activeSort.id
         };
-        return await jolokia.execute(mBean, LIST_PRODUCERS_SIG, [JSON.stringify(producerFilter), page, perPage]) as string;
+        return await jolokiaService.execute(await this.getBrokerObjectName(), LIST_PRODUCERS_SIG, [JSON.stringify(producerFilter), page, perPage]) as string;
     }
 
-    async getConsumers(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
+    async getConsumers(page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
         var consumerFilter = {
             field: filter.input !== '' ? filter.column : '',
             operation: filter.input !== '' ? filter.operation : '',
@@ -182,10 +188,10 @@ class ArtemisService implements IArtemisService {
             sortOrder: activeSort.order,
             sortColumn: activeSort.id
         };
-        return await jolokia.execute(mBean, LIST_CONSUMERS_SIG, [JSON.stringify(consumerFilter), page, perPage]) as string;
+        return await jolokiaService.execute(await this.getBrokerObjectName(), LIST_CONSUMERS_SIG, [JSON.stringify(consumerFilter), page, perPage]) as string;
     }
 
-    async getConnections(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
+    async getConnections(page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
         var connectionsFilter = {
             field: filter.input !== '' ? filter.column : '',
             operation: filter.input !== '' ? filter.operation : '',
@@ -193,10 +199,10 @@ class ArtemisService implements IArtemisService {
             sortOrder: activeSort.order,
             sortColumn: activeSort.id
         };
-        return await jolokia.execute(mBean, LIST_CONNECTIONS_SIG, [JSON.stringify(connectionsFilter), page, perPage]) as string;
+        return await jolokiaService.execute(await this.getBrokerObjectName(), LIST_CONNECTIONS_SIG, [JSON.stringify(connectionsFilter), page, perPage]) as string;
     }
 
-    async getSessions(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
+    async getSessions(page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
         var sessionsFilter = {
             field: filter.input !== '' ? filter.column : '',
             operation: filter.input !== '' ? filter.operation : '',
@@ -204,10 +210,10 @@ class ArtemisService implements IArtemisService {
             sortOrder: activeSort.order,
             sortColumn: activeSort.id
         };
-        return await jolokia.execute(mBean, LIST_SESSIONS_SIG, [JSON.stringify(sessionsFilter), page, perPage]) as string;
+        return await jolokiaService.execute(await this.getBrokerObjectName(), LIST_SESSIONS_SIG, [JSON.stringify(sessionsFilter), page, perPage]) as string;
     }
 
-    async geAddresses(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
+    async getAddresses(page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
         var addressesFilter = {
             field: filter.input !== '' ? filter.column : '',
             operation: filter.input !== '' ? filter.operation : '',
@@ -215,10 +221,10 @@ class ArtemisService implements IArtemisService {
             sortOrder: activeSort.order,
             sortColumn: activeSort.id
         };
-        return await jolokia.execute(mBean, LIST_ADDRESSES_SIG, [JSON.stringify(addressesFilter), page, perPage]) as string;
+        return await jolokiaService.execute(await this.getBrokerObjectName(), LIST_ADDRESSES_SIG, [JSON.stringify(addressesFilter), page, perPage]) as string;
     }
 
-    async getQueues(jolokia: IJolokiaService, mBean: string, page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
+    async getQueues(page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<string> {
         var queuesFilter = {
             field: filter.input !== '' ? filter.column : '',
             operation: filter.input !== '' ? filter.operation : '',
@@ -226,24 +232,28 @@ class ArtemisService implements IArtemisService {
             sortOrder: activeSort.order,
             sortColumn: activeSort.id
         };
-        return await jolokia.execute(mBean, LIST_QUEUES_SIG, [JSON.stringify(queuesFilter), page, perPage]) as string;
+        return await jolokiaService.execute(await this.getBrokerObjectName(), LIST_QUEUES_SIG, [JSON.stringify(queuesFilter), page, perPage]) as string;
     }
 
-    async deleteQueue(jolokia: IJolokiaService, brokerMBean: string, name: string) {
-        return jolokia.execute(brokerMBean, DESTROY_QUEUE_SIG, [name]);
+    async deleteQueue(name: string) {
+        return jolokiaService.execute(await this.getBrokerObjectName(), DESTROY_QUEUE_SIG, [name]);
     }
 
-    async purgeQueue(jolokia: IJolokiaService, brokerMBean: string, name: string, address: string, routingType: string) {
-        var queueMBean: string = createQueueObjectName(brokerMBean, address, routingType, name);
-        return jolokia.execute(queueMBean, REMOVE_ALL_MESSAGES_SIG);
+    async purgeQueue(name: string, address: string, routingType: string) {
+        var queueMBean: string = createQueueObjectName(await this.getBrokerObjectName(), address, routingType, name);
+        return jolokiaService.execute(queueMBean, REMOVE_ALL_MESSAGES_SIG);
     }
 
-    async closeConnection(jolokia: IJolokiaService, brokerMBean: string, name: string) {
-        return jolokia.execute(brokerMBean, CLOSE_CONNECTION_SIG, [name]);
+    async closeConnection(name: string) {
+        return jolokiaService.execute(await this.getBrokerObjectName(), CLOSE_CONNECTION_SIG, [name]);
     }
 
-    async closeSession(jolokia: IJolokiaService, brokerMBean: string, connection: string, name: string) {
-        return jolokia.execute(brokerMBean, CLOSE_SESSION_SIG, [connection, name]);
+    async closeSession(connection: string, name: string) {
+        return jolokiaService.execute(await this.getBrokerObjectName(), CLOSE_SESSION_SIG, [connection, name]);
+    }
+
+    async getBrokerObjectName() {
+        return await this.brokerObjectName;
     }
 
 }

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Broker } from '../views/ArtemisTabView.js';
 import { Column } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { Toolbar, ToolbarContent, ToolbarItem, Text, SearchInput, Button, PaginationVariant, Pagination, DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells, DataListItemRow, Modal, TextContent, Title, TextArea } from '@patternfly/react-core';
@@ -8,7 +7,6 @@ import { log } from '../globals';
 import { createQueueObjectName } from '../util/jmx';
 
 export type MessageProps = {
-  broker: Broker,
   address: string,
   queue: string,
   routingType: string
@@ -91,15 +89,16 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       log.info(JSON.stringify(data));
     } 
     const listMessages = async (): Promise<any> => {
-      const queueMBean: string = createQueueObjectName(props.broker.brokerMBeanName, props.address, props.routingType, props.queue);
-      const response = await artemisService.getMessages(props.broker.jolokia, queueMBean, page, perPage, filter);
+      const brokerObjectname = await artemisService.getBrokerObjectName();
+      const queueMBean: string = createQueueObjectName(brokerObjectname, props.address, props.routingType, props.queue);
+      const response = await artemisService.getMessages(queueMBean, page, perPage, filter);
       return response;
     }
     if (messagesView) {
       listData();
     }
 
-  }, [columns, currentMessage, messagesView, props.broker.jolokia, props.broker.brokerMBeanName, props.address, props.routingType, props.queue, page, perPage, filter])
+  }, [columns, currentMessage, messagesView, props.address, props.routingType, props.queue, page, perPage, filter])
 
   const handleSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
     setPage(newPage);

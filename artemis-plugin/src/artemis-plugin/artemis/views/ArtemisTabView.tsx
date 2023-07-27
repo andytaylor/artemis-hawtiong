@@ -8,14 +8,11 @@ import { ConnectionsTable } from '../connections/ConnectionsTable';
 import { SessionsTable } from '../sessions/SessionsTable';
 import { AddressesTable } from '../addresses/AddressesTable';
 import { QueuesTable } from '../queues/QueuesTable';
-import { IJolokiaService } from '@hawtio/react';
 import { ArtemisContext, useArtemisTree } from '../context';
 import { Status } from '../status/Status';
 
 
 export type Broker = {
-  brokerMBeanName: string,
-  jolokia: IJolokiaService,
   columnStorageLocation?: string
 }
 
@@ -55,32 +52,32 @@ export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connectio
           </Tab>
           <Tab eventKey={1} title={<TabTitleText>Connections</TabTitleText>} aria-label="connections">
             {activeTabKey === 1 &&
-              <ConnectionsTable brokerMBeanName={connection.brokerDetails.brokerMBean} jolokia={connection.getJolokiaService()} />
+              <ConnectionsTable/>
             }
           </Tab>
           <Tab eventKey={2} title={<TabTitleText>Sessions</TabTitleText>} aria-label="sessions">
             {activeTabKey === 2 &&
-              <SessionsTable brokerMBeanName={connection.brokerDetails.brokerMBean} jolokia={connection.getJolokiaService()} />
+              <SessionsTable/>
             }
           </Tab>
           <Tab eventKey={3} title={<TabTitleText>Producers</TabTitleText>} aria-label="producers">
             {activeTabKey === 3 &&
-              <ProducerTable brokerMBeanName={connection.brokerDetails.brokerMBean} jolokia={connection.getJolokiaService()} />
+              <ProducerTable/>
             }
           </Tab>
           <Tab eventKey={4} title={<TabTitleText>Consumers</TabTitleText>} aria-label="consumers">
             {activeTabKey === 4 &&
-              <ConsumerTable brokerMBeanName={connection.brokerDetails.brokerMBean} jolokia={connection.getJolokiaService()} />
+              <ConsumerTable/>
             }
           </Tab>
           <Tab eventKey={5} title={<TabTitleText>Addresses</TabTitleText>} aria-label="addresses">
             {activeTabKey === 5 &&
-              <AddressesTable brokerMBeanName={connection.brokerDetails.brokerMBean} jolokia={connection.getJolokiaService()} />
+              <AddressesTable/>
             }
           </Tab>
           <Tab eventKey={6} title={<TabTitleText>Queues</TabTitleText>} aria-label="consumers">
             {activeTabKey === 6 &&
-              <QueuesTable brokerMBeanName={connection.brokerDetails.brokerMBean} jolokia={connection.getJolokiaService()} />
+              <QueuesTable/>
             }
           </Tab>
         </Tabs>

@@ -17,6 +17,10 @@ export function createQueueObjectName(brokerMBean: string, address: string, rout
     return brokerMBean + ADDRESS_COMPONENT_PART + address + ADDRESS_SUBCOMPONENT_PART + routingType.toLowerCase() + ADDRESS_TYPE_PART + queue + STRING_DELIMETER;
 }
 
+export function createAddressObjectName(brokerMBean: string, address: string) {
+    return brokerMBean + ADDRESS_COMPONENT_PART + address + STRING_DELIMETER;
+}
+
 export function isQueue(node: MBeanNode): boolean {
     return node != null && node.objectName != null && node.objectName?.includes(QUEUE_COMPONENT) as boolean;
 }

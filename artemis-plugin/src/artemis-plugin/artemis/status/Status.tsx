@@ -1,7 +1,7 @@
 import { ChartDonutUtilization } from "@patternfly/react-charts"
 import { Card, CardBody, CardTitle, Flex, FlexItem } from "@patternfly/react-core"
 import { TableComposable, Tr, Tbody, Td } from '@patternfly/react-table';
-import { Chart, eventService, jolokiaService } from '@hawtio/react';
+import { Chart, eventService } from '@hawtio/react';
 import { useEffect, useState } from "react";
 import { artemisService, BrokerInfo } from "../artemis-service";
 
@@ -11,7 +11,7 @@ export const Status: React.FunctionComponent = () => {
     const [brokerInfo, setBrokerInfo] = useState<BrokerInfo>()
     useEffect(() => {
         const getBrokerInfo = async () => {
-            artemisService.createBrokerInfo(jolokiaService)
+            artemisService.createBrokerInfo()
                 .then((brokerInfo) => {
                     setBrokerInfo(brokerInfo)
                 })

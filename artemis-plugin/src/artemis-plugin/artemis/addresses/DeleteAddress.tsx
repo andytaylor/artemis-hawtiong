@@ -1,12 +1,10 @@
 import { ActionGroup, Button, Form, Title } from '@patternfly/react-core';
 import React, { useState } from 'react'
-import { Broker } from '../views/ArtemisTabView';
 import { DeleteAddressModal } from './DeleteAddressModal';
 import { ConnectHint } from '../util/ConnectHint';
 
 type DeleteAddressProps = {
   address: string
-  broker: Broker
 }
 export const DeleteAddress: React.FunctionComponent<DeleteAddressProps> = (props: DeleteAddressProps) => {
 
@@ -22,12 +20,7 @@ export const DeleteAddress: React.FunctionComponent<DeleteAddressProps> = (props
         </ActionGroup>
       </Form>
       <DeleteAddressModal
-        address={props.address}
-        broker={{
-          brokerMBeanName: props.broker.brokerMBeanName,
-          jolokia: props.broker.jolokia
-        }}
-        show={showDeleteModal} onClick={() => setShowDeleteModal(false)} />
+        address={props.address} show={showDeleteModal} onClick={() => setShowDeleteModal(false)} />
     </>
   )
 }

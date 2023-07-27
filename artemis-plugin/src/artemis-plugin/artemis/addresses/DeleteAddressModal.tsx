@@ -1,7 +1,6 @@
 import { Button, Text, Modal, ModalVariant, Icon, TextContent } from '@patternfly/react-core';
 import { log } from '../globals';
 import { artemisService } from '../artemis-service';
-import { Broker } from '../views/ArtemisTabView';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { eventService } from '@hawtio/react';
 
@@ -9,12 +8,11 @@ type DeleteAddressProps = {
   address: string
   show: boolean
   onClick: Function;
-  broker: Broker
 }
 export const DeleteAddressModal: React.FunctionComponent<DeleteAddressProps> = (props: DeleteAddressProps) => {
 
   const handleDeleteAddress = () => {
-    artemisService.deleteAddress(props.broker.jolokia, props.broker.brokerMBeanName, props.address)
+    artemisService.deleteAddress(props.address)
       .then(() => {
         props.onClick();
         eventService.notify({

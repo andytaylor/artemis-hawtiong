@@ -28,10 +28,10 @@ export const ConsumerTable: React.FunctionComponent<Broker> = broker => {
       ];
 
       const listConsumers = async ( page: number, perPage: number, activeSort: ActiveSort, filter: Filter):Promise<any> => {
-        const response = await artemisService.getConsumers(broker.jolokia, broker.brokerMBeanName, page, perPage, activeSort, filter);
+        const response = await artemisService.getConsumers(page, perPage, activeSort, filter);
         const data = JSON.parse(response);
         return data;
       }
       
-    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listConsumers} storageColumnLocation="consumerColumnDefs"/>
+    return <ArtemisTable allColumns={allColumns} getData={listConsumers} storageColumnLocation="consumerColumnDefs"/>
 }

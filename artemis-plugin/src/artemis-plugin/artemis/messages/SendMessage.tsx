@@ -1,4 +1,4 @@
-import React, { FormEvent, useContext, useRef, useState } from 'react'
+import React, { FormEvent, useRef, useState } from 'react'
 import * as monacoEditor from 'monaco-editor'
 import xmlFormat from 'xml-formatter'
 
@@ -24,10 +24,8 @@ import {
 import { OutlinedQuestionCircleIcon, InfoCircleIcon } from '@patternfly/react-icons'
 import { TrashIcon } from '@patternfly/react-icons'
 import { CodeEditor, Language } from '@patternfly/react-code-editor'
-import { ArtemisContext } from '../context'
-import { eventService, NotificationType } from '@hawtio/react'
+import { eventService } from '@hawtio/react'
 import { artemisService } from '../artemis-service'
-import { Broker } from '../views/ArtemisTabView'
 
 type SendBodyMessageProps = {
   onBodyChange: (body: string) => void
@@ -38,7 +36,6 @@ type SendMessageProps = {
   routingType: string
   address: string
   isAddress: boolean
-  broker: Broker
 }
 
 const MessageBody: React.FunctionComponent<SendBodyMessageProps> = props => {
@@ -192,7 +189,6 @@ const MessageHeaders: React.FunctionComponent<MessageHeadersProps> = props => {
 }
 
 export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: SendMessageProps) => {
-  const { selectedNode } = useContext(ArtemisContext)
   const [isDurableChecked, setIsDurableChecked] = useState<boolean>(true);
   const [isCreateIDChecked, setIsCreateIDChecked] = useState<boolean>(false);
   const [isUseLogonChecked, setIsUselogonChecked] = useState<boolean>(true);
@@ -219,18 +215,13 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
-    var mbean;
-    if(props.isAddress) {
-      mbean = props.broker.brokerMBeanName + ",component=addresses,address=\"" + props.address + "\"";
-    } else {
-      mbean = props.broker.brokerMBeanName + ",component=addresses,address=\"" + props.address + "\",subcomponent=queues,routing-type=\"" + props.routingType.toLowerCase() + "\",queue=\"" + props.queue + "\"";
-    }
-    artemisService.doSendMessage(props.broker.jolokia, mbean, messageBody.current, messageHeaders.current, isDurableChecked, isCreateIDChecked, isUseLogonChecked, username, password).
-        then(() => {
-            eventService.notify({
-                type: 'success',
-                message: "Message Succcesfully Sent",
-              })
+    if (props.isAddress) {
+      artemisService.doSendMessageToAddress(messageBody.current, messageHeaders.current, isDurableChecked, isCreateIDChecked, isUseLogonChecked, username, password, props.routingType.toLowerCase())
+        .then(() => {
+          eventService.notify({
+            type: 'success',
+            message: "Message Succcesfully Sent",
+          })
         })
         .catch((error: string) => {
           eventService.notify({
@@ -238,6 +229,21 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
             message: error,
           })
         })
+    } else {
+      artemisService.doSendMessageToQueue(messageBody.current, messageHeaders.current, isDurableChecked, isCreateIDChecked, isUseLogonChecked, username, password, props.routingType.toLowerCase(), props.queue, props.address)
+        .then(() => {
+          eventService.notify({
+            type: 'success',
+            message: "Message Succcesfully Sent",
+          })
+        })
+        .catch((error: string) => {
+          eventService.notify({
+            type: 'warning',
+            message: error,
+          })
+        })
+    }
   }
 
 
@@ -256,8 +262,8 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
 
   return (
     <PageSection variant='light'>
-      <Title headingLevel='h1'>Send Message to {props.isAddress ? 'Address' : 'Queue'} {props.address} 
-      <Popover bodyContent={Hint}><OutlinedQuestionCircleIcon /></Popover></Title>
+      <Title headingLevel='h1'>Send Message to {props.isAddress ? 'Address' : 'Queue'} {props.address}
+        <Popover bodyContent={Hint}><OutlinedQuestionCircleIcon /></Popover></Title>
       <Text component='p'>  <br /></Text>
       <Form onSubmit={handleSubmit}>
         <FormGroup
@@ -289,7 +295,7 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
             onChange={() => setIsUselogonChecked(!isUseLogonChecked)}
             id="uselogon" />
         </FormGroup>
-        {!isUseLogonChecked && 
+        {!isUseLogonChecked &&
           <><FormGroup label="Username">
             <TextInput
               value={username}

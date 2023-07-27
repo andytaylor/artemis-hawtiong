@@ -45,7 +45,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   ];
 
   const listQueues = async (page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<any> => {
-    const response = await artemisService.getQueues(broker.jolokia, broker.brokerMBeanName, page, perPage, activeSort, filter);
+    const response = await artemisService.getQueues(page, perPage, activeSort, filter);
     const data = JSON.parse(response);
     return data;
   }
@@ -74,7 +74,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   };
 
   const deleteQueue = async (name: string) => {
-    await artemisService.deleteQueue(broker.jolokia, broker.brokerMBeanName, name)
+    await artemisService.deleteQueue(name)
       .then((value: unknown) => {
         setShowDeleteDialog(false);
         setLoadData(loadData + 1);
@@ -94,7 +94,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   };
 
   const purgeQueue = (name: string, address: string, routingType: string) => {
-    artemisService.purgeQueue(broker.jolokia, broker.brokerMBeanName, name, address, routingType)
+    artemisService.purgeQueue(name, address, routingType)
       .then(() => {
         setShowPurgeDialog(false);
         setLoadData(loadData + 1);
@@ -157,7 +157,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   const QueuesView: React.FunctionComponent = () => {
     return (
       <>
-        <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" />
+        <ArtemisTable allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" />
         <Modal
           aria-label='queue-delete-modal'
           variant={ModalVariant.medium}
@@ -199,10 +199,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
               Cancel
             </Button>
           ]}>
-          <SendMessage address={address} queue={queue} routingType={routingType} isAddress={false} broker={{
-            brokerMBeanName: broker.brokerMBeanName,
-            jolokia: broker.jolokia
-          }} />
+          <SendMessage address={address} queue={queue} routingType={routingType}  isAddress={false}/>
         </Modal>
       </>
     )
@@ -210,10 +207,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
 
   const MessagesView: React.FunctionComponent = () => {
     return (
-      <MessagesTable queue={queue} routingType={routingType} address={address} broker={{
-        brokerMBeanName: broker.brokerMBeanName,
-        jolokia: broker.jolokia
-      }} />
+      <MessagesTable queue={queue} routingType={routingType} address={address}/>
     )
   }
 

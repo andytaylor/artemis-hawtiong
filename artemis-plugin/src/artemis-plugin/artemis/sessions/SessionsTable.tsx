@@ -23,13 +23,13 @@ export const SessionsTable: React.FunctionComponent<Broker> = broker => {
   const [sessionConnection, setSessionConnection] = useState("");
   const [loadData, setLoadData] = useState(0);
   const listSessions = async (page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<any> => {
-    const response = await artemisService.getSessions(broker.jolokia, broker.brokerMBeanName, page, perPage, activeSort, filter);
+    const response = await artemisService.getSessions(page, perPage, activeSort, filter);
     const data = JSON.parse(response);
     return data;
   }
 
   const closeSession = () => {
-    artemisService.closeSession(broker.jolokia, broker.brokerMBeanName, sessionConnection, sessionToClose)
+    artemisService.closeSession(sessionConnection, sessionToClose)
       .then((value: unknown) => {
         setShowSessionCloseDialog(false);
         setLoadData(loadData + 1);
@@ -63,7 +63,7 @@ export const SessionsTable: React.FunctionComponent<Broker> = broker => {
   };
 
   return (
-    <><ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs" getRowActions={getRowActions} loadData={loadData} /><Modal
+    <><ArtemisTable allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs" getRowActions={getRowActions} loadData={loadData} /><Modal
       aria-label='session-close-modal'
       variant={ModalVariant.medium}
       title="Close Session?"

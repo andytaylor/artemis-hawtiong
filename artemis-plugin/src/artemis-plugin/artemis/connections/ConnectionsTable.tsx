@@ -24,13 +24,13 @@ export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
   const [loadData, setLoadData] = useState(0);
 
   const listConnections = async (page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<any> => {
-    const response = await artemisService.getConnections(broker.jolokia, broker.brokerMBeanName, page, perPage, activeSort, filter);
+    const response = await artemisService.getConnections(page, perPage, activeSort, filter);
     const data = JSON.parse(response);
     return data;
   }
 
   const closeConnection = (name: string) => {
-    artemisService.closeConnection(broker.jolokia, broker.brokerMBeanName, connectionToClose)
+    artemisService.closeConnection(connectionToClose)
       .then((value: unknown) => {
         setShowConnectionCloseDialog(false);
         setLoadData(loadData + 1);
@@ -64,7 +64,7 @@ export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
 
   return (
     <>
-      <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={defaultColumns} getData={listConnections} storageColumnLocation="connectionsColumnDefs" getRowActions={getRowActions} loadData={loadData} />
+      <ArtemisTable allColumns={defaultColumns} getData={listConnections} storageColumnLocation="connectionsColumnDefs" getRowActions={getRowActions} loadData={loadData} />
       <Modal
         aria-label='connection-close-modal'
         variant={ModalVariant.medium}

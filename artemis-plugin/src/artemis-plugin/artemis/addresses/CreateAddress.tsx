@@ -5,7 +5,7 @@ import { Broker } from '../views/ArtemisTabView';
 import { eventService } from '@hawtio/react';
 import { ConnectHint } from '../util/ConnectHint';
 
-export const CreateAddress: React.FunctionComponent<Broker> = (broker: Broker) => {
+export const CreateAddress: React.FunctionComponent = () => {
   const [addressName, setAddressName] = useState('');
   const [routingType, setRoutingType] = useState('');
 
@@ -18,7 +18,7 @@ export const CreateAddress: React.FunctionComponent<Broker> = (broker: Broker) =
   };
 
   const handleCreateAddress = () => {
-    artemisService.createAddress(broker.jolokia, broker.brokerMBeanName, addressName, routingType)
+    artemisService.createAddress(addressName, routingType)
       .then(() => {
         eventService.notify({
           type: 'success',
@@ -47,7 +47,7 @@ export const CreateAddress: React.FunctionComponent<Broker> = (broker: Broker) =
             value={addressName}
             onChange={handleQueueNameChange} />
         </FormGroup>
-        <FormGroup role="radiogroup" isInline fieldId="routing-typr" label="Routing Type">
+        <FormGroup role="radiogroup" isInline fieldId="routing-type" label="Routing Type">
           <Radio name="basic-inline-radio" label="Anycast" id="ANYCAST" onChange={() => handleQueueRoutingTypeChange("ANYCAST")} />
           <Radio name="basic-inline-radio" label="Multicast" id="MULTICAST" onChange={() => handleQueueRoutingTypeChange("MULTICAST")} />
         </FormGroup>

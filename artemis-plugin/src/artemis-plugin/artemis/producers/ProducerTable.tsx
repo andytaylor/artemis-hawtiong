@@ -20,10 +20,10 @@ export const ProducerTable: React.FunctionComponent<Broker> = broker => {
       ];
 
       const listProducers = async ( page: number, perPage: number, activeSort: ActiveSort, filter: Filter):Promise<any> => {
-        const response = await artemisService.getProducers(broker.jolokia, broker.brokerMBeanName, page, perPage, activeSort, filter);
+        const response = await artemisService.getProducers(page, perPage, activeSort, filter);
         const data = JSON.parse(response);
         return data;
       }
       
-    return <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listProducers} storageColumnLocation="producerColumnDefs"/>
+    return <ArtemisTable allColumns={allColumns} getData={listProducers} storageColumnLocation="producerColumnDefs"/>
 }

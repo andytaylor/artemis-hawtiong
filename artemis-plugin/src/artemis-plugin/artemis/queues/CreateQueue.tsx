@@ -3,12 +3,10 @@ import React, { useState } from 'react'
 import { TrashIcon, OutlinedQuestionCircleIcon, InfoCircleIcon } from '@patternfly/react-icons'
 import { log } from '../globals';
 import { artemisService } from '../artemis-service';
-import { Broker } from '../views/ArtemisTabView';
 import { eventService } from '@hawtio/react';
 
 type CreateQueueProps = {
     address: string
-    broker: Broker
 }
 export const CreateQueue: React.FunctionComponent<CreateQueueProps> = (props: CreateQueueProps) => {
     const [queueName, setQueueName] = useState('');
@@ -46,7 +44,7 @@ export const CreateQueue: React.FunctionComponent<CreateQueueProps> = (props: Cr
         })
 
         log.info("Creating queue with configuration" + JSON.stringify(queueConfiguration));
-        artemisService.createQueue(props.broker.jolokia, props.broker.brokerMBeanName, JSON.stringify(queueConfiguration))
+        artemisService.createQueue(JSON.stringify(queueConfiguration))
             .then(() => {
                 eventService.notify({
                     type: 'success',
