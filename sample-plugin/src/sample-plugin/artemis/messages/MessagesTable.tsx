@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Broker } from '../ArtemisTabs.js';
-import { Column } from './ArtemisTable';
+import { Broker } from '../views/ArtemisTabView.js';
+import { Column } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { Toolbar, ToolbarContent, ToolbarItem, Text, SearchInput, Button, PaginationVariant, Pagination, DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells, DataListItemRow, Modal, TextContent, Title, TextArea } from '@patternfly/react-core';
 import { TableComposable, Thead, Tr, Th, Tbody, Td, ActionsColumn, IAction } from '@patternfly/react-table';
 import { log } from '../globals';
+import { createQueueObjectName } from '../util/jmx';
 
 export type MessageProps = {
   broker: Broker,
@@ -90,7 +91,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       log.info(JSON.stringify(data));
     } 
     const listMessages = async (): Promise<any> => {
-      const queueMBean: string = artemisService.createQueueObjectName(props.broker.brokerMBeanName, props.address, props.routingType, props.queue);
+      const queueMBean: string = createQueueObjectName(props.broker.brokerMBeanName, props.address, props.routingType, props.queue);
       const response = await artemisService.getMessages(props.broker.jolokia, queueMBean, page, perPage, filter);
       return response;
     }

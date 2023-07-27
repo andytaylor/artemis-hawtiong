@@ -1,4 +1,4 @@
-import { Column } from "./tables/ArtemisTable"
+import { Column } from "./table/ArtemisTable"
 
 export interface IArtemisPreferencesService {
   loadArtemisPreferences(): ArtemisOptions

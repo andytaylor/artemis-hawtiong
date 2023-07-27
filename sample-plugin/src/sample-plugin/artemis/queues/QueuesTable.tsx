@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Broker } from '../ArtemisTabs.js';
-import { ActiveSort, ArtemisTable, Column, Filter } from './ArtemisTable';
+import { Broker } from '../views/ArtemisTabView.js';
+import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
 import { log } from '../globals';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
-import { SendMessage } from '../components/SendMessage';
-import { MessagesTable } from './MessagesTable';
+import { SendMessage } from '../messages/SendMessage';
+import { MessagesTable } from '../messages/MessagesTable';
+import { eventService } from '@hawtio/react';
 
 export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   const allColumns: Column[] = [
@@ -78,16 +79,44 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
     setShowSendDialog(false);
   };
 
-  const deleteQueue = (name: string) => {
-    artemisService.deleteQueue(broker.jolokia, broker.brokerMBeanName, name);
-    setShowDeleteDialog(false);
-    setLoadData(loadData + 1);
+  const deleteQueue = async (name: string) => {
+    await artemisService.deleteQueue(broker.jolokia, broker.brokerMBeanName, name)
+      .then((value: unknown) => {
+        setShowDeleteDialog(false);
+        setLoadData(loadData + 1);
+        eventService.notify({
+          type: 'success',
+          message: 'Queue Deleted',
+          duration: 3000,
+        })
+      })
+      .catch((error: string) => {
+        setShowDeleteDialog(false);
+        eventService.notify({
+          type: 'danger',
+          message: 'Queue Not Deleted: ' + error,
+        })
+      });
   };
 
   const purgeQueue = (name: string, address: string, routingType: string) => {
-    artemisService.purgeQueue(broker.jolokia, broker.brokerMBeanName, name, address, routingType);
-    setShowPurgeDialog(false);
-    setLoadData(loadData + 1);
+    artemisService.purgeQueue(broker.jolokia, broker.brokerMBeanName, name, address, routingType)
+      .then(() => {
+        setShowPurgeDialog(false);
+        setLoadData(loadData + 1);
+        eventService.notify({
+          type: 'success',
+          message: 'Queue Purged',
+          duration: 3000,
+        })
+      })
+      .catch((error: string) => {
+        setShowPurgeDialog(false);
+        eventService.notify({
+          type: 'danger',
+          message: 'Queue Not Purged: ' + error,
+        })
+      });
   };
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
@@ -135,57 +164,57 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
     ]
   };
 
-   const QueuesView: React.FunctionComponent = () => {
+  const QueuesView: React.FunctionComponent = () => {
     return (
-    <>
-      <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" />
-      <Modal
-        aria-label='queue-delete-modal'
-        variant={ModalVariant.medium}
-        title="Delete Queue?"
-        isOpen={showDeleteDialog}
-        actions={[
-          <Button key="confirm" variant="primary" onClick={() => deleteQueue(queue)}>
-            Confirm
-          </Button>,
-          <Button key="cancel" variant="secondary" onClick={closeDeleteDialog}>
-            Cancel
-          </Button>
-        ]}><p>You are about to delete queue <b>{queue}</b>.</p>
-        <p>This operation cannot be undone so please be careful.</p>
-      </Modal>
+      <>
+        <ArtemisTable brokerMBeanName={broker.brokerMBeanName} jolokia={broker.jolokia} allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" />
+        <Modal
+          aria-label='queue-delete-modal'
+          variant={ModalVariant.medium}
+          title="Delete Queue?"
+          isOpen={showDeleteDialog}
+          actions={[
+            <Button key="confirm" variant="primary" onClick={() => deleteQueue(queue)}>
+              Confirm
+            </Button>,
+            <Button key="cancel" variant="secondary" onClick={closeDeleteDialog}>
+              Cancel
+            </Button>
+          ]}><p>You are about to delete queue <b>{queue}</b>.</p>
+          <p>This operation cannot be undone so please be careful.</p>
+        </Modal>
 
-      <Modal
-        aria-label='queue-purge-modal'
-        variant={ModalVariant.medium}
-        title="Purge Queue?"
-        isOpen={showPurgeDialog}
-        actions={[
-          <Button key="confirm" variant="primary" onClick={() => purgeQueue(queue, queueToPurgeAddress, queueToPurgeRoutingType)}>
-            Confirm
-          </Button>,
-          <Button key="cancel" variant="secondary" onClick={closePurgeDialog}>
-            Cancel
-          </Button>
-        ]}><p>You are about to remove all messages from queue <b>{queue}</b>.</p>
-        <p>This operation cannot be undone so please be careful.</p>
-      </Modal>
+        <Modal
+          aria-label='queue-purge-modal'
+          variant={ModalVariant.medium}
+          title="Purge Queue?"
+          isOpen={showPurgeDialog}
+          actions={[
+            <Button key="confirm" variant="primary" onClick={() => purgeQueue(queue, queueToPurgeAddress, queueToPurgeRoutingType)}>
+              Confirm
+            </Button>,
+            <Button key="cancel" variant="secondary" onClick={closePurgeDialog}>
+              Cancel
+            </Button>
+          ]}><p>You are about to remove all messages from queue <b>{queue}</b>.</p>
+          <p>This operation cannot be undone so please be careful.</p>
+        </Modal>
 
-      <Modal
-        aria-label='queue-send-modal'
-        variant={ModalVariant.medium}
-        isOpen={showSendDialog}
-        actions={[
-          <Button key="close" variant="secondary" onClick={closeSendDialog}>
-            Cancel
-          </Button>
-        ]}>
-        <SendMessage address={address} queue={queue} routingType={routingType} isAddress={false} broker={{
-          brokerMBeanName: broker.brokerMBeanName,
-          jolokia: broker.jolokia
-        }} />
-      </Modal>
-    </>
+        <Modal
+          aria-label='queue-send-modal'
+          variant={ModalVariant.medium}
+          isOpen={showSendDialog}
+          actions={[
+            <Button key="close" variant="secondary" onClick={closeSendDialog}>
+              Cancel
+            </Button>
+          ]}>
+          <SendMessage address={address} queue={queue} routingType={routingType} isAddress={false} broker={{
+            brokerMBeanName: broker.brokerMBeanName,
+            jolokia: broker.jolokia
+          }} />
+        </Modal>
+      </>
     )
   }
 
@@ -201,11 +230,11 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   return (
     <>
       {queueView &&
-        <QueuesView/>
+        <QueuesView />
       }
       {!queueView &&
         <>
-          <MessagesView/>
+          <MessagesView />
           <Button onClick={() => setQueueView(true)}>Back</Button>
         </>
       }

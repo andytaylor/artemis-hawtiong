@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Broker } from '../ArtemisTabs.js';
-import { ActiveSort, ArtemisTable, Column, Filter, ToolbarAction } from './ArtemisTable';
+import { Broker } from '../views/ArtemisTabView.js';
+import { ActiveSort, ArtemisTable, Column, Filter, ToolbarAction } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
-import { CreateQueue } from '../components/CreateQueue';
+import { CreateQueue } from '../queues/CreateQueue';
 import { log } from '../globals';
-import { DeleteAddressModal } from '../components/DeleteAddressModal';
+import { DeleteAddressModal } from './DeleteAddressModal';
 import { Attributes, MBeanNode, Operations } from '@hawtio/react';
 import { ArtemisContext } from '../context';
-import { CreateAddress } from '../components/CreateAddress';
-import { SendMessage } from '../components/SendMessage';
+import { CreateAddress } from './CreateAddress';
+import { SendMessage } from '../messages/SendMessage';
 
 export const AddressesTable: React.FunctionComponent<Broker> = broker => {
   const allColumns: Column[] = [

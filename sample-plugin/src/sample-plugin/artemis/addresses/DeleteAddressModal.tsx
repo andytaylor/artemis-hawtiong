@@ -1,7 +1,7 @@
 import { Button, Text, Modal, ModalVariant, Icon, TextContent } from '@patternfly/react-core';
 import { log } from '../globals';
 import { artemisService } from '../artemis-service';
-import { Broker } from '../ArtemisTabs';
+import { Broker } from '../views/ArtemisTabView';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { eventService } from '@hawtio/react';
 

@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { TrashIcon, OutlinedQuestionCircleIcon, InfoCircleIcon } from '@patternfly/react-icons'
 import { log } from '../globals';
 import { artemisService } from '../artemis-service';
-import { Broker } from '../ArtemisTabs';
+import { Broker } from '../views/ArtemisTabView';
 import { eventService } from '@hawtio/react';
 
 type CreateQueueProps = {

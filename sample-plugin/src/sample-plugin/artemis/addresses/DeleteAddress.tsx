@@ -2,7 +2,7 @@ import { ActionGroup, Button, ExpandableSection, Form, Title, Text } from '@patt
 import React, { useEffect, useState } from 'react'
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons'
 import { log } from '../globals';
-import { Broker } from '../ArtemisTabs';
+import { Broker } from '../views/ArtemisTabView';
 import { DeleteAddressModal } from './DeleteAddressModal';
 
 type DeleteAddressProps = {

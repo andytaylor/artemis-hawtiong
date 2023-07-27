@@ -1,9 +1,10 @@
+import { eventService } from '@hawtio/react';
 import { Modal, ModalVariant, Button } from '@patternfly/react-core';
 import { IAction } from '@patternfly/react-table';
 import React, { useState } from 'react'
 import { artemisService } from '../artemis-service';
-import { Broker } from '../ArtemisTabs.js';
-import { ActiveSort, ArtemisTable, Column, Filter } from './ArtemisTable';
+import { Broker } from '../views/ArtemisTabView.js';
+import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 
 export const SessionsTable: React.FunctionComponent<Broker> = broker => {
   const allColumns: Column[] = [
@@ -28,9 +29,23 @@ export const SessionsTable: React.FunctionComponent<Broker> = broker => {
   }
 
   const closeSession = () => {
-    artemisService.closeSession(broker.jolokia, broker.brokerMBeanName, sessionConnection, sessionToClose);
-    setShowSessionCloseDialog(false);
-    setLoadData(loadData + 1);
+    artemisService.closeSession(broker.jolokia, broker.brokerMBeanName, sessionConnection, sessionToClose)
+      .then((value: unknown) => {
+        setShowSessionCloseDialog(false);
+        setLoadData(loadData + 1);
+        eventService.notify({
+          type: 'success',
+          message: 'Connection Closed',
+          duration: 3000,
+        })
+      })
+      .catch((error: string) => {
+        setShowSessionCloseDialog(false);
+        eventService.notify({
+          type: 'danger',
+          message: 'Session Not Closed: ' + error,
+        })
+      });
   };
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {

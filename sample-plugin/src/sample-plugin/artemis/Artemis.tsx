@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { log } from './globals'
 import {useNavigate } from 'react-router-dom'
 import { CubesIcon } from '@patternfly/react-icons'
-import { ArtemisTabs } from './ArtemisTabs';
+import { ArtemisTabs } from './views/ArtemisTabView';
 import { BrokerConnection, brokerService } from './brokers/brokers-service';
 import { jolokiaService, MBeanNode } from '@hawtio/react';
 import Split from 'react-split'
@@ -12,8 +12,8 @@ import './Artemis.css'
 import { PageSection, TextContent, Text, PageSectionVariants, Button, EmptyState, EmptyStateIcon, EmptyStateVariant, Title } from '@patternfly/react-core';
 import { Grid } from '@patternfly/react-core';
 import { GridItem } from '@patternfly/react-core';
-import { ArtemisJMXTabs } from './ArtemisJMXTabs';
-import { artemisService } from './artemis-service';
+import { ArtemisJMXTabs } from './views/ArtemisJMXTabView';
+import { isQueue as isAQueue } from './util/jmx'
 
 
 
@@ -43,7 +43,7 @@ export const Artemis: React.FunctionComponent<BrokerConnection> = () => {
 
   log.debug("using connection=="+JSON.stringify(brokerConnection))
   log.debug("using mbean=="+selectedNode?.objectName)
-  const isQueue = artemisService.isQueue(selectedNode as MBeanNode)
+  const isQueue = isAQueue(selectedNode as MBeanNode)
   log.debug("type=" + isQueue)
   if (brokerConnection == null) return (<></>)
 

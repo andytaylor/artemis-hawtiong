@@ -27,7 +27,7 @@ import { CodeEditor, Language } from '@patternfly/react-code-editor'
 import { ArtemisContext } from '../context'
 import { eventService, NotificationType } from '@hawtio/react'
 import { artemisService } from '../artemis-service'
-import { Broker } from '../ArtemisTabs'
+import { Broker } from '../views/ArtemisTabView'
 
 type SendBodyMessageProps = {
   onBodyChange: (body: string) => void

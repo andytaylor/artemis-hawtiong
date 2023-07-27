@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { Text, PageSection, TextContent, PageSectionVariants, Tabs, Tab, TabTitleText, EmptyState, EmptyStateBody, EmptyStateIcon, Title } from '@patternfly/react-core';
 import DisconnectedIcon from '@patternfly/react-icons/dist/esm/icons/disconnected-icon';
-import { BrokerConnection } from './brokers/brokers-service';
-import { ProducerTable } from './tables/ProducerTable';
-import { ConsumerTable } from './tables/ConsumerTable';
-import { ConnectionsTable } from './tables/ConnectionsTable';
-import { SessionsTable } from './tables/SessionsTable';
-import { AddressesTable } from './tables/AddressesTable';
-import { QueuesTable } from './tables/QueuesTable';
-import { log } from './globals';
+import { BrokerConnection } from '../brokers/brokers-service';
+import { ProducerTable } from '../producers/ProducerTable';
+import { ConsumerTable } from '../consumers/ConsumerTable';
+import { ConnectionsTable } from '../connections/ConnectionsTable';
+import { SessionsTable } from '../sessions/SessionsTable';
+import { AddressesTable } from '../addresses/AddressesTable';
+import { QueuesTable } from '../queues/QueuesTable';
+import { log } from '../globals';
 import { Attributes, Chart, IJolokiaService, MBeanNode, Operations } from '@hawtio/react';
-import { artemisService } from './artemis-service';
-import { CreateQueue } from './components/CreateQueue';
-import { Broker } from './ArtemisTabs';
-import { DeleteAddress } from './components/DeleteAddress';
+import { artemisService } from '../artemis-service';
+import { CreateQueue } from '../queues/CreateQueue';
+import { Broker } from './ArtemisTabView';
+import { DeleteAddress } from '../addresses/DeleteAddress';
+import { isAddress as isAnAddress } from '../util/jmx'
 
 
 export type JMXData = {
@@ -25,7 +26,7 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
 
-  const isAddress = artemisService.isAddress(data.node)
+  const isAddress = isAnAddress(data.node)
   log.debug("type=" + isAddress)
 
   useEffect(() => {

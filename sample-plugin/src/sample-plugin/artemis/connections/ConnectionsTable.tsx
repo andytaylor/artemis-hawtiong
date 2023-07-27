@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Broker } from '../ArtemisTabs.js';
-import { ActiveSort, ArtemisTable, Column, Filter } from './ArtemisTable';
+import { Broker } from '../views/ArtemisTabView.js';
+import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { Modal, ModalVariant, Button } from '@patternfly/react-core';
 import { IAction } from '@patternfly/react-table';
+import { eventService } from '@hawtio/react';
 
 export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
   const defaultColumns: Column[] = [
@@ -29,9 +30,23 @@ export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
   }
 
   const closeConnection = (name: string) => {
-    artemisService.closeConnection(broker.jolokia, broker.brokerMBeanName, connectionToClose);
-    setShowConnectionCloseDialog(false);
-    setLoadData(loadData + 1);
+    artemisService.closeConnection(broker.jolokia, broker.brokerMBeanName, connectionToClose)
+      .then((value: unknown) => {
+        setShowConnectionCloseDialog(false);
+        setLoadData(loadData + 1);
+        eventService.notify({
+          type: 'success',
+          message: 'Connection Closed',
+          duration: 3000,
+        })
+      })
+      .catch((error: string) => {
+        setShowConnectionCloseDialog(false);
+        eventService.notify({
+          type: 'danger',
+          message: 'Connection Not Closed: ' + error,
+        })
+      });
   };
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {

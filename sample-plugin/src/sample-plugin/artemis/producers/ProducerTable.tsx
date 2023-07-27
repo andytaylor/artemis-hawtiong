@@ -1,6 +1,6 @@
 import React, { } from 'react'
-import { Broker } from '../ArtemisTabs.js';
-import { ActiveSort, ArtemisTable, Column, Filter } from './ArtemisTable';
+import { Broker } from '../views/ArtemisTabView.js';
+import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 
 export const ProducerTable: React.FunctionComponent<Broker> = broker => {

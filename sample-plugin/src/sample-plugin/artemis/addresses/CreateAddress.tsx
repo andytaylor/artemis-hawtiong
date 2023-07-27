@@ -2,7 +2,7 @@ import { ActionGroup, Button, ExpandableSection, Form, FormGroup, Radio, TextInp
 import React, { useState } from 'react'
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons'
 import { artemisService } from '../artemis-service';
-import { Broker } from '../ArtemisTabs';
+import { Broker } from '../views/ArtemisTabView';
 import { eventService } from '@hawtio/react';
 
 export const CreateAddress: React.FunctionComponent<Broker> = (broker: Broker) => {

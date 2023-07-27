@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { Tabs, Tab, TabTitleText, EmptyState, EmptyStateBody, EmptyStateIcon, Title } from '@patternfly/react-core';
 import DisconnectedIcon from '@patternfly/react-icons/dist/esm/icons/disconnected-icon';
-import { BrokerConnection } from './brokers/brokers-service';
-import { ProducerTable } from './tables/ProducerTable';
-import { ConsumerTable } from './tables/ConsumerTable';
-import { ConnectionsTable } from './tables/ConnectionsTable';
-import { SessionsTable } from './tables/SessionsTable';
-import { AddressesTable } from './tables/AddressesTable';
-import { QueuesTable } from './tables/QueuesTable';
-import { log } from './globals';
+import { BrokerConnection } from '../brokers/brokers-service';
+import { ProducerTable } from '../producers/ProducerTable';
+import { ConsumerTable } from '../consumers/ConsumerTable';
+import { ConnectionsTable } from '../connections/ConnectionsTable';
+import { SessionsTable } from '../sessions/SessionsTable';
+import { AddressesTable } from '../addresses/AddressesTable';
+import { QueuesTable } from '../queues/QueuesTable';
+import { log } from '../globals';
 import { IJolokiaService } from '@hawtio/react';
-import { ArtemisContext, useArtemisTree } from './context';
-import { Status } from './components/Status';
+import { ArtemisContext, useArtemisTree } from '../context';
+import { Status } from '../status/Status';
 
 
 export type Broker = {
