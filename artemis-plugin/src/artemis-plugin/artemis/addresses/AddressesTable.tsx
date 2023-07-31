@@ -10,6 +10,7 @@ import { Attributes, MBeanNode, Operations } from '@hawtio/react';
 import { ArtemisContext } from '../context';
 import { CreateAddress } from './CreateAddress';
 import { SendMessage } from '../messages/SendMessage';
+import { createAddressObjectName } from '../util/jmx';
 
 export const AddressesTable: React.FunctionComponent = () => {
   const allColumns: Column[] = [
@@ -25,7 +26,7 @@ export const AddressesTable: React.FunctionComponent = () => {
     return data;
   }
 
-  const { tree, selectedNode, setSelectedNode } = useContext(ArtemisContext)
+  const { tree, selectedNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext)
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -68,15 +69,8 @@ export const AddressesTable: React.FunctionComponent = () => {
         onClick: async () => {
           setAddress(row.name);
           const brokerObjectName = await artemisService.getBrokerObjectName();
-          var addressObjectName = brokerObjectName + ",component=addresses,address=\"" + row.name + "\"";
-          var addressNode: MBeanNode | null = tree.findDescendant(node => { return node.objectName === addressObjectName });
-          if (!addressNode) {
-            const addressesNode = tree.findDescendant(node => node.name === "addresses");
-            addressNode = new MBeanNode(addressesNode, row.name, false);
-            addressNode.objectName = addressObjectName;
-            addressesNode?.children?.push(addressNode);
-          }
-          setSelectedNode(addressNode);
+          const addressObjectName = createAddressObjectName(brokerObjectName, row.name);
+          findAndSelectNode(addressObjectName, row.name);
           setShowAttributesDialog(true);
         }
       },
@@ -85,9 +79,8 @@ export const AddressesTable: React.FunctionComponent = () => {
         onClick: async () => {
           setAddress(row.name);
           const brokerObjectName = await artemisService.getBrokerObjectName();
-          var addressObjectName = brokerObjectName + ",component=addresses,address=\"" + row.name + "\"";
-          var addressNode: MBeanNode | null = tree.findDescendant(node => { return node.objectName === addressObjectName });
-          setSelectedNode(addressNode);
+          const addressObjectName = createAddressObjectName(brokerObjectName, row.name);
+          findAndSelectNode(addressObjectName, row.name);
           setShowOperationsDialog(true);
         }
       },
@@ -103,7 +96,7 @@ export const AddressesTable: React.FunctionComponent = () => {
   };
 
   return (
-    <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode }}>
+    <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode, findAndSelectNode }}>
       <ArtemisTable getRowActions={getRowActions} allColumns={allColumns} getData={listAddresses} toolbarActions={[createAction]} />
       <Modal
         aria-label='create-queue-modal'

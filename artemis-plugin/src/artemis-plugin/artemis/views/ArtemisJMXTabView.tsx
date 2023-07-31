@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
-import { BrokerConnection } from '../brokers/brokers-service';
 import { Attributes, Chart, MBeanNode, Operations } from '@hawtio/react';
 import { CreateQueue } from '../queues/CreateQueue';
 import { DeleteAddress } from '../addresses/DeleteAddress';
@@ -9,7 +8,6 @@ import { isAddress as isAnAddress } from '../util/jmx'
 
 export type JMXData = {
   node: MBeanNode
-  brokerConnection: BrokerConnection
 }
 
 export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) => {

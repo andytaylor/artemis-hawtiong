@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 import { Tabs, Tab, TabTitleText, EmptyState, EmptyStateBody, EmptyStateIcon, Title } from '@patternfly/react-core';
-import DisconnectedIcon from '@patternfly/react-icons/dist/esm/icons/disconnected-icon';
-import { BrokerConnection } from '../brokers/brokers-service';
 import { ProducerTable } from '../producers/ProducerTable';
 import { ConsumerTable } from '../consumers/ConsumerTable';
 import { ConnectionsTable } from '../connections/ConnectionsTable';
@@ -16,9 +14,9 @@ export type Broker = {
   columnStorageLocation?: string
 }
 
-export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connection: BrokerConnection) => {
+export const ArtemisTabs: React.FunctionComponent = () => {
 
-  const { tree, selectedNode, setSelectedNode } = useArtemisTree();
+  const { tree, selectedNode, setSelectedNode, findAndSelectNode } = useArtemisTree();
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
 
 
@@ -27,20 +25,8 @@ export const ArtemisTabs: React.FunctionComponent<BrokerConnection> = (connectio
     setActiveTabKey(tabIndex);
   };
 
-
-  if (!connection.brokerDetails.updated)
-    return (
-      <React.Fragment>
-        <EmptyState>
-          <EmptyStateIcon icon={DisconnectedIcon} />
-          <Title headingLevel="h4" size="lg">Not Connected</Title>
-          <EmptyStateBody>Please check the connection configuration and the Jolokia endpoint configuration</EmptyStateBody>
-        </EmptyState>
-      </React.Fragment>
-    )
-
   return (
-    <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode }}>
+    <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode, findAndSelectNode }}>
       <div>
         <Tabs activeKey={activeTabKey}
           onSelect={handleTabClick}

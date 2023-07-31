@@ -61,9 +61,19 @@ export function useArtemisTree() {
          * So disable the lint check.
          */
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [selectedNode])
 
-    return { tree, loaded, selectedNode, setSelectedNode }
+    const findAndSelectNode = (objectName: string, name: string) => {
+        var node: MBeanNode | null = tree.findDescendant(node => { return node.objectName === objectName });
+        if (!node) {
+            const parentNode = tree.findDescendant(node => node.name === "addresses");
+            node = new MBeanNode(parentNode, name, false);
+            node.objectName = objectName;
+            parentNode?.children?.push(node);
+        }
+        setSelectedNode(node);
+    }
+    return { tree, loaded, selectedNode, setSelectedNode, findAndSelectNode }
 }
 
 
@@ -71,6 +81,7 @@ type ArtemisContext = {
     tree: MBeanTree
     selectedNode: MBeanNode | null
     setSelectedNode: (selected: MBeanNode | null) => void
+    findAndSelectNode: (objectName: string, name: string) => void
 }
 
 export const ArtemisContext = createContext<ArtemisContext>({
@@ -79,4 +90,7 @@ export const ArtemisContext = createContext<ArtemisContext>({
     setSelectedNode: () => {
         /* no-op */
     },
+    findAndSelectNode: (objectName: string, name: string) => {
+        /* no-op */
+    }
 })
