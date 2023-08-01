@@ -1,5 +1,5 @@
 import { ChartDonutUtilization } from "@patternfly/react-charts"
-import { Card, CardBody, CardTitle, Divider, ExpandableSection, Text, Grid, GridItem, Title, CardHeader} from "@patternfly/react-core"
+import { Card, CardBody, CardTitle, Divider, ExpandableSection, Text, Grid, GridItem, Title, CardHeader, TextList, TextContent, TextListItem, TextListItemVariants, TextListVariants, Truncate, TextVariants} from "@patternfly/react-core"
 import { TableComposable, Tr, Tbody, Td } from '@patternfly/react-table';
 import { eventService } from '@hawtio/react';
 import { useEffect, useState } from "react";
@@ -44,6 +44,9 @@ export const Status: React.FunctionComponent = () => {
             getAcceptors();
         }
 
+        const timer = setInterval(getBrokerInfo, 5000)
+        return () => clearInterval(timer)
+
     }, [brokerInfo, acceptors])
 
     return (
@@ -51,16 +54,19 @@ export const Status: React.FunctionComponent = () => {
             <Grid hasGutter>
                 <GridItem span={2} rowSpan={3}>
                     <Card isFullHeight={true} >
-                        <CardHeader />
-                        <CardTitle><Title headingLevel={"h1"}>Broker Info</Title></CardTitle>
+                        <CardTitle>Broker Info</CardTitle>
                         <CardBody>
                             <Divider />
-                            <Title headingLevel={"h2"}>version</Title>
-                            <Text>{brokerInfo?.version}</Text>
-                            <Title headingLevel={"h2"}>uptime</Title>
-                            <Text>{brokerInfo?.uptime}</Text>
-                            <Title headingLevel={"h2"}>started</Title>
-                            <Text>{brokerInfo?.started}</Text>
+                            <TextContent>
+                                <TextList isPlain>
+                                    <TextListItem component={TextListItemVariants.dt}>version</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.version}</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dt}>uptime</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.uptime}</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dt}>started</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.started}</TextListItem>
+                                </TextList>
+                            </TextContent>
                         </CardBody>
                     </Card>
                 </GridItem>
@@ -69,12 +75,16 @@ export const Status: React.FunctionComponent = () => {
                         <CardTitle>Cluster Info</CardTitle>
                         <CardBody>
                             <Divider />
-                            <Title headingLevel={"h2"}>lives</Title>
-                            <Text>{brokerInfo?.networkTopology.getLiveCount()}</Text>
-                            <Title headingLevel={"h2"}>backups</Title>
-                            <Text>{brokerInfo?.networkTopology.getBackupCount()}</Text>
-                            <Title headingLevel={"h2"}>HA Policy</Title>
-                            <Text>{brokerInfo?.haPolicy}</Text>
+                            <TextContent>
+                                <TextList isPlain>
+                                    <TextListItem component={TextListItemVariants.dt}>lives</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.networkTopology.getLiveCount()}</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dt}>backups</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.networkTopology.getBackupCount()}</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dt}>HA Policy</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.haPolicy}</TextListItem>
+                                </TextList>
+                            </TextContent>
                         </CardBody>
                     </Card>
                 </GridItem>
@@ -112,38 +122,31 @@ export const Status: React.FunctionComponent = () => {
 
                                     <CardTitle>{acceptor.Name}</CardTitle>
                                     <CardBody>
-                                        <TableComposable variant="compact" aria-label="Column Management Table">
-                                            <Tbody>
-                                                <Tr key='name'>
-                                                    <Td key='name-key'>name</Td>
-                                                    <Td key='name-val'>{acceptor.Name}</Td>
-                                                </Tr>
-                                                <Tr key='factoryclassname'>
-                                                    <Td key='factoryclassname-key'>factory</Td>
-                                                    <Td key='factoryclassname-val'>{acceptor.FactoryClassName}</Td>
-                                                </Tr>
-                                                <Tr key='started'>
-                                                    <Td key='started-key'>started</Td>
-                                                    <Td key='started-val'>{String(acceptor.Started)}</Td>
-                                                </Tr>
-                                            </Tbody>
-                                        </TableComposable>
+                                        
+                                    <TextContent>
+                                        <TextList component={TextListVariants.dl}>
+                                            <TextListItem component={TextListItemVariants.dt}>name</TextListItem>
+                                            <TextListItem component={TextListItemVariants.dd}>{acceptor.Name}</TextListItem>
+                                            <TextListItem component={TextListItemVariants.dt}>factory</TextListItem>
+                                            <TextListItem component={TextListItemVariants.dd}><Truncate content={acceptor.FactoryClassName}/></TextListItem>
+                                            <TextListItem component={TextListItemVariants.dt}>started</TextListItem>
+                                            <TextListItem component={TextListItemVariants.dd}>{acceptor.Started}</TextListItem>
+                                        </TextList>
                                         <Divider />
-                                        <Title headingLevel={"h5"}>Parameters</Title>
-                                        <TableComposable variant="compact" aria-label="Column Management Table">
-                                            <Tbody>
+                                        <Text component={TextVariants.h2}>Parameters</Text>
+                                        <TextList component={TextListVariants.dl}>
                                                 {
                                                     Object.keys(acceptor.Parameters).map((key, index) => {
                                                         return (
-                                                            <Tr>
-                                                                <Td>{key}</Td>
-                                                                <Td>{acceptor.Parameters[key]}</Td>
-                                                            </Tr>
+                                                                <>
+                                                                <TextListItem component={TextListItemVariants.dt}>{key}</TextListItem>
+                                                                <TextListItem component={TextListItemVariants.dd}>{acceptor.Parameters[key]}</TextListItem></>
                                                         )
                                                     })
                                                 }
-                                            </Tbody>
-                                        </TableComposable>
+                                        </TextList>
+                                    </TextContent>
+
                                     </CardBody>
                                 </Card>
                             </GridItem>
