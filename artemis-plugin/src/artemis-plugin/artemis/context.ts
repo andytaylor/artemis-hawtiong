@@ -66,6 +66,7 @@ export function useArtemisTree() {
     const findAndSelectNode = (objectName: string, name: string) => {
         var node: MBeanNode | null = tree.findDescendant(node => { return node.objectName === objectName });
         if (!node) {
+            //need some special sauce here if we are lazy loading to populate the mbean
             const parentNode = tree.findDescendant(node => node.name === "addresses");
             node = new MBeanNode(parentNode, name, false);
             node.objectName = objectName;

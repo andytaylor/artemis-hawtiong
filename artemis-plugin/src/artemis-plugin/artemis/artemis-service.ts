@@ -45,6 +45,17 @@ export type BrokerElement = {
     backup?: string
 }
 
+export type Acceptor = {
+    Name:string
+    FactoryClassName: string
+    Started: boolean
+    Parameters: any
+}
+
+export type Acceptors = {
+    acceptors: Acceptor[]
+}
+
 const BROKER_SEARCH_PATTERN = "org.apache.activemq.artemis:broker=*";
 const LIST_NETWORK_TOPOLOGY_SIG="listNetworkTopology";
 const SEND_MESSAGE_SIG = "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String, boolean)";
@@ -114,6 +125,26 @@ class ArtemisService {
                 resolve(brokerInfo);               
             }
             reject("invalid response:" + response);
+        });
+    }
+
+    async createAcceptors(): Promise<Acceptors> {
+        return new Promise<Acceptors>(async (resolve, reject) => { 
+            var brokerObjectName = await this.brokerObjectName;
+            const acceptorSearch = brokerObjectName + ",component=acceptors,name=*";
+
+            var search = await jolokiaService.search(acceptorSearch);
+            if (search) {
+                const acceptors: Acceptors = {
+                    acceptors: []
+                };
+                for (var key in search) {
+                    const acceptor: Acceptor = await jolokiaService.readAttributes(search[key]) as Acceptor;
+                    acceptors.acceptors.push(acceptor);
+                }
+                resolve(acceptors);               
+            }
+            reject("invalid response:");
         });
     }
 
