@@ -1,6 +1,5 @@
-import { eventService, EVENT_REFRESH, FilterFn, ForEachFn, MBeanNode, MBeanTree, OptimisedJmxMBean, PluginNodeSelectionContext, workspace } from "@hawtio/react";
-import { TreeViewDataItem } from "@patternfly/react-core";
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { eventService, EVENT_REFRESH,MBeanNode, MBeanTree, PluginNodeSelectionContext, workspace } from "@hawtio/react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import { artemisPluginName, jmxDomain, log } from "./globals";
 
