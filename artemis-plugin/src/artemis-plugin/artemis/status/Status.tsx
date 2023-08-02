@@ -1,15 +1,21 @@
 import { ChartDonutUtilization } from "@patternfly/react-charts"
-import { Card, CardBody, CardTitle, Divider, ExpandableSection, Text, Grid, GridItem, Title, CardHeader, TextList, TextContent, TextListItem, TextListItemVariants, TextListVariants, Truncate, TextVariants} from "@patternfly/react-core"
+import { Card, CardBody, CardTitle, Divider, ExpandableSection, Text, Grid, GridItem, Title, CardHeader, TextList, TextContent, TextListItem, TextListItemVariants, TextListVariants, Truncate, TextVariants, CardActions, Checkbox, Dropdown, KebabToggle, DropdownItem, DropdownSeparator, Button, Modal, ModalVariant } from "@patternfly/react-core"
 import { TableComposable, Tr, Tbody, Td } from '@patternfly/react-table';
-import { eventService } from '@hawtio/react';
-import { useEffect, useState } from "react";
+import { Attributes, eventService, Operations } from '@hawtio/react';
+import { useContext, useEffect, useState } from "react";
 import { Acceptors, artemisService, BrokerInfo } from "../artemis-service";
+import { log } from "../globals";
+import { ArtemisContext } from "../context";
 
 
 export const Status: React.FunctionComponent = () => {
 
     const [brokerInfo, setBrokerInfo] = useState<BrokerInfo>()
     const [acceptors, setAcceptors] = useState<Acceptors>();
+    const { tree, selectedNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext)
+
+    const [showAttributesDialog, setShowAttributesDialog] = useState(false);
+    const [showOperationsDialog, setShowOperationsDialog] = useState(false);
     useEffect(() => {
         const getBrokerInfo = async () => {
             artemisService.createBrokerInfo()
@@ -49,11 +55,39 @@ export const Status: React.FunctionComponent = () => {
 
     }, [brokerInfo, acceptors])
 
+    const [isBrokerInfoOpen, setIsBrokerInfoOpen] = useState<boolean>(false);
+
+    const onBrokerInfoSelect = () => {
+        setIsBrokerInfoOpen(!isBrokerInfoOpen);
+    };
+
+
+    const brokerInfoDropdownItems = [
+        <DropdownItem key="attributes" component="button" onClick={() => log.info("gfdfffffffffffffffffffffffffffffff")}>
+            Attributes
+        </DropdownItem>,
+        <DropdownItem key="operations" component="button">
+            Operations
+        </DropdownItem>,
+    ];
+
     return (
         <>
             <Grid hasGutter>
                 <GridItem span={2} rowSpan={3}>
                     <Card isFullHeight={true} >
+                        <CardHeader>
+                            <CardActions>
+                                <Dropdown
+                                    onSelect={onBrokerInfoSelect}
+                                    toggle={<KebabToggle onToggle={setIsBrokerInfoOpen} />}
+                                    isOpen={isBrokerInfoOpen}
+                                    isPlain
+                                    dropdownItems={brokerInfoDropdownItems}
+                                    position={'right'}
+                                />
+                            </CardActions>
+                        </CardHeader>
                         <CardTitle>Broker Info</CardTitle>
                         <CardBody>
                             <Divider />
@@ -122,30 +156,31 @@ export const Status: React.FunctionComponent = () => {
 
                                     <CardTitle>{acceptor.Name}</CardTitle>
                                     <CardBody>
-                                        
-                                    <TextContent>
-                                        <TextList component={TextListVariants.dl}>
-                                            <TextListItem component={TextListItemVariants.dt}>name</TextListItem>
-                                            <TextListItem component={TextListItemVariants.dd}>{acceptor.Name}</TextListItem>
-                                            <TextListItem component={TextListItemVariants.dt}>factory</TextListItem>
-                                            <TextListItem component={TextListItemVariants.dd}><Truncate content={acceptor.FactoryClassName}/></TextListItem>
-                                            <TextListItem component={TextListItemVariants.dt}>started</TextListItem>
-                                            <TextListItem component={TextListItemVariants.dd}>{acceptor.Started}</TextListItem>
-                                        </TextList>
-                                        <Divider />
-                                        <Text component={TextVariants.h2}>Parameters</Text>
-                                        <TextList component={TextListVariants.dl}>
+
+                                        <TextContent>
+                                            <TextList component={TextListVariants.dl}>
+                                                <TextListItem component={TextListItemVariants.dt}>name</TextListItem>
+                                                <TextListItem component={TextListItemVariants.dd}>{acceptor.Name}</TextListItem>
+                                                <TextListItem component={TextListItemVariants.dt}>factory</TextListItem>
+                                                <TextListItem component={TextListItemVariants.dd}><Truncate id="factory-trunc" content={acceptor.FactoryClassName} /></TextListItem>
+                                                <TextListItem component={TextListItemVariants.dt}>started</TextListItem>
+                                                <TextListItem component={TextListItemVariants.dd}>{acceptor.Started}</TextListItem>
+                                            </TextList>
+                                            <Divider />
+                                            <Text component={TextVariants.h2}>Parameters</Text>
+                                            <TextList component={TextListVariants.dl}>
                                                 {
                                                     Object.keys(acceptor.Parameters).map((key, index) => {
                                                         return (
-                                                                <>
+                                                            <>
                                                                 <TextListItem component={TextListItemVariants.dt}>{key}</TextListItem>
-                                                                <TextListItem component={TextListItemVariants.dd}>{acceptor.Parameters[key]}</TextListItem></>
+                                                                <TextListItem component={TextListItemVariants.dd}>{acceptor.Parameters[key]}</TextListItem>
+                                                            </>
                                                         )
                                                     })
                                                 }
-                                        </TextList>
-                                    </TextContent>
+                                            </TextList>
+                                        </TextContent>
 
                                     </CardBody>
                                 </Card>
@@ -154,6 +189,30 @@ export const Status: React.FunctionComponent = () => {
                     }
                 </Grid>
             </ExpandableSection>
+
+            <Modal
+                aria-label='attributes-modal'
+                variant={ModalVariant.medium}
+                isOpen={showAttributesDialog}
+                actions={[
+                    <Button key="close" variant="primary" onClick={() => setShowAttributesDialog(false)}>
+                        Close
+                    </Button>
+                ]}>
+                <Attributes />
+            </Modal>
+            <Modal
+                aria-label='operations-modal'
+                variant={ModalVariant.medium}
+                isOpen={showOperationsDialog}
+                actions={[
+                    <Button key="close" variant="primary" onClick={() => setShowOperationsDialog(false)}>
+                        Close
+                    </Button>
+                ]}>
+                <Operations />
+            </Modal>
         </>
     )
 }
+
