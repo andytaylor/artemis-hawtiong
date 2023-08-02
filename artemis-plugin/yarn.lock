@@ -1808,9 +1808,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hawtio/react@npm:^0.4.0-dev.2":
-  version: 0.4.0-dev.2
-  resolution: "@hawtio/react@npm:0.4.0-dev.2"
+"@hawtio/react@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@hawtio/react@npm:0.4.0"
   dependencies:
     "@hawtio/camel-model-v3": "npm:@hawtio/camel-model@^3.21.0"
     "@hawtio/camel-model-v4": "npm:@hawtio/camel-model@^4.0.0-rc.1"
@@ -1826,7 +1826,7 @@ __metadata:
     "@types/dagre-layout": ^0.8.2
     "@types/jest": ^29.5.3
     "@types/node": ^18.17.1
-    "@types/react": ^18.2.17
+    "@types/react": ^18.2.18
     "@types/react-dom": ^18.2.7
     "@types/react-router-dom": ^5.3.3
     dagre: ^0.8.5
@@ -1854,7 +1854,7 @@ __metadata:
   peerDependenciesMeta:
     keycloak-js:
       optional: true
-  checksum: f08bf2add8cbdfce9c5a7bf2b5798de08ca68cb640de27bd114fe91c653d3791f7928e48fb5de4fd3bd9efd91666a79ec2475cade440edfb172ed7c62b7711ef
+  checksum: 96d368af58d22f4f6058d6d9272f6c03288111bd311d33bc301f9f36f6356b0e1ae01302c048e1b1e3533387d36ad9f701f99f7da1bd1dec1bb2e46576b058b7
   languageName: node
   linkType: hard
 
@@ -4065,7 +4065,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^18.2.17":
+"@types/react@npm:^18.2.18":
   version: 18.2.18
   resolution: "@types/react@npm:18.2.18"
   dependencies:
@@ -8670,7 +8670,7 @@ __metadata:
   dependencies:
     "@craco/craco": ^7.1.0
     "@hawtio/backend-middleware": ^1.0.3
-    "@hawtio/react": ^0.4.0-dev.2
+    "@hawtio/react": ^0.4.0
     "@patternfly/react-charts": ^6.94.19
     "@patternfly/react-core": ^4.276.8
     "@patternfly/react-table": ^4.113.0
