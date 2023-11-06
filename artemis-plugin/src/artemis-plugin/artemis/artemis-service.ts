@@ -98,6 +98,7 @@ const DESTROY_QUEUE_SIG = "destroyQueue(java.lang.String)";
 const REMOVE_ALL_MESSAGES_SIG = "removeAllMessages()";
 const CLOSE_CONNECTION_SIG = "closeConnectionWithID(java.lang.String)";
 const CLOSE_SESSION_SIG = "closeSessionWithID(java.lang.String,java.lang.String)";
+const CLOSE_CONSUMER_SIG = "closeConsumerWithID(java.lang.String,java.lang.String)"
 
 class ArtemisService {
 
@@ -324,6 +325,10 @@ class ArtemisService {
 
     async closeSession(connection: string, name: string) {
         return jolokiaService.execute(await this.getBrokerObjectName(), CLOSE_SESSION_SIG, [connection, name]);
+    }
+
+    async closeConsumer(session: string, name: string) {
+        return jolokiaService.execute(await this.getBrokerObjectName(), CLOSE_CONSUMER_SIG, [session, name]);
     }
 
     async getBrokerObjectName() {

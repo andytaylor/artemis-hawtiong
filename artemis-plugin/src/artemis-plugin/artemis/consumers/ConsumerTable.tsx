@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Navigate } from '../views/ArtemisTabView.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
+import { eventService } from '@hawtio/react';
+import { Modal, ModalVariant, Button } from '@patternfly/react-core';
+import { IAction } from '@patternfly/react-table';
 
 export const ConsumerTable: React.FunctionComponent<Navigate> = navigate => {
   const getSessionFilter = (row: any) => {
@@ -59,6 +62,64 @@ export const ConsumerTable: React.FunctionComponent<Navigate> = navigate => {
         const data = JSON.parse(response);
         return data;
       }
+
+      const [showConsumerCloseDialog, setShowConsumerCloseDialog] = useState(false);
+      const [consumerToClose, setConsumerToClose] = useState("");
+      const [session, setSession] = useState("");
+      const [loadData, setLoadData] = useState(0);
+
+      const closeConsumer = () => {
+        artemisService.closeConsumer(session, consumerToClose)
+          .then((value: unknown) => {
+            setShowConsumerCloseDialog(false);
+            setLoadData(loadData + 1);
+            eventService.notify({
+              type: 'success',
+              message: 'Consumer Closed',
+              duration: 3000,
+            })
+          })
+          .catch((error: string) => {
+            setShowConsumerCloseDialog(false);
+            eventService.notify({
+              type: 'danger',
+              message: 'Consumer Not Closed: ' + error,
+            })
+          });
+      };
+    
+      const getRowActions = (row: any, rowIndex: number): IAction[] => {
+        return [
+          {
+            title: 'close',
+            onClick: () => {
+              console.log(`clicked on Some action, on row delete ` + row.id);
+              setConsumerToClose(row.id);
+              setSession(row.session);
+              setShowConsumerCloseDialog(true);
+            }
+          }
+        ]
+      };
       
-    return <ArtemisTable allColumns={allColumns} getData={listConsumers} storageColumnLocation="consumerColumnDefs"  navigate={navigate.search} filter={navigate.filter}/>
+    return (
+      <>
+      <ArtemisTable allColumns={allColumns} getData={listConsumers} getRowActions={getRowActions} storageColumnLocation="consumerColumnDefs"  navigate={navigate.search} filter={navigate.filter}/>
+      <Modal
+        aria-label='consumer-close-modal'
+        variant={ModalVariant.medium}
+        title="Close Consumer?"
+        isOpen={showConsumerCloseDialog}
+        actions={[
+          <Button key="confirm" variant="primary" onClick={() => closeConsumer()}>
+            Confirm
+          </Button>,
+          <Button key="cancel" variant="secondary" onClick={() => setShowConsumerCloseDialog(false)}>
+            Cancel
+          </Button>
+        ]}><p>You are about to close session with id:  <b>{consumerToClose}</b>.</p>
+        <p>This operation cannot be undone so please be careful.</p>
+      </Modal>
+      </>
+    )
 }

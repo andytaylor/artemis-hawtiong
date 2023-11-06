@@ -95,7 +95,8 @@ export const SessionsTable: React.FunctionComponent<Navigate> = navigate => {
 
   log.info("searching with 1 " + navigate.filter?.input);
   return (
-    <><ArtemisTable allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs" getRowActions={getRowActions} loadData={loadData} navigate={navigate.search} filter={navigate.filter}/><Modal
+    <><ArtemisTable allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs" getRowActions={getRowActions} loadData={loadData} navigate={navigate.search} filter={navigate.filter}/>
+    <Modal
       aria-label='session-close-modal'
       variant={ModalVariant.medium}
       title="Close Session?"
