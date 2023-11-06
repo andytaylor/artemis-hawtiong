@@ -30,6 +30,7 @@ export const ArtemisTabs: React.FunctionComponent = () => {
 
   const handleTabClick = (event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, tabIndex: string | number
   ) => {
+    setSearchFilter(undefined);
     setActiveTabKey(tabIndex);
   };
 
@@ -58,7 +59,7 @@ export const ArtemisTabs: React.FunctionComponent = () => {
           </Tab>
           <Tab eventKey={1} title={<TabTitleText>Connections</TabTitleText>} aria-label="connections">
             {activeTabKey === 1 &&
-              <ConnectionsTable search={handleSearch}/>
+              <ConnectionsTable search={handleSearch} filter={searchFilter}/>
             }
           </Tab>
           <Tab eventKey={2} title={<TabTitleText>Sessions</TabTitleText>} aria-label="sessions">
@@ -68,12 +69,12 @@ export const ArtemisTabs: React.FunctionComponent = () => {
           </Tab>
           <Tab eventKey={3} title={<TabTitleText>Producers</TabTitleText>} aria-label="producers">
             {activeTabKey === 3 &&
-              <ProducerTable/>
+              <ProducerTable search={handleSearch} filter={searchFilter}/>
             }
           </Tab>
           <Tab eventKey={4} title={<TabTitleText>Consumers</TabTitleText>} aria-label="consumers">
             {activeTabKey === 4 &&
-              <ConsumerTable/>
+              <ConsumerTable search={handleSearch} filter={searchFilter}/>
             }
           </Tab>
           <Tab eventKey={5} title={<TabTitleText>Addresses</TabTitleText>} aria-label="addresses">

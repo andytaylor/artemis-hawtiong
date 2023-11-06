@@ -7,12 +7,40 @@ import { Navigate } from '../views/ArtemisTabView.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { log } from '../globals';
 
-export const SessionsTable: React.FunctionComponent<Navigate> = navigate => {
+export const SessionsTable: React.FunctionComponent<Navigate> = navigate => {  
+  const getConnectionFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'connectionID',
+      operation: 'EQUALS',
+      input: row.connectionID
+    }
+    return filter;
+  }
+
+  const getConsumerFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'session',
+      operation: 'EQUALS',
+      input: row.id
+    }
+    return filter;
+  }
+
+  const getProducerFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'session',
+      operation: 'EQUALS',
+      input: row.id
+    }
+    return filter;
+  }
+
+
   const allColumns: Column[] = [
     { id: 'id', name: 'ID', visible: true, sortable: true, filterable: true },
-    { id: 'connectionID', name: 'Connection ID', visible: true, sortable: true, filterable: true },
-    { id: 'consumerCount', name: 'Consumer Count', visible: true, sortable: true, filterable: true },
-    { id: 'producerCount', name: 'Producer Count', visible: true, sortable: true, filterable: true },
+    { id: 'connectionID', name: 'Connection ID', visible: true, sortable: true, filterable: true, filter: getConnectionFilter, filterTab: 1 },
+    { id: 'consumerCount', name: 'Consumer Count', visible: true, sortable: true, filterable: true, filter: getConsumerFilter, filterTab: 4 },
+    { id: 'producerCount', name: 'Producer Count', visible: true, sortable: true, filterable: true, filter: getProducerFilter, filterTab: 3 },
     { id: 'user', name: 'User', visible: true, sortable: true, filterable: true },
     { id: 'validatedUser', name: 'Validated User', visible: false, sortable: true, filterable: true },
     { id: 'creationTime', name: 'Creation Time', visible: true, sortable: true, filterable: false }
@@ -28,6 +56,7 @@ export const SessionsTable: React.FunctionComponent<Navigate> = navigate => {
     const data = JSON.parse(response);
     return data;
   }
+
 
   const closeSession = () => {
     artemisService.closeSession(sessionConnection, sessionToClose)
@@ -66,7 +95,7 @@ export const SessionsTable: React.FunctionComponent<Navigate> = navigate => {
 
   log.info("searching with 1 " + navigate.filter?.input);
   return (
-    <><ArtemisTable allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs" getRowActions={getRowActions} loadData={loadData} filter={navigate.filter}/><Modal
+    <><ArtemisTable allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs" getRowActions={getRowActions} loadData={loadData} navigate={navigate.search} filter={navigate.filter}/><Modal
       aria-label='session-close-modal'
       variant={ModalVariant.medium}
       title="Close Session?"

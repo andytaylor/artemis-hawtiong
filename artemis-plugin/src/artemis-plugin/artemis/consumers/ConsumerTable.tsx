@@ -1,9 +1,9 @@
 import React from 'react'
-import { Broker } from '../views/ArtemisTabView.js';
+import { Navigate } from '../views/ArtemisTabView.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 
-export const ConsumerTable: React.FunctionComponent<Broker> = broker => {
+export const ConsumerTable: React.FunctionComponent<Navigate> = navigate => {
     const allColumns: Column[] = [
       {id: 'id', name: 'ID', visible: true, sortable: true, filterable: true},
       {id: 'session', name: 'Session', visible: true, sortable: true, filterable: true},
@@ -33,5 +33,5 @@ export const ConsumerTable: React.FunctionComponent<Broker> = broker => {
         return data;
       }
       
-    return <ArtemisTable allColumns={allColumns} getData={listConsumers} storageColumnLocation="consumerColumnDefs"/>
+    return <ArtemisTable allColumns={allColumns} getData={listConsumers} storageColumnLocation="consumerColumnDefs"  navigate={navigate.search} filter={navigate.filter}/>
 }
