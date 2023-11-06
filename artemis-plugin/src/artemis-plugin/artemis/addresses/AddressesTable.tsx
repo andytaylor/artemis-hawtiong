@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ActiveSort, ArtemisTable, Column, Filter, ToolbarAction } from '../table/ArtemisTable';
+import { Navigate } from '../views/ArtemisTabView.js';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
@@ -13,7 +14,7 @@ import { SendMessage } from '../messages/SendMessage';
 import { createAddressObjectName } from '../util/jmx';
 import { DeleteAddress } from './DeleteAddress';
 
-export const AddressesTable: React.FunctionComponent = () => {
+export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   const allColumns: Column[] = [
     { id: 'id', name: 'ID', visible: true, sortable: true, filterable: true },
     { id: 'name', name: 'Name', visible: true, sortable: true, filterable: true },
@@ -98,7 +99,7 @@ export const AddressesTable: React.FunctionComponent = () => {
 
   return (
     <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode, findAndSelectNode }}>
-      <ArtemisTable getRowActions={getRowActions} allColumns={allColumns} getData={listAddresses} toolbarActions={[createAction]} />
+      <ArtemisTable getRowActions={getRowActions} allColumns={allColumns} getData={listAddresses} toolbarActions={[createAction]} navigate={navigate.search} filter={navigate.filter}/>
       <Modal
         aria-label='create-queue-modal'
         variant={ModalVariant.medium}

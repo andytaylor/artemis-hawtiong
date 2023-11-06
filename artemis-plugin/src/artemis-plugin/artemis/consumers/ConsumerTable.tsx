@@ -4,16 +4,43 @@ import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable'
 import { artemisService } from '../artemis-service';
 
 export const ConsumerTable: React.FunctionComponent<Navigate> = navigate => {
+  const getSessionFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'id',
+      operation: 'EQUALS',
+      input: row.session
+    }
+    return filter;
+  }
+
+  const getQueueFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'name',
+      operation: 'EQUALS',
+      input: row.queue
+    }
+    return filter;
+  }
+
+  const getAddressFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'name',
+      operation: 'EQUALS',
+      input: row.address
+    }
+    return filter;
+  }
+
     const allColumns: Column[] = [
       {id: 'id', name: 'ID', visible: true, sortable: true, filterable: true},
-      {id: 'session', name: 'Session', visible: true, sortable: true, filterable: true},
+      {id: 'session', name: 'Session', visible: true, sortable: true, filterable: true, filter: getSessionFilter, filterTab: 2},
       {id: 'clientID', name: 'Client ID', visible: true, sortable: true, filterable: true},
       {id: 'validatedUser', name: 'Validated User', visible: true, sortable: true, filterable: true},
       {id: 'protocol', name: 'Protocol', visible: true, sortable: true, filterable: false},
-      {id: 'queueName', name: 'Queue', visible: true, sortable: true, filterable: true},
+      {id: 'queue', name: 'Queue', visible: true, sortable: true, filterable: true, filter: getQueueFilter, filterTab: 6},
       {id: 'queueType', name: 'Queue Type', visible: true, sortable: true, filterable: false},
       {id: 'filter', name: 'Filter', visible: true, sortable: true, filterable: false},
-      {id: 'addressName', name: 'Address', visible: true, sortable: true, filterable: true},
+      {id: 'address', name: 'Address', visible: true, sortable: true, filterable: true, filter: getAddressFilter, filterTab: 5},
       {id: 'remoteAddress', name: 'Remote Address', visible: true, sortable: true, filterable: true},
       {id: 'localAddress', name: 'Local Address', visible: true, sortable: true, filterable: true},
       {id: 'creationTime', name: 'Creation Time', visible: true, sortable: true, filterable: false},

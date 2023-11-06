@@ -79,12 +79,12 @@ export const ArtemisTabs: React.FunctionComponent = () => {
           </Tab>
           <Tab eventKey={5} title={<TabTitleText>Addresses</TabTitleText>} aria-label="addresses">
             {activeTabKey === 5 &&
-              <AddressesTable/>
+              <AddressesTable search={handleSearch} filter={searchFilter}/>
             }
           </Tab>
           <Tab eventKey={6} title={<TabTitleText>Queues</TabTitleText>} aria-label="consumers">
             {activeTabKey === 6 &&
-              <QueuesTable/>
+              <QueuesTable search={handleSearch} filter={searchFilter}/>
             }
           </Tab>
         </Tabs>

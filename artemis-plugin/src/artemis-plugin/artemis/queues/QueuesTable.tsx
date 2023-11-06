@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Broker } from '../views/ArtemisTabView.js';
+import { Navigate } from '../views/ArtemisTabView.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
@@ -8,7 +8,7 @@ import { SendMessage } from '../messages/SendMessage';
 import { MessagesTable } from '../messages/MessagesTable';
 import { eventService } from '@hawtio/react';
 
-export const QueuesTable: React.FunctionComponent<Broker> = broker => {
+export const QueuesTable: React.FunctionComponent<Navigate> = navigate => {
   const allColumns: Column[] = [
     { id: 'id', name: 'ID', visible: true, sortable: true, filterable: true },
     { id: 'name', name: 'Name', visible: true, sortable: true, filterable: true },
@@ -157,7 +157,7 @@ export const QueuesTable: React.FunctionComponent<Broker> = broker => {
   const QueuesView: React.FunctionComponent = () => {
     return (
       <>
-        <ArtemisTable allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" />
+        <ArtemisTable allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" navigate={navigate.search} filter={navigate.filter}/>
         <Modal
           aria-label='queue-delete-modal'
           variant={ModalVariant.medium}
