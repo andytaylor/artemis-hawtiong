@@ -15,11 +15,19 @@ import { createAddressObjectName } from '../util/jmx';
 import { DeleteAddress } from './DeleteAddress';
 
 export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
+  const getQueueFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'address',
+      operation: 'EQUALS',
+      input: row.name
+    }
+    return filter;
+  }
   const allColumns: Column[] = [
     { id: 'id', name: 'ID', visible: true, sortable: true, filterable: true },
     { id: 'name', name: 'Name', visible: true, sortable: true, filterable: true },
     { id: 'routingTypes', name: 'Routing Types', visible: true, sortable: true, filterable: true },
-    { id: 'queueCount', name: 'Queue Count', visible: true, sortable: true, filterable: true }
+    { id: 'queueCount', name: 'Queue Count', visible: true, sortable: true, filterable: true, filter: getQueueFilter, filterTab: 6 }
   ];
 
   const listAddresses = async (page: number, perPage: number, activeSort: ActiveSort, filter: Filter): Promise<any> => {

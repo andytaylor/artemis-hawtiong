@@ -9,16 +9,34 @@ import { MessagesTable } from '../messages/MessagesTable';
 import { eventService } from '@hawtio/react';
 
 export const QueuesTable: React.FunctionComponent<Navigate> = navigate => {
+  const getAddressFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'name',
+      operation: 'EQUALS',
+      input: row.address
+    }
+    return filter;
+  }
+
+  const getConsumersFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'queue',
+      operation: 'EQUALS',
+      input: row.name
+    }
+    return filter;
+  }
+
   const allColumns: Column[] = [
     { id: 'id', name: 'ID', visible: true, sortable: true, filterable: true },
     { id: 'name', name: 'Name', visible: true, sortable: true, filterable: true },
-    { id: 'address', name: 'Address', visible: true, sortable: true, filterable: true },
+    { id: 'address', name: 'Address', visible: true, sortable: true, filterable: true, filter: getAddressFilter, filterTab: 5},
     { id: 'routingType', name: 'Routing Type', visible: true, sortable: true, filterable: true },
     { id: 'filter', name: 'Filter', visible: true, sortable: true, filterable: true },
     { id: 'durable', name: 'Durable', visible: true, sortable: true, filterable: true },
     { id: 'maxConsumers', name: 'Max Consumers', visible: true, sortable: true, filterable: true },
     { id: 'purgeOnNoConsumers', name: 'Purge On No Consumers', visible: true, sortable: true, filterable: true },
-    { id: 'consumerCount', name: 'Consumer Count', visible: true, sortable: true, filterable: true },
+    { id: 'consumerCount', name: 'Consumer Count', visible: true, sortable: true, filterable: true, filter: getConsumersFilter, filterTab: 4},
     { id: 'messageCount', name: 'Message Count', visible: false, sortable: true, filterable: true },
     { id: 'paused', name: 'Paused', visible: false, sortable: true, filterable: true },
     { id: 'temporary', name: 'Temporary', visible: false, sortable: true, filterable: true },
