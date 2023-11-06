@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Tabs, Tab, TabTitleText, EmptyState, EmptyStateBody, EmptyStateIcon, Title } from '@patternfly/react-core';
 import { ProducerTable } from '../producers/ProducerTable';
 import { ConsumerTable } from '../consumers/ConsumerTable';
@@ -8,22 +8,42 @@ import { AddressesTable } from '../addresses/AddressesTable';
 import { QueuesTable } from '../queues/QueuesTable';
 import { ArtemisContext, useArtemisTree } from '../context';
 import { Status } from '../status/Status';
+import { log } from '../globals';
+import { Filter } from '../table/ArtemisTable';
 
 
 export type Broker = {
   columnStorageLocation?: string
 }
 
+export type Navigate = {
+  search: Function
+  filter?: Filter
+}
+
 export const ArtemisTabs: React.FunctionComponent = () => {
 
   const { tree, selectedNode, setSelectedNode, findAndSelectNode } = useArtemisTree();
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
+  const[searchFilter, setSearchFilter] = useState<Filter | undefined>();
 
 
   const handleTabClick = (event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, tabIndex: string | number
   ) => {
     setActiveTabKey(tabIndex);
   };
+
+  const handleSearch = (tab: number, filter: Filter) => {
+      log.info(filter);
+      setSearchFilter(filter);
+      setActiveTabKey(tab);
+  };
+
+  useEffect(() => {
+
+  }, [searchFilter, activeTabKey])
+  
+  log.info("searching with 2" + searchFilter?.input);
 
   return (
     <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode, findAndSelectNode }}>
@@ -38,12 +58,12 @@ export const ArtemisTabs: React.FunctionComponent = () => {
           </Tab>
           <Tab eventKey={1} title={<TabTitleText>Connections</TabTitleText>} aria-label="connections">
             {activeTabKey === 1 &&
-              <ConnectionsTable/>
+              <ConnectionsTable search={handleSearch}/>
             }
           </Tab>
           <Tab eventKey={2} title={<TabTitleText>Sessions</TabTitleText>} aria-label="sessions">
             {activeTabKey === 2 &&
-              <SessionsTable/>
+              <SessionsTable search={handleSearch} filter={searchFilter}/>
             }
           </Tab>
           <Tab eventKey={3} title={<TabTitleText>Producers</TabTitleText>} aria-label="producers">

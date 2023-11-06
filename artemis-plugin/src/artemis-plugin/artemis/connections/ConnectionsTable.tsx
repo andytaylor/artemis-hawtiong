@@ -1,18 +1,26 @@
 import React, { useState } from 'react'
-import { Broker } from '../views/ArtemisTabView.js';
+import { Navigate } from '../views/ArtemisTabView.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { Modal, ModalVariant, Button } from '@patternfly/react-core';
 import { IAction } from '@patternfly/react-table';
 import { eventService } from '@hawtio/react';
 
-export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
+export const ConnectionsTable: React.FunctionComponent<Navigate> = (navigate) => {
+  const getSessionFilter = (row: any) => {
+    var filter: Filter = {
+      column: 'connectionID',
+      operation: 'EQUALS',
+      input: row.connectionID
+    }
+    return filter;
+  }
   const defaultColumns: Column[] = [
     { id: 'connectionID', name: 'ID', visible: true, sortable: true, filterable: true },
     { id: 'clientID', name: 'Client ID', visible: true, sortable: true, filterable: true },
     { id: 'users', name: 'Users', visible: true, sortable: true, filterable: true },
     { id: 'protocol', name: 'Protocol', visible: true, sortable: true, filterable: true },
-    { id: 'sessionCount', name: 'Session Count', visible: true, sortable: true, filterable: true },
+    { id: 'sessionCount', name: 'Session Count', visible: true, sortable: true, filterable: true, filter: getSessionFilter, filterTab: 2 },
     { id: 'remoteAddress', name: 'Remote Address', visible: true, sortable: true, filterable: true },
     { id: 'localAddress', name: 'Local Address"', visible: true, sortable: true, filterable: true },
     { id: 'session', name: 'Session ID', visible: true, sortable: true, filterable: false },
@@ -28,6 +36,7 @@ export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
     const data = JSON.parse(response);
     return data;
   }
+
 
   const closeConnection = (name: string) => {
     artemisService.closeConnection(connectionToClose)
@@ -64,7 +73,7 @@ export const ConnectionsTable: React.FunctionComponent<Broker> = broker => {
 
   return (
     <>
-      <ArtemisTable allColumns={defaultColumns} getData={listConnections} storageColumnLocation="connectionsColumnDefs" getRowActions={getRowActions} loadData={loadData} />
+      <ArtemisTable allColumns={defaultColumns} getData={listConnections} storageColumnLocation="connectionsColumnDefs" getRowActions={getRowActions} loadData={loadData} navigate={navigate.search} filter={navigate.filter}/>
       <Modal
         aria-label='connection-close-modal'
         variant={ModalVariant.medium}

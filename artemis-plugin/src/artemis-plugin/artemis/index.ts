@@ -18,7 +18,6 @@ export const artemis: HawtioPlugin = () => {
     component: ArtemisNetwork,
     isActive: async () => { 
       var networked = await workspace.treeContainsDomainAndProperties("org.apache.activemq.artemis");
-      log.info("netwroekd" + networked)
       return !networked;
     },
   })

@@ -23,7 +23,7 @@ public class PluginContextListener implements ServletContextListener {
          * - module: The path exposed from Webpack ModuleFederationPlugin. See also: sample-plugin/craco.config.js
          */
         plugin = new HawtioPlugin()
-            .url("http://localhost:8361/console")
+            .url("http://localhost:8161/console")
             .scope("artemisPlugin")
             .module("./plugin");
 

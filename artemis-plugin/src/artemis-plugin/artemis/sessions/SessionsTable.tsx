@@ -3,10 +3,11 @@ import { Modal, ModalVariant, Button } from '@patternfly/react-core';
 import { IAction } from '@patternfly/react-table';
 import React, { useState } from 'react'
 import { artemisService } from '../artemis-service';
-import { Broker } from '../views/ArtemisTabView.js';
+import { Navigate } from '../views/ArtemisTabView.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
+import { log } from '../globals';
 
-export const SessionsTable: React.FunctionComponent<Broker> = broker => {
+export const SessionsTable: React.FunctionComponent<Navigate> = navigate => {
   const allColumns: Column[] = [
     { id: 'id', name: 'ID', visible: true, sortable: true, filterable: true },
     { id: 'connectionID', name: 'Connection ID', visible: true, sortable: true, filterable: true },
@@ -62,8 +63,10 @@ export const SessionsTable: React.FunctionComponent<Broker> = broker => {
     ]
   };
 
+
+  log.info("searching with 1 " + navigate.filter?.input);
   return (
-    <><ArtemisTable allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs" getRowActions={getRowActions} loadData={loadData} /><Modal
+    <><ArtemisTable allColumns={allColumns} getData={listSessions} storageColumnLocation="sessionsColumnDefs" getRowActions={getRowActions} loadData={loadData} filter={navigate.filter}/><Modal
       aria-label='session-close-modal'
       variant={ModalVariant.medium}
       title="Close Session?"

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Button,
   DataList,
@@ -37,6 +38,8 @@ export type Column = {
   visible: boolean
   sortable: boolean
   filterable: boolean
+  filter?: Function
+  filterTab?: number
 }
 
 export enum SortDirection {
@@ -67,6 +70,8 @@ export type TableData = {
   toolbarActions?: ToolbarAction[],
   loadData?: number,
   storageColumnLocation?: string
+  navigate?: Function
+  filter?: Filter
 }
 
 export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
@@ -98,10 +103,12 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     operation: operationOptions[0].id,
     input: ''
   }
-  const [filter, setFilter] = useState(initialFilter);
-  const [filterColumnStatusSelected, setFilterColumnStatusSelected] = useState(columns[0].name);
-  const [filterColumnOperationSelected, setFilterColumnOperationSelected] = useState(operationOptions[0].name);
-  const [inputValue, setInputValue] = useState('');
+  const [filter, setFilter] = useState(broker.filter != undefined? broker.filter:initialFilter);
+
+  log.info("searching with 3" + filter.input);
+  const [filterColumnStatusSelected, setFilterColumnStatusSelected] = useState(columns.find(column => filter.column === column.id)?.name);
+  const [filterColumnOperationSelected, setFilterColumnOperationSelected] = useState(operationOptions.find(operation => operation.id === filter.operation)?.name);
+  const [inputValue, setInputValue] = useState(filter.input);
   const [filterColumnStatusIsExpanded, setFilterColumnStatusIsExpanded] = useState(false);
   const [filterColumnOperationIsExpanded, setFilterColumnOperationIsExpanded] = useState(false);
 
@@ -413,7 +420,13 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
               <>
                 {columns.map((column, id) => {
                   if (column.visible) {
-                    return <Td key={id}>{getKeyByValue(row, column.id)}</Td>
+                    var key = getKeyByValue(row, column.id)
+                    if(column.filter ) {
+                      var filter = column.filter(row);
+                      return <Td key={id}><Link to="" onClick={() => {if (broker.navigate) { broker.navigate(column.filterTab, filter)}}}>{key}</Link></Td>
+                    } else {
+                      return <Td key={id}>{key}</Td>
+                    }
                   } else return ''
                 }
                 )}
