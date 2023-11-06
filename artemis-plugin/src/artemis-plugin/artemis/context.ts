@@ -20,7 +20,7 @@ export function useArtemisTree() {
 
     const populateTree = async () => {
         const wkspTree: MBeanTree = await workspace.getTree();
-        const rootNode = wkspTree.findDescendant(node => node.name === jmxDomain)
+        const rootNode = wkspTree.find(node => node.name === jmxDomain)
         if (rootNode && rootNode.children && rootNode.children.length > 0) {
             log.info("rootnode=========================" + rootNode.objectName)
       
@@ -63,10 +63,10 @@ export function useArtemisTree() {
     }, [selectedNode])
 
     const findAndSelectNode = (objectName: string, name: string) => {
-        var node: MBeanNode | null = tree.findDescendant(node => { return node.objectName === objectName });
+        var node: MBeanNode | null = tree.find(node => { return node.objectName === objectName });
         if (!node) {
             //need some special sauce here if we are lazy loading to populate the mbean
-            const parentNode = tree.findDescendant(node => node.name === "addresses");
+            const parentNode = tree.find(node => node.name === "addresses");
             node = new MBeanNode(parentNode, name, false);
             node.objectName = objectName;
             parentNode?.children?.push(node);
