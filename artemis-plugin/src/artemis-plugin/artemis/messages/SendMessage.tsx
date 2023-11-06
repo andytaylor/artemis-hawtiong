@@ -216,7 +216,7 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     if (props.isAddress) {
-      artemisService.doSendMessageToAddress(messageBody.current, messageHeaders.current, isDurableChecked, isCreateIDChecked, isUseLogonChecked, username, password, props.routingType.toLowerCase())
+      artemisService.doSendMessageToAddress(messageBody.current, messageHeaders.current, isDurableChecked, isCreateIDChecked, isUseLogonChecked, username, password, props.address)
         .then(() => {
           eventService.notify({
             type: 'success',

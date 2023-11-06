@@ -3,6 +3,7 @@ import { log } from '../globals';
 import { artemisService } from '../artemis-service';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { eventService } from '@hawtio/react';
+import { useEffect } from 'react';
 
 type DeleteAddressProps = {
   address: string
@@ -10,6 +11,11 @@ type DeleteAddressProps = {
   onClick: Function;
 }
 export const DeleteAddressModal: React.FunctionComponent<DeleteAddressProps> = (props: DeleteAddressProps) => {
+
+  useEffect(() => {
+    log.info("rendering Address Delete Modal ");
+  }, [props]);
+
 
   const handleDeleteAddress = () => {
     artemisService.deleteAddress(props.address)
@@ -30,7 +36,7 @@ export const DeleteAddressModal: React.FunctionComponent<DeleteAddressProps> = (
   };
 
 
-  log.info(props.address)
+  log.info("£££"+props.show)
 
   return (
     <Modal

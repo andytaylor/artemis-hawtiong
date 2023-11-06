@@ -1,8 +1,10 @@
 import { HawtioPlugin, hawtio, helpRegistry, workspace, preferencesRegistry} from '@hawtio/react'
 import { Artemis } from './Artemis'
+import { ArtemisOptions, artemisPreferencesService } from './artemis-preferences-service'
+import { ArtemisJMX } from './ArtemisJMX'
 import { ArtemisNetwork } from './ArtemisNetwork'
 import { ArtemisPreferences } from './ArtemisPreferences'
-import { artemisNetworkPluginName, artemisNetworkPluginTitle, artemisNetworkPluginPath, log, artemisPluginName, artemisPluginTitle, artemisPluginPath,  } from './globals'
+import { artemisNetworkPluginName, artemisNetworkPluginTitle, artemisNetworkPluginPath, log, artemisPluginName, artemisPluginTitle, artemisPluginPath, artemisJMXPluginName, artemisJMXPluginPath, artemisJMXPluginTitle,  } from './globals'
 import help from './help.md'
 
 export const artemis: HawtioPlugin = () => {
@@ -31,6 +33,16 @@ export const artemis: HawtioPlugin = () => {
     isActive:  async () => workspace.treeContainsDomainAndProperties("org.apache.activemq.artemis"),
   })
 
-  helpRegistry.add(artemisPluginName, artemisPluginTitle, help, 101)
-  preferencesRegistry.add(artemisPluginName, artemisPluginTitle, ArtemisPreferences, 101)
+  const preferences: ArtemisOptions = artemisPreferencesService.loadArtemisPreferences();
+
+  hawtio.addPlugin({
+    id: artemisJMXPluginName,
+    title: artemisJMXPluginTitle,
+    path: artemisJMXPluginPath,
+    component: ArtemisJMX,
+    isActive:  async () => preferences.showJMXView,
+  })
+
+  helpRegistry.add(artemisPluginName, artemisPluginTitle, help, 1)
+  preferencesRegistry.add(artemisPluginName, artemisPluginTitle, ArtemisPreferences, 1)
 }

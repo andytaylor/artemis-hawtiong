@@ -11,12 +11,14 @@ export type ArtemisOptions = {
   artemisDLQ: string
   artemisExpiryQueue: string
   artemisBrowseBytesMessages: number
+  showJMXView: boolean
 }
 
 export const ARTEMIS_PREFERENCES_DEFAULT_VALUES: ArtemisOptions = {
   artemisDLQ: "^DLQ$",
   artemisExpiryQueue: "^ExpiryQueue$",
-  artemisBrowseBytesMessages: 99
+  artemisBrowseBytesMessages: 99,
+  showJMXView: false
 } as const
 
 export const STORAGE_KEY_ARTEMIS_PREFERENCES = 'artemis.preferences'

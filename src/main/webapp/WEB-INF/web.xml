@@ -8,7 +8,7 @@
   <display-name>Hawtio Sample Plugin</display-name>
 
   <listener>
-    <listener-class>io.hawt.examples.sampleplugin.PluginContextListener</listener-class>
+    <listener-class>io.hawt.artemis.PluginContextListener</listener-class>
   </listener>
 
 </web-app>

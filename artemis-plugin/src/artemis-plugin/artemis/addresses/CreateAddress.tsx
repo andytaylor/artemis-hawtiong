@@ -37,6 +37,7 @@ export const CreateAddress: React.FunctionComponent = () => {
     <>
     <Title headingLevel="h2">Create Address</Title>
       <ConnectHint text={['This page allows you to create a new address on the broker, if you want the address to support JMS like queues, i.e. point to point, then choose anycast. If you want your address to support JMS like topic subscriptions, publish/subscribe, then choose multicast.']}/>
+      <br/>
       <Form>
         <FormGroup label="Address Name">
           <TextInput

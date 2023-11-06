@@ -11,6 +11,7 @@ import { ArtemisContext } from '../context';
 import { CreateAddress } from './CreateAddress';
 import { SendMessage } from '../messages/SendMessage';
 import { createAddressObjectName } from '../util/jmx';
+import { DeleteAddress } from './DeleteAddress';
 
 export const AddressesTable: React.FunctionComponent = () => {
   const allColumns: Column[] = [
@@ -38,7 +39,7 @@ export const AddressesTable: React.FunctionComponent = () => {
 
   useEffect(() => {
     log.info("rendering Address Table ");
-  }, [address, showCreateDialog]);
+  }, [address]);
 
 
   const createAction: ToolbarAction = {
@@ -50,20 +51,6 @@ export const AddressesTable: React.FunctionComponent = () => {
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
     return [
-      {
-        title: 'create queue',
-        onClick: () => {
-          setAddress(row.name);
-          setShowCreateDialog(true);
-        }
-      },
-      {
-        title: 'delete address',
-        onClick: () => {
-          setAddress(row.name);
-          setShowDeleteDialog(true);
-        }
-      },
       {
         title: 'attributes',
         onClick: async () => {
@@ -82,6 +69,20 @@ export const AddressesTable: React.FunctionComponent = () => {
           const addressObjectName = createAddressObjectName(brokerObjectName, row.name);
           findAndSelectNode(addressObjectName, row.name);
           setShowOperationsDialog(true);
+        }
+      },
+      {
+        title: 'create queue',
+        onClick: () => {
+          setAddress(row.name);
+          setShowCreateDialog(true);
+        }
+      },
+      {
+        title: 'delete address',
+        onClick: () => {
+          setAddress(row.name);
+          setShowDeleteDialog(true);
         }
       },
       {
@@ -109,7 +110,7 @@ export const AddressesTable: React.FunctionComponent = () => {
         ]}>
         <CreateQueue address={address}/>
       </Modal>
-      <DeleteAddressModal address={address} show={showDeleteDialog} onClick={() => setShowDeleteDialog(false)} />
+      <DeleteAddressModal address={address} show={showDeleteDialog} onClick={setShowDeleteDialog} />
       <Modal
         aria-label='attributes-modal'
         variant={ModalVariant.medium}

@@ -25,7 +25,7 @@ export function useArtemisTree() {
             log.info("rootnode=========================" + rootNode.objectName)
       
             const contextsNode = rootNode.getChildren()[0];
-            const subTree: MBeanTree = MBeanTree.createFromNodes(artemisPluginName, contextsNode.getChildren())
+            const subTree: MBeanTree = MBeanTree.createFromNodes(artemisPluginName, [rootNode])
             setTree(subTree)
 
         } else {

@@ -56,6 +56,29 @@ export type Acceptors = {
     acceptors: Acceptor[]
 }
 
+export type ClusterConnection = {
+    Started: boolean
+    Address: string
+    MessageLoadBalancingType: string
+    MessagesAcknowledged: number
+    Topology: string
+    MaxHops: number
+    Nodes: any
+    Name: string
+    DuplicateDetection: boolean
+    DiscoveryGroupName: string
+    Metrics: any
+    MessagesPendingAcknowledgement: number
+    StaticConnectors:	string[]
+    NodeID: string
+    RetryInterval: number
+    StaticConnectorsAsJSON: string
+}
+
+export type ClusterConnections = {
+    clusterConnections: ClusterConnection[]
+}
+
 const BROKER_SEARCH_PATTERN = "org.apache.activemq.artemis:broker=*";
 const LIST_NETWORK_TOPOLOGY_SIG="listNetworkTopology";
 const SEND_MESSAGE_SIG = "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String, boolean)";
@@ -143,6 +166,26 @@ class ArtemisService {
                     acceptors.acceptors.push(acceptor);
                 }
                 resolve(acceptors);               
+            }
+            reject("invalid response:");
+        });
+    }
+
+    async createClusterConnections(): Promise<ClusterConnections> {
+        return new Promise<ClusterConnections>(async (resolve, reject) => { 
+            var brokerObjectName = await this.brokerObjectName;
+            const clusterConnectionSearch = brokerObjectName + ",component=cluster-connections,name=*";
+
+            var search = await jolokiaService.search(clusterConnectionSearch);
+            if (search) {
+                const clusterConnections: ClusterConnections = {
+                    clusterConnections: []
+                };
+                for (var key in search) {
+                    const clusterConnection: ClusterConnection = await jolokiaService.readAttributes(search[key]) as ClusterConnection;
+                    clusterConnections.clusterConnections.push(clusterConnection);
+                }
+                resolve(clusterConnections);               
             }
             reject("invalid response:");
         });

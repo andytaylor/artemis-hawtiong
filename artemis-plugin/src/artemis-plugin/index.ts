@@ -13,7 +13,7 @@ import { artemis } from './artemis'
  *     .pluginEntry("registerMyPlugin");
  * </code>
  *
- * @see src/main/java/io/hawt/examples/sampleplugin/PluginContextListener.java
+ * @see src/main/java/io/hawt/artemis/PluginContextListener.java
  */
 export const plugin: HawtioPlugin = () => {
   artemis()
