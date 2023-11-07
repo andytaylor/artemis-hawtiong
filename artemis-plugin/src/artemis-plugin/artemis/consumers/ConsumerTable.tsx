@@ -117,7 +117,7 @@ export const ConsumerTable: React.FunctionComponent<Navigate> = navigate => {
           <Button key="cancel" variant="secondary" onClick={() => setShowConsumerCloseDialog(false)}>
             Cancel
           </Button>
-        ]}><p>You are about to close session with id:  <b>{consumerToClose}</b>.</p>
+        ]}><p>You are about to close consumer with id:  <b>{consumerToClose}</b>.</p>
         <p>This operation cannot be undone so please be careful.</p>
       </Modal>
       </>

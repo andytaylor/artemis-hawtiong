@@ -2,10 +2,6 @@ import { eventService, EVENT_REFRESH,MBeanNode, MBeanTree, PluginNodeSelectionCo
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import { artemisPluginName, jmxDomain, log } from "./globals";
-
-type CustomNode = MBeanNode & {
-    mbean?: string
-  }
   
 /**
  * Custom React hook for using Camel MBean tree.
@@ -23,9 +19,7 @@ export function useArtemisTree() {
         const rootNode = wkspTree.find(node => node.name === jmxDomain)
         if (rootNode && rootNode.children && rootNode.children.length > 0) {
             log.info("rootnode=========================" + rootNode.objectName)
-      
-            const contextsNode = rootNode.getChildren()[0];
-            const subTree: MBeanTree = MBeanTree.createFromNodes(artemisPluginName, [rootNode])
+                  const subTree: MBeanTree = MBeanTree.createFromNodes(artemisPluginName, [rootNode])
             setTree(subTree)
 
         } else {
@@ -77,14 +71,14 @@ export function useArtemisTree() {
 }
 
 
-type ArtemisContext = {
+type ArtemisTreeContext = {
     tree: MBeanTree
     selectedNode: MBeanNode | null
     setSelectedNode: (selected: MBeanNode | null) => void
     findAndSelectNode: (objectName: string, name: string) => void
 }
 
-export const ArtemisContext = createContext<ArtemisContext>({
+export const ArtemisContext = createContext<ArtemisTreeContext>({
     tree: MBeanTree.createEmpty(artemisPluginName),
     selectedNode: null,
     setSelectedNode: () => {

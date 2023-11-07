@@ -1,5 +1,5 @@
 import { ActiveSort, Filter } from './table/ArtemisTable'
-import { jolokiaService, MBeanNode } from '@hawtio/react'
+import { jolokiaService } from '@hawtio/react'
 import { createAddressObjectName, createQueueObjectName } from './util/jmx'
 import { log } from './globals'
 

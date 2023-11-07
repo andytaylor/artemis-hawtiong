@@ -7,12 +7,11 @@ import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { CreateQueue } from '../queues/CreateQueue';
 import { log } from '../globals';
 import { DeleteAddressModal } from './DeleteAddressModal';
-import { Attributes, MBeanNode, Operations } from '@hawtio/react';
+import { Attributes, Operations } from '@hawtio/react';
 import { ArtemisContext } from '../context';
 import { CreateAddress } from './CreateAddress';
 import { SendMessage } from '../messages/SendMessage';
 import { createAddressObjectName } from '../util/jmx';
-import { DeleteAddress } from './DeleteAddress';
 
 export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   const getQueueFilter = (row: any) => {

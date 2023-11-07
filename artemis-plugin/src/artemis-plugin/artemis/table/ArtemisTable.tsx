@@ -103,7 +103,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     operation: operationOptions[0].id,
     input: ''
   }
-  const [filter, setFilter] = useState(broker.filter != undefined? broker.filter:initialFilter);
+  const [filter, setFilter] = useState(broker.filter !== undefined? broker.filter:initialFilter);
 
   log.info("searching with 3" + filter.input);
   const [filterColumnStatusSelected, setFilterColumnStatusSelected] = useState(columns.find(column => filter.column === column.id)?.name);
@@ -423,7 +423,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
                     var key = getKeyByValue(row, column.id)
                     if(column.filter ) {
                       var filter = column.filter(row);
-                      return <Td key={id}><Link to="" onClick={() => {if (broker.navigate) { broker.navigate(column.filterTab, filter)}}}>{key}</Link></Td>
+                      return <Td key={id}><Link to="/" onClick={() => {if (broker.navigate) { broker.navigate(column.filterTab, filter)}}}>{key}</Link></Td>
                     } else {
                       return <Td key={id}>{key}</Td>
                     }

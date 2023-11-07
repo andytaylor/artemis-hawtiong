@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Tabs, Tab, TabTitleText, EmptyState, EmptyStateBody, EmptyStateIcon, Title } from '@patternfly/react-core';
+import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
 import { ProducerTable } from '../producers/ProducerTable';
 import { ConsumerTable } from '../consumers/ConsumerTable';
 import { ConnectionsTable } from '../connections/ConnectionsTable';

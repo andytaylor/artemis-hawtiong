@@ -3,7 +3,7 @@ import { TreeView, TreeViewDataItem } from '@patternfly/react-core'
 import React, { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArtemisContext } from './context'
-import { artemisJMXPluginPath, artemisPluginPath } from './globals'
+import { artemisJMXPluginPath } from './globals'
 
 /**
  * Expansion requires more than 2 states since the expandAll
@@ -59,7 +59,7 @@ export const ArtemisTreeView: React.FunctionComponent = () => {
 
   const onSelect = (event: React.MouseEvent<Element, MouseEvent>, item: TreeViewDataItem) => {
     setSelectedNode(item as MBeanNode)
-    /* On change of node selection update the url to the base plugin path */
+    /* On change of node selection update the url to the base plugin path */ 
     navigate(artemisJMXPluginPath)
   }
 

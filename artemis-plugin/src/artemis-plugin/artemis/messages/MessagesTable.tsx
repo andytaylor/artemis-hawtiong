@@ -373,7 +373,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
           <ToolbarItem variant="search-filter">
             <SearchInput
               aria-label="With filters example search input"
-              onChange={(value, _event) => onFilterChange(value as unknown as string)}
+              onChange={(_event, value) => onFilterChange(value)}
               value={filter}
               onClear={() => {
                 onFilterChange('');

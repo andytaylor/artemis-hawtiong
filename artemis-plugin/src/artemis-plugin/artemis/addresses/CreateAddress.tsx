@@ -1,7 +1,6 @@
 import { ActionGroup, Button, Form, FormGroup, Radio, TextInput, Title } from '@patternfly/react-core';
 import React, { useState } from 'react'
 import { artemisService } from '../artemis-service';
-import { Broker } from '../views/ArtemisTabView';
 import { eventService } from '@hawtio/react';
 import { ConnectHint } from '../util/ConnectHint';
 

@@ -1,25 +1,15 @@
-import {useNavigate } from 'react-router-dom'
-import { Connection, Connections, connectService, PARAM_KEY_CONNECTION } from '@hawtio/react'
-import { TableComposable, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import React from 'react';
 
-import { RegionsIcon as Icon1 } from '@patternfly/react-icons';
-import { FolderOpenIcon as Icon2 } from '@patternfly/react-icons';
 
 import {
   ColaLayout,
   ComponentFactory,
-  DefaultEdge,
-  DefaultGroup,
-  DefaultNode,
   EdgeStyle,
   Graph,
-  GraphComponent,
   Layout,
   LayoutFactory,
   Model,
   ModelKind,
-  Node,
   NodeModel,
   NodeShape,
   NodeStatus,
@@ -29,7 +19,7 @@ import {
   VisualizationSurface
 } from '@patternfly/react-topology';
 
-interface CustomNodeProps {
+/**interface CustomNodeProps {
   element: Node;
 }
 
@@ -46,9 +36,9 @@ const BadgeColors = [
     badgeTextColor: '#5752d1',
     badgeBorderColor: '#CBC1FF'
   }
-];
+];*/
 
-const CustomNode: React.FC<CustomNodeProps> = ({ element }) => {
+/**const CustomNode: React.FC<CustomNodeProps> = ({ element }) => {
   const data = element.getData();
   const Icon = data.isAlternate ? Icon2 : Icon1;
   const badgeColors = BadgeColors.find(badgeColor => badgeColor.name === data.badge);
@@ -67,7 +57,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ element }) => {
       </g>
     </DefaultNode>
   );
-};
+};*/
 
 const customLayoutFactory: LayoutFactory = (type: string, graph: Graph): Layout | undefined => {
   switch (type) {
@@ -214,16 +204,16 @@ export type State = {
 
 export const Brokers: React.FunctionComponent = () => {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
-  const  connections: Connections = connectService.loadConnections();
+  //const  connections: Connections = connectService.loadConnections();
 
-  const navigate = useNavigate();
-  const columnNames = {
+  //const navigate = useNavigate();
+  /**const columnNames = {
     name: 'Name',
     version: 'Version',
     uptime: 'Uptime',
     addressMemoryUsage: 'Address Memory Usage',
     connectAction: "Connect"
-  };
+  };*/
 
   const controller = React.useMemo(() => {
     const model: Model = {
@@ -248,10 +238,10 @@ export const Brokers: React.FunctionComponent = () => {
   }, []);
 
 
-  function connect(connection: Connection) {
+  /**function connect(connection: Connection) {
     navigate('/artemis?' + PARAM_KEY_CONNECTION + "=" + connection.name);
     navigate(0);
-  }
+  }*/
 
 
   return (

@@ -1,10 +1,33 @@
 import { ChartDonutUtilization } from "@patternfly/react-charts"
-import { Card, CardBody, CardTitle, Divider, ExpandableSection, Text, Grid, GridItem, Title, CardHeader, TextList, TextContent, TextListItem, TextListItemVariants, TextListVariants, Truncate, TextVariants, CardActions, Checkbox, Dropdown, KebabToggle, DropdownItem, DropdownSeparator, Button, Modal, ModalVariant, Flex, FlexItem } from "@patternfly/react-core"
-import { TableComposable, Tr, Tbody, Td } from '@patternfly/react-table';
+import { Card, 
+    CardBody, 
+    CardTitle, 
+    Divider, 
+    ExpandableSection, 
+    Text, 
+    Grid, 
+    GridItem, 
+    Title, 
+    CardHeader, 
+    TextList, 
+    TextContent, 
+    TextListItem, 
+    TextListItemVariants, 
+    TextListVariants, 
+    Truncate, 
+    TextVariants, 
+    CardActions, 
+    Dropdown, 
+    KebabToggle, 
+    DropdownItem, 
+    Button, 
+    Modal, 
+    ModalVariant, 
+    Flex, 
+    FlexItem } from "@patternfly/react-core"
 import { Attributes, eventService, Operations } from '@hawtio/react';
 import { useContext, useEffect, useState } from "react";
 import { Acceptors, artemisService, BrokerInfo, ClusterConnections } from "../artemis-service";
-import { log } from "../globals";
 import { ArtemisContext } from "../context";
 
 
@@ -13,7 +36,7 @@ export const Status: React.FunctionComponent = () => {
     const [brokerInfo, setBrokerInfo] = useState<BrokerInfo>()
     const [acceptors, setAcceptors] = useState<Acceptors>();
     const [clusterConnections, setClusterConncetions] = useState<ClusterConnections>()
-    const { tree, selectedNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext)
+    const { findAndSelectNode } = useContext(ArtemisContext)
 
     const [showAttributesDialog, setShowAttributesDialog] = useState(false);
     const [showOperationsDialog, setShowOperationsDialog] = useState(false);
@@ -96,10 +119,6 @@ export const Status: React.FunctionComponent = () => {
             Operations
         </DropdownItem>,
     ];
-
-    const getEndOfRow = (index: number) => {
-        return ""
-    }
 
     return (
         <>
