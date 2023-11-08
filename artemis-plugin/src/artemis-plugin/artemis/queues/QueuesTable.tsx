@@ -1,14 +1,13 @@
 import React, { useState } from 'react'
-import { Navigate } from '../views/ArtemisTabView.js';
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { SendMessage } from '../messages/SendMessage';
-import { MessagesTable } from '../messages/MessagesTable';
 import { eventService } from '@hawtio/react';
+import { QueueNavigate } from './QueuesView.js';
 
-export const QueuesTable: React.FunctionComponent<Navigate> = navigate => {
+export const QueuesTable: React.FunctionComponent<QueueNavigate> = navigate => {
   const getAddressFilter = (row: any) => {
     var filter: Filter = {
       column: 'name',
@@ -27,6 +26,10 @@ export const QueuesTable: React.FunctionComponent<Navigate> = navigate => {
     return filter;
   }
 
+  const messageView = (row: any) => { 
+    navigate.selectQueue(row.name, row.address, row.routingType); 
+  }
+
   const allColumns: Column[] = [
     { id: 'id', name: 'ID', visible: true, sortable: true, filterable: true },
     { id: 'name', name: 'Name', visible: true, sortable: true, filterable: true },
@@ -37,7 +40,7 @@ export const QueuesTable: React.FunctionComponent<Navigate> = navigate => {
     { id: 'maxConsumers', name: 'Max Consumers', visible: true, sortable: true, filterable: true },
     { id: 'purgeOnNoConsumers', name: 'Purge On No Consumers', visible: true, sortable: true, filterable: true },
     { id: 'consumerCount', name: 'Consumer Count', visible: true, sortable: true, filterable: true, filter: getConsumersFilter, filterTab: 4},
-    { id: 'messageCount', name: 'Message Count', visible: false, sortable: true, filterable: true },
+    { id: 'messageCount', name: 'Message Count', visible: false, sortable: true, filterable: true, link: messageView},
     { id: 'paused', name: 'Paused', visible: false, sortable: true, filterable: true },
     { id: 'temporary', name: 'Temporary', visible: false, sortable: true, filterable: true },
     { id: 'autoCreated', name: 'Auto Created', visible: false, sortable: true, filterable: true },
@@ -77,7 +80,6 @@ export const QueuesTable: React.FunctionComponent<Navigate> = navigate => {
   const [queueToPurgeAddress, setQueueToPurgeAddress] = useState("");
   const [queueToPurgeRoutingType, setQueueToPurgeRoutingType] = useState("");
   const [loadData, setLoadData] = useState(0);
-  const [queueView, setQueueView] = useState(true)
 
   const closeDeleteDialog = () => {
     setShowDeleteDialog(false);
@@ -162,84 +164,54 @@ export const QueuesTable: React.FunctionComponent<Navigate> = navigate => {
       {
         title: 'browse messages',
         onClick: () => {
-          setQueue(row.name);
-          setAddress(row.address);
-          setRoutingType(row.routingType)
-          setQueueView(false);
+          navigate.selectQueue(row.name, row.address, row.routingType);
         }
 
       }
     ]
   };
 
-  const QueuesView: React.FunctionComponent = () => {
-    return (
-      <>
-        <ArtemisTable allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" navigate={navigate.search} filter={navigate.filter}/>
-        <Modal
-          aria-label='queue-delete-modal'
-          variant={ModalVariant.medium}
-          title="Delete Queue?"
-          isOpen={showDeleteDialog}
-          actions={[
-            <Button key="confirm" variant="primary" onClick={() => deleteQueue(queue)}>
-              Confirm
-            </Button>,
-            <Button key="cancel" variant="secondary" onClick={closeDeleteDialog}>
-              Cancel
-            </Button>
-          ]}><p>You are about to delete queue <b>{queue}</b>.</p>
-          <p>This operation cannot be undone so please be careful.</p>
-        </Modal>
-
-        <Modal
-          aria-label='queue-purge-modal'
-          variant={ModalVariant.medium}
-          title="Purge Queue?"
-          isOpen={showPurgeDialog}
-          actions={[
-            <Button key="confirm" variant="primary" onClick={() => purgeQueue(queue, queueToPurgeAddress, queueToPurgeRoutingType)}>
-              Confirm
-            </Button>,
-            <Button key="cancel" variant="secondary" onClick={closePurgeDialog}>
-              Cancel
-            </Button>
-          ]}><p>You are about to remove all messages from queue <b>{queue}</b>.</p>
-          <p>This operation cannot be undone so please be careful.</p>
-        </Modal>
-
-        <Modal
-          aria-label='queue-send-modal'
-          variant={ModalVariant.medium}
-          isOpen={showSendDialog}
-          actions={[
-            <Button key="close" variant="secondary" onClick={closeSendDialog}>
-              Cancel
-            </Button>
-          ]}>
-          <SendMessage address={address} queue={queue} routingType={routingType}  isAddress={false}/>
-        </Modal>
-      </>
-    )
-  }
-
-  const MessagesView: React.FunctionComponent = () => {
-    return (
-      <MessagesTable queue={queue} routingType={routingType} address={address}/>
-    )
-  }
-
   return (
-    <>
-      {queueView &&
-        <QueuesView />
-      }
-      {!queueView &&
-        <>
-          <MessagesView />
-          <Button onClick={() => setQueueView(true)}>Back</Button>
-        </>
-      }
-    </>
+    <><ArtemisTable allColumns={allColumns} getData={listQueues} getRowActions={getRowActions} loadData={loadData} storageColumnLocation="queuesColumnDefs" navigate={navigate.search} filter={navigate.filter} /><Modal
+      aria-label='queue-delete-modal'
+      variant={ModalVariant.medium}
+      title="Delete Queue?"
+      isOpen={showDeleteDialog}
+      actions={[
+        <Button key="confirm" variant="primary" onClick={() => deleteQueue(queue)}>
+          Confirm
+        </Button>,
+        <Button key="cancel" variant="secondary" onClick={closeDeleteDialog}>
+          Cancel
+        </Button>
+      ]}><p>You are about to delete queue <b>{queue}</b>.</p>
+      <p>This operation cannot be undone so please be careful.</p>
+    </Modal>
+    <Modal
+      aria-label='queue-purge-modal'
+      variant={ModalVariant.medium}
+      title="Purge Queue?"
+      isOpen={showPurgeDialog}
+      actions={[
+        <Button key="confirm" variant="primary" onClick={() => purgeQueue(queue, queueToPurgeAddress, queueToPurgeRoutingType)}>
+          Confirm
+        </Button>,
+        <Button key="cancel" variant="secondary" onClick={closePurgeDialog}>
+          Cancel
+        </Button>
+      ]}><p>You are about to remove all messages from queue <b>{queue}</b>.</p>
+        <p>This operation cannot be undone so please be careful.</p>
+      </Modal>
+      <Modal
+        aria-label='queue-send-modal'
+        variant={ModalVariant.medium}
+        isOpen={showSendDialog}
+        actions={[
+          <Button key="close" variant="secondary" onClick={closeSendDialog}>
+            Cancel
+          </Button>
+        ]}>
+        <SendMessage address={address} queue={queue} routingType={routingType} isAddress={false} />
+      </Modal></>
   )
 }

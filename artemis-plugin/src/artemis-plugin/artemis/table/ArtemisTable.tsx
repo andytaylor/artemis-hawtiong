@@ -40,6 +40,7 @@ export type Column = {
   filterable: boolean
   filter?: Function
   filterTab?: number
+  link?: Function
 }
 
 export enum SortDirection {
@@ -76,7 +77,7 @@ export type TableData = {
 
 export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
 
-  const operationOptions = [
+const operationOptions = [
     { id: 'EQUALS', name: 'Equals' },
     { id: 'CONTAINS', name: 'Contains' },
     { id: 'NOT_CONTAINS', name: 'Does Not Contain' },
@@ -126,7 +127,7 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
     }
     listData();
 
-  }, [columns, page, activeSort, filter,perPage, columnsLoaded, broker])
+  }, [columns, page, activeSort, filter, perPage, columnsLoaded, broker])
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -421,9 +422,11 @@ export const ArtemisTable: React.FunctionComponent<TableData> = broker => {
                 {columns.map((column, id) => {
                   if (column.visible) {
                     var key = getKeyByValue(row, column.id)
-                    if(column.filter ) {
+                    if(column.filter) {
                       var filter = column.filter(row);
-                      return <Td key={id}><Link to="/" onClick={() => {if (broker.navigate) { broker.navigate(column.filterTab, filter)}}}>{key}</Link></Td>
+                      return <Td key={id}><Link to="" onClick={() => {if (broker.navigate) { broker.navigate(column.filterTab, filter)}}}>{key}</Link></Td>
+                    } else if (column.link) {
+                      return <Td key={id}><Link to="" onClick={() => {if (column.link) {column.link(row)}}}>{key}</Link></Td>
                     } else {
                       return <Td key={id}>{key}</Td>
                     }

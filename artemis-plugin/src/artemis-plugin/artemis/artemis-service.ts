@@ -2,6 +2,7 @@ import { ActiveSort, Filter } from './table/ArtemisTable'
 import { jolokiaService } from '@hawtio/react'
 import { createAddressObjectName, createQueueObjectName } from './util/jmx'
 import { log } from './globals'
+import { Message } from './messages/MessageView'
 
 export type BrokerInfo = {
     name: string
@@ -30,8 +31,8 @@ export class BrokerNetworkTopology {
 
     getBackupCount(): number {
         var backups: number = 0;
-        this.brokers.forEach( (broker) => {
-            if(broker.backup) {
+        this.brokers.forEach((broker) => {
+            if (broker.backup) {
                 backups = backups + 1;
             }
         })
@@ -46,7 +47,7 @@ export type BrokerElement = {
 }
 
 export type Acceptor = {
-    Name:string
+    Name: string
     FactoryClassName: string
     Started: boolean
     Parameters: any
@@ -69,7 +70,7 @@ export type ClusterConnection = {
     DiscoveryGroupName: string
     Metrics: any
     MessagesPendingAcknowledgement: number
-    StaticConnectors:	string[]
+    StaticConnectors: string[]
     NodeID: string
     RetryInterval: number
     StaticConnectorsAsJSON: string
@@ -80,7 +81,7 @@ export type ClusterConnections = {
 }
 
 const BROKER_SEARCH_PATTERN = "org.apache.activemq.artemis:broker=*";
-const LIST_NETWORK_TOPOLOGY_SIG="listNetworkTopology";
+const LIST_NETWORK_TOPOLOGY_SIG = "listNetworkTopology";
 const SEND_MESSAGE_SIG = "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String, boolean)";
 const DELETE_ADDRESS_SIG = "deleteAddress(java.lang.String)";
 const CREATE_QUEUE_SIG = "createQueue(java.lang.String, boolean)"
@@ -100,21 +101,27 @@ const CLOSE_CONNECTION_SIG = "closeConnectionWithID(java.lang.String)";
 const CLOSE_SESSION_SIG = "closeSessionWithID(java.lang.String,java.lang.String)";
 const CLOSE_CONSUMER_SIG = "closeConsumerWithID(java.lang.String,java.lang.String)"
 
+const MS_PER_SEC = 1000;
+const MS_PER_MIN = 60 * MS_PER_SEC;
+const MS_PER_HOUR = 60 * MS_PER_MIN;
+const MS_PER_DAY = 24 * MS_PER_HOUR;
+const typeLabels = ["DEFAULT", "1", "object", "text", "bytes", "map", "stream", "embedded"];
+
 class ArtemisService {
 
     private brokerObjectName: Promise<string>
 
     constructor() {
-        this.brokerObjectName = this.initBrokerObjectName();    
+        this.brokerObjectName = this.initBrokerObjectName();
     }
 
     private async initBrokerObjectName(): Promise<string> {
         var search = await jolokiaService.search(BROKER_SEARCH_PATTERN);
-        return search[0]?search[0]:"";
+        return search[0] ? search[0] : "";
     }
 
-    async createBrokerInfo(): Promise<BrokerInfo> {       
-        return new Promise<BrokerInfo>(async (resolve, reject) => { 
+    async createBrokerInfo(): Promise<BrokerInfo> {
+        return new Promise<BrokerInfo>(async (resolve, reject) => {
             var brokerObjectName = await this.brokerObjectName;
             var response = await jolokiaService.readAttributes(brokerObjectName);
             if (response) {
@@ -135,7 +142,7 @@ class ArtemisService {
                 }
                 const topology = await jolokiaService.execute(brokerObjectName, LIST_NETWORK_TOPOLOGY_SIG) as string;
                 var brokerInfo: BrokerInfo = {
-                    name: name, objectName: brokerObjectName, 
+                    name: name, objectName: brokerObjectName,
                     nodeID: nodeID,
                     version: version,
                     started: started,
@@ -146,14 +153,14 @@ class ArtemisService {
                     haPolicy: haPolicy,
                     networkTopology: new BrokerNetworkTopology(JSON.parse(topology))
                 };
-                resolve(brokerInfo);               
+                resolve(brokerInfo);
             }
             reject("invalid response:" + response);
         });
     }
 
     async createAcceptors(): Promise<Acceptors> {
-        return new Promise<Acceptors>(async (resolve, reject) => { 
+        return new Promise<Acceptors>(async (resolve, reject) => {
             var brokerObjectName = await this.brokerObjectName;
             const acceptorSearch = brokerObjectName + ",component=acceptors,name=*";
 
@@ -166,14 +173,14 @@ class ArtemisService {
                     const acceptor: Acceptor = await jolokiaService.readAttributes(search[key]) as Acceptor;
                     acceptors.acceptors.push(acceptor);
                 }
-                resolve(acceptors);               
+                resolve(acceptors);
             }
             reject("invalid response:");
         });
     }
 
     async createClusterConnections(): Promise<ClusterConnections> {
-        return new Promise<ClusterConnections>(async (resolve, reject) => { 
+        return new Promise<ClusterConnections>(async (resolve, reject) => {
             var brokerObjectName = await this.brokerObjectName;
             const clusterConnectionSearch = brokerObjectName + ",component=cluster-connections,name=*";
 
@@ -186,7 +193,7 @@ class ArtemisService {
                     const clusterConnection: ClusterConnection = await jolokiaService.readAttributes(search[key]) as ClusterConnection;
                     clusterConnections.clusterConnections.push(clusterConnection);
                 }
-                resolve(clusterConnections);               
+                resolve(clusterConnections);
             }
             reject("invalid response:");
         });
@@ -223,7 +230,7 @@ class ArtemisService {
     }
 
     async createQueue(queueConfiguration: string) {
-        return await jolokiaService.execute(await this.getBrokerObjectName() , CREATE_QUEUE_SIG, [queueConfiguration, false]).then().catch() as string;
+        return await jolokiaService.execute(await this.getBrokerObjectName(), CREATE_QUEUE_SIG, [queueConfiguration, false]).then().catch() as string;
     }
 
     async createAddress(address: string, routingType: string) {
@@ -333,6 +340,92 @@ class ArtemisService {
 
     async getBrokerObjectName() {
         return await this.brokerObjectName;
+    }
+
+
+    getKeyByValue = (message: any, columnID: string): string => {
+        if (columnID === "type") {
+            const idx: number = message[columnID];
+            return typeLabels[idx];
+        }
+        if (columnID === "timestamp") {
+            const timestamp: number = message[columnID];
+            return this.formatTimestamp(timestamp);
+        }
+        if (columnID === "expiration") {
+            const timestamp: number = message[columnID];
+            return this.formatExpires(timestamp, false);
+        }
+        if (columnID === "persistentSize") {
+            const size: number = message[columnID];
+            return this.formatPersistentSize(size);
+        }
+        if (columnID === "originalQueue" && message["StringProperties"]) {
+            const originalQueue = message["StringProperties"]._AMQ_ORIG_QUEUE;
+            return originalQueue ? originalQueue : "";
+        }
+        return message[columnID] ? "" + message[columnID] : "";
+    }
+
+    formatType = (message: Message) => {
+        var typeLabels = ["default", "1", "object", "text", "bytes", "map", "stream", "embedded"];
+        return message.type + " (" + typeLabels[message.type] + ")";
+    }
+
+    formatExpires = (timestamp: number, addTimestamp: boolean): string => {
+        if (isNaN(timestamp) || typeof timestamp !== "number") {
+            return "" + timestamp;
+        }
+        if (timestamp === 0) {
+            return "never";
+        }
+        var expiresIn = timestamp - Date.now();
+        if (Math.abs(expiresIn) < MS_PER_DAY) {
+            var duration = expiresIn < 0 ? -expiresIn : expiresIn;
+            var hours = this.pad2(Math.floor((duration / MS_PER_HOUR) % 24));
+            var mins = this.pad2(Math.floor((duration / MS_PER_MIN) % 60));
+            var secs = this.pad2(Math.floor((duration / MS_PER_SEC) % 60));
+            var ret;
+            if (expiresIn < 0) {
+                // "HH:mm:ss ago"
+                ret = hours + ":" + mins + ":" + secs + " ago";
+            } else {
+                // "in HH:mm:ss"
+                ret = "in " + hours + ":" + mins + ":" + secs;
+            }
+            if (addTimestamp) {
+                ret += ", at " + this.formatTimestamp(timestamp);
+            }
+            return ret;
+        }
+        return this.formatTimestamp(timestamp);
+    }
+
+
+    formatPersistentSize = (bytes: number) => {
+        if (isNaN(bytes) || typeof bytes !== "number" || bytes < 0) return "N/A";
+        if (bytes < 10240) return bytes.toLocaleString() + " Bytes";
+        if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KiB";
+        if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + " MiB";
+        return (bytes / 1073741824).toFixed(2) + " GiB";
+    }
+
+
+    formatTimestamp = (timestamp: number): string => {
+        if (isNaN(timestamp) || typeof timestamp !== "number") {
+            return "" + timestamp;
+        }
+        if (timestamp === 0) {
+            return "N/A";
+        }
+        var d = new Date(timestamp);
+        // "yyyy-MM-dd HH:mm:ss"
+        //add 1 to month as getmonth returns the position not the actual month
+        return d.getFullYear() + "-" + this.pad2(d.getMonth() + 1) + "-" + this.pad2(d.getDate()) + " " + this.pad2(d.getHours()) + ":" + this.pad2(d.getMinutes()) + ":" + this.pad2(d.getSeconds());
+    }
+
+    pad2 = (value: number) => {
+        return (value < 10 ? '0' : '') + value;
     }
 
 }

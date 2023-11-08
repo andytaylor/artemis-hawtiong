@@ -22,7 +22,7 @@ export const ArtemisJMX: React.FunctionComponent = () => {
         <Grid >
           <GridItem span={2}>
           <TextContent>
-            <Text component="h1">Broker 2</Text>
+            <Text component="h1">Broker</Text>
             </TextContent>
           </GridItem>
 

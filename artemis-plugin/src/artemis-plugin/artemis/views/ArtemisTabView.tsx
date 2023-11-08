@@ -5,11 +5,11 @@ import { ConsumerTable } from '../consumers/ConsumerTable';
 import { ConnectionsTable } from '../connections/ConnectionsTable';
 import { SessionsTable } from '../sessions/SessionsTable';
 import { AddressesTable } from '../addresses/AddressesTable';
-import { QueuesTable } from '../queues/QueuesTable';
 import { ArtemisContext, useArtemisTree } from '../context';
 import { Status } from '../status/Status';
 import { log } from '../globals';
 import { Filter } from '../table/ArtemisTable';
+import { QueuesView } from '../queues/QueuesView';
 
 
 export type Broker = {
@@ -84,7 +84,7 @@ export const ArtemisTabs: React.FunctionComponent = () => {
           </Tab>
           <Tab eventKey={6} title={<TabTitleText>Queues</TabTitleText>} aria-label="consumers">
             {activeTabKey === 6 &&
-              <QueuesTable search={handleSearch} filter={searchFilter}/>
+              <QueuesView search={handleSearch} filter={searchFilter}/>
             }
           </Tab>
         </Tabs>
