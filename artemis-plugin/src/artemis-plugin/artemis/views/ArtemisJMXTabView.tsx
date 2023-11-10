@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
-import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
+import { Tabs, Tab, TabTitleText, Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { Attributes, Chart, MBeanNode, Operations } from '@hawtio/react';
 import { CreateQueue } from '../queues/CreateQueue';
 import { DeleteAddress } from '../addresses/DeleteAddress';
-import { isAddress as isAnAddress } from '../util/jmx'
+import { isAddress as isAnAddress, isQueue } from '../util/jmx'
+import { MessagesTable } from '../messages/MessagesTable';
+import { artemisService } from '../artemis-service';
+import { SendMessage } from '../messages/SendMessage';
+import { Message, MessageView } from '../messages/MessageView';
 
 
 export type JMXData = {
@@ -11,15 +15,47 @@ export type JMXData = {
 }
 
 export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) => {
+  const initialMessage: Message = {
+    messageID: '',
+    address: '',
+    durable: false,
+    expiration: 0,
+    largeMessage: false,
+    persistentSize: 0,
+    priority: 0,
+    protocol: '',
+    redelivered: false,
+    timestamp: 0,
+    type: 0,
+    userID: ''
+  };
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
+  const [ showMessageDialog, setShowMessageDialog ] = useState<boolean>(false);
+  const [ currentMessage, setCurrentMessage ] = useState<Message>(initialMessage);
 
   const isAddress = isAnAddress(data.node)
+
+  const isAQueue = isQueue(data.node);
+
+  var prop = data.node.getProperty("routing-type");
+  const routingType: string  = prop == undefined?'':prop;
+  prop = data.node.getProperty("address");
+  const address: string | undefined = prop == undefined?'':prop;
+  prop = data.node.getProperty("queue");
+  const queue: string | undefined = prop == undefined?'':prop;
 
   const handleTabClick = ( event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, tabIndex: string | number
   ) => {
     setActiveTabKey(tabIndex);
   };
+
+  const selectMessage = (message: Message) => {
+    setCurrentMessage(message);
+    setShowMessageDialog(true);
+  }
+
+
   
   return (
     <div>
@@ -54,6 +90,22 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
                 <DeleteAddress address={data.node.name}/>
             }
           </Tab> 
+        }
+        { isAQueue && 
+          <Tab eventKey={5} title={<TabTitleText>Browse</TabTitleText>} aria-label="">
+            <MessagesTable address={address} queue={queue} routingType={routingType} selectMessage={selectMessage} back={undefined}/> 
+            <Modal
+              aria-label='message-view-modal'
+              variant={ModalVariant.medium}
+              isOpen={showMessageDialog}
+              actions={[
+                <Button key="close" variant="secondary" onClick={() => setShowMessageDialog(false)}>
+                  Close
+                </Button>
+              ]}>
+              <MessageView currentMessage={currentMessage}/>
+            </Modal>
+          </Tab>
         }
       </Tabs> 
     </div>

@@ -6,7 +6,7 @@ import { artemisService } from '../artemis-service';
 
 export type MessageProps = {
   currentMessage: Message,
-  back: Function
+  back?: Function
 }
 
 export type Message = {
@@ -209,8 +209,10 @@ export const MessageView: React.FunctionComponent<MessageProps> = props => {
       </Tbody>
       </TableComposable>
     </TableComposable>
-    <Button onClick={() => props.back(0)}>Queues</Button>
-    <Button onClick={() => props.back(1)}>Browse</Button>
+    {props.back &&
+        <><Button onClick={() => { if (props.back) { props.back(0); } } }>Queues</Button>
+        <Button onClick={() => { if (props.back) { props.back(1); } }}>Browse</Button></>
+    }
     </>
   )
 }

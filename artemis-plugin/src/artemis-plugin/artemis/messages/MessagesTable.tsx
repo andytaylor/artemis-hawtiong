@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { Column } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
-import { Toolbar, ToolbarContent, ToolbarItem, Text, SearchInput, Button, PaginationVariant, Pagination, DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells, DataListItemRow, Modal, TextContent } from '@patternfly/react-core';
+import { Toolbar, ToolbarContent, ToolbarItem, Text, SearchInput, Button, PaginationVariant, Pagination, DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells, DataListItemRow, Modal, TextContent, Icon, ModalVariant } from '@patternfly/react-core';
 import { TableComposable, Thead, Tr, Th, Tbody, Td, ActionsColumn, IAction } from '@patternfly/react-table';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { log } from '../globals';
 import { createQueueObjectName } from '../util/jmx';
 import { Link } from 'react-router-dom';
+import { eventService } from '@hawtio/react';
 
 export type MessageProps = {
   address: string,
   queue: string,
   routingType: string,
-  selectMessage: Function,
-  back: Function
+  selectMessage?: Function,
+  back?: Function
 }
 
 
@@ -20,8 +22,8 @@ export type MessageProps = {
 export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
 
 
-  const messageView = (row: any) => { 
-    props.selectMessage(row);
+  const messageView = (row: any) => {
+    if (props.selectMessage) { props.selectMessage(row); }
   }
 
   const allColumns: Column[] = [
@@ -38,7 +40,6 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
     { id: 'validatedUser', name: 'Validated User', visible: false, sortable: true, filterable: false },
     { id: 'originalQueue', name: 'Original Queue', visible: false, sortable: true, filterable: false },
   ];
-
   const [filter, setFilter] = useState("");
   const [inputValue, setInputValue] = useState('');
   const [page, setPage] = useState(1);
@@ -47,6 +48,8 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
   const [columns, setColumns] = useState(allColumns);
   const [columnsModalOpen, setColumnsModalOpen] = useState(false);
   const [resultsSize, setresultsSize] = useState(0);
+  const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
+  const [showDeleteMessagesModal, setShowDeleteMessagesModal] = useState(false);
 
   useEffect(() => {
     log.info("rendering Messages table");
@@ -55,7 +58,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       setRows(data.data);
       setresultsSize(data.count);
       log.info(JSON.stringify(data));
-    } 
+    }
     const listMessages = async (): Promise<any> => {
       const brokerObjectname = await artemisService.getBrokerObjectName();
       const queueMBean: string = createQueueObjectName(brokerObjectname, props.address, props.routingType, props.queue);
@@ -64,7 +67,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
     }
     listData();
 
-  }, [props.address, props.routingType, props.queue, page, perPage, filter])
+  }, [props.address, props.routingType, props.queue, page, perPage, filter, selectedMessages])
 
   const handleSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
     setPage(newPage);
@@ -97,7 +100,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       {
         title: 'view',
         onClick: () => {
-          props.selectMessage(rows[rowIndex]);
+          if (props.selectMessage) { props.selectMessage(row); }
         }
       }
     ]
@@ -122,6 +125,56 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
     setColumns(updatedColumns);
   }
 
+  const onSelectMessage = (id: number, inex: number, selected: boolean) => {
+    log.info(id);
+    var updatedSelectedMessages: number[] = [];
+    if (selected) {
+      selectedMessages.forEach((id) => updatedSelectedMessages.push(id));
+      updatedSelectedMessages.push(id);
+      setSelectedMessages(updatedSelectedMessages)
+    } else {
+      updatedSelectedMessages = selectedMessages.splice(selectedMessages.indexOf(id), 1);
+      selectedMessages.forEach((id) => updatedSelectedMessages.push(id));
+      updatedSelectedMessages.splice(updatedSelectedMessages.indexOf(id), 1);
+      setSelectedMessages(updatedSelectedMessages)
+    }
+  }
+
+  const isMessageSelected = (id: number) => {
+    log.info(id);
+    return selectedMessages.includes(id);
+  }
+
+  const handleDeleteMessages = () => {
+
+    const isRejected = <T,>(p: PromiseSettledResult<T>): p is PromiseRejectedResult => p.status === 'rejected';
+    var results: Promise<unknown>[] = [];
+    for (let i = 0; i < selectedMessages.length; i++) {
+      var promise: Promise<unknown> = artemisService.deleteMessage(selectedMessages[i], props.address, props.routingType, props.queue);
+      results.push(promise);
+    };
+    Promise.allSettled(results)
+      .then((results) => {
+        const rejectedReasons = results.filter(isRejected).map(p => p.reason);
+
+        log.info(rejectedReasons);
+        if (rejectedReasons.length > 0) {
+          eventService.notify({
+            type: 'warning',
+            message: "not all messages deleted: errors " + rejectedReasons.toString(),
+          })
+        } else {
+          eventService.notify({
+            type: 'success',
+            message: "Messages Successfully Deleted [" + selectedMessages + "]",
+          })
+        }
+      });
+
+    setShowDeleteMessagesModal(false);
+    setSelectedMessages([]);
+  }
+
   return (
     <React.Fragment>
       <Toolbar id="toolbar">
@@ -141,6 +194,9 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
             <Button onClick={applyFilter}>Search</Button>
           </ToolbarItem>
           <ToolbarItem>
+            <Button onClick={() => setShowDeleteMessagesModal(true)}>Delete</Button>
+          </ToolbarItem>
+          <ToolbarItem>
             <Button variant='link' onClick={handleColumnsModalToggle}>Manage Columns</Button>
           </ToolbarItem>
         </ToolbarContent>
@@ -148,6 +204,7 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       <TableComposable variant="compact" aria-label="Column Management Table">
         <Thead>
           <Tr >
+            <Th></Th>
             {columns.map((column, id) => {
               if (column.visible) {
                 return <Th key={id}>{column.name}</Th>
@@ -160,11 +217,18 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
           {rows.map((row, rowIndex) => (
             <Tr key={rowIndex}>
               <>
+                <Td
+                  select={{
+                    rowIndex,
+                    onSelect: (_event, isSelecting) => onSelectMessage(Number(artemisService.getKeyByValue(row, "messageID")), rowIndex, isSelecting),
+                    isSelected: isMessageSelected(Number(artemisService.getKeyByValue(row, "messageID")))
+                  }}
+                />
                 {columns.map((column, id) => {
                   if (column.visible) {
                     const text = artemisService.getKeyByValue(row, column.id);
                     if (column.link) {
-                      return <Td key={id}><Link to="" onClick={() => {if (column.link) {column.link(row)}}}>{text}</Link></Td>
+                      return <Td key={id}><Link to="" onClick={() => { if (column.link) { column.link(row) } }}>{text}</Link></Td>
                     } else {
                       return <Td key={id}>{text}</Td>
                     }
@@ -182,18 +246,46 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
         </Tbody>
       </TableComposable>
       <Pagination
-      itemCount={resultsSize}
-      page={page}
-      perPage={perPage}
-      onSetPage={handleSetPage}
-      onPerPageSelect={handlePerPageSelect}
-      variant={PaginationVariant.bottom}
-      titles={{
-        paginationTitle: `${PaginationVariant.bottom} pagination`
-      }}
-    />
-
-      <Button onClick={() => props.back(0)}>Queues</Button>
+        itemCount={resultsSize}
+        page={page}
+        perPage={perPage}
+        onSetPage={handleSetPage}
+        onPerPageSelect={handlePerPageSelect}
+        variant={PaginationVariant.bottom}
+        titles={{
+          paginationTitle: `${PaginationVariant.bottom} pagination`
+        }}
+      />
+      {props.back &&
+        <Button onClick={() => { if (props.back) { props.back(0) } }}>Queues</Button>
+      }
+      <Modal
+        aria-label='delete-message-modal'
+        variant={ModalVariant.medium}
+        isOpen={showDeleteMessagesModal}
+        actions={[
+          <Button key="cancel" variant="secondary" onClick={() => setShowDeleteMessagesModal(false)}>
+            Cancel
+          </Button>,
+          <Button key="delete" variant="primary" onClick={handleDeleteMessages}>
+            Confirm
+          </Button>
+        ]}>
+        <TextContent>
+          <Text component="h2">
+            Confirm Delete Address
+          </Text>
+          <Text component="p">
+            <Icon isInline status='warning'>
+              <ExclamationCircleIcon />
+            </Icon>
+            You are about to delete a message {selectedMessages.toString()}
+          </Text>
+          <Text component="p">
+            This operation cannot be undone so please be careful.
+          </Text>
+        </TextContent>
+      </Modal>
       <Modal
         title="Manage columns"
         isOpen={columnsModalOpen}

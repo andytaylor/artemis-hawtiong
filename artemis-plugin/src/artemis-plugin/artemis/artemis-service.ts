@@ -84,6 +84,7 @@ const BROKER_SEARCH_PATTERN = "org.apache.activemq.artemis:broker=*";
 const LIST_NETWORK_TOPOLOGY_SIG = "listNetworkTopology";
 const SEND_MESSAGE_SIG = "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String, boolean)";
 const DELETE_ADDRESS_SIG = "deleteAddress(java.lang.String)";
+const DELETE_MESSAGE_SIG = "removeMessage(long)";
 const CREATE_QUEUE_SIG = "createQueue(java.lang.String, boolean)"
 const CREATE_ADDRESS_SIG = "createAddress(java.lang.String, java.lang.String)"
 const COUNT_MESSAGES_SIG = "countMessages()";
@@ -228,6 +229,12 @@ class ArtemisService {
     async deleteAddress(address: string) {
         return await jolokiaService.execute(await this.getBrokerObjectName(), DELETE_ADDRESS_SIG, [address])
     }
+
+    async deleteMessage(id: number, address: string, routingType: string, queue: string) {
+        const mbean = createQueueObjectName(await this.getBrokerObjectName(), address, routingType, queue);
+        return jolokiaService.execute(mbean, DELETE_MESSAGE_SIG, [id])
+    }
+
 
     async createQueue(queueConfiguration: string) {
         return await jolokiaService.execute(await this.getBrokerObjectName(), CREATE_QUEUE_SIG, [queueConfiguration, false]).then().catch() as string;
