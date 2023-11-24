@@ -8,6 +8,7 @@ import { log } from '../globals';
 import { createQueueObjectName } from '../util/jmx';
 import { Link } from 'react-router-dom';
 import { eventService } from '@hawtio/react';
+import { QueueSelectInput } from './QueueSelect';
 
 export type MessageProps = {
   address: string,
@@ -49,7 +50,9 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
   const [columnsModalOpen, setColumnsModalOpen] = useState(false);
   const [resultsSize, setresultsSize] = useState(0);
   const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
+  const [selectedTargetQueue, setSelectedTargetQueue] = useState<string>('');
   const [showDeleteMessagesModal, setShowDeleteMessagesModal] = useState(false);
+  const [showMoveMessagesModal, setShowMoveMessagesModal] = useState(false);
 
   useEffect(() => {
     log.info("rendering Messages table");
@@ -175,6 +178,36 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
     setSelectedMessages([]);
   }
 
+  const handleMoveMessages = () => {
+
+    const isRejected = <T,>(p: PromiseSettledResult<T>): p is PromiseRejectedResult => p.status === 'rejected';
+    var results: Promise<unknown>[] = [];
+    for (let i = 0; i < selectedMessages.length; i++) {
+      var promise: Promise<unknown> = artemisService.moveMessage(selectedMessages[i], selectedTargetQueue, props.address, props.routingType, props.queue);
+      results.push(promise);
+    };
+    Promise.allSettled(results)
+      .then((results) => {
+        const rejectedReasons = results.filter(isRejected).map(p => p.reason);
+
+        log.info(rejectedReasons);
+        if (rejectedReasons.length > 0) {
+          eventService.notify({
+            type: 'warning',
+            message: "not all messages moved: errors " + rejectedReasons.toString(),
+          })
+        } else {
+          eventService.notify({
+            type: 'success',
+            message: "Messages Successfully Moved [" + selectedMessages + "]",
+          })
+        }
+      });
+
+    setShowMoveMessagesModal(false);
+    setSelectedMessages([]);
+  }
+
   return (
     <React.Fragment>
       <Toolbar id="toolbar">
@@ -195,6 +228,9 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
           </ToolbarItem>
           <ToolbarItem>
             <Button onClick={() => setShowDeleteMessagesModal(true)}>Delete</Button>
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button onClick={() => setShowMoveMessagesModal(true)}>Move</Button>
           </ToolbarItem>
           <ToolbarItem>
             <Button variant='link' onClick={handleColumnsModalToggle}>Manage Columns</Button>
@@ -273,17 +309,45 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
         ]}>
         <TextContent>
           <Text component="h2">
-            Confirm Delete Address
+            Confirm Delete Message(s)
           </Text>
           <Text component="p">
             <Icon isInline status='warning'>
               <ExclamationCircleIcon />
             </Icon>
-            You are about to delete a message {selectedMessages.toString()}
+            You are about to delete message(s) {selectedMessages.toString()}
           </Text>
           <Text component="p">
             This operation cannot be undone so please be careful.
           </Text>
+        </TextContent>
+      </Modal>
+      <Modal
+        aria-label='move-message-modal'
+        variant={ModalVariant.medium}
+        isOpen={showMoveMessagesModal}
+        actions={[
+          <Button key="cancel" variant="secondary" onClick={() => setShowMoveMessagesModal(false)}>
+            Cancel
+          </Button>,
+          <Button key="move" variant="primary" onClick={handleMoveMessages}>
+            Confirm
+          </Button>
+        ]}>
+        <TextContent>
+          <Text component="h2">
+            Confirm Move Message(s)
+          </Text>
+          <Text component="p">
+            <Icon isInline status='warning'>
+              <ExclamationCircleIcon />
+            </Icon>
+            You are about to move messages {selectedMessages.toString()}
+          </Text>
+          <Text component="p">
+            This operation cannot be undone so please be careful.
+          </Text>
+          <QueueSelectInput selectQueue={setSelectedTargetQueue}/>
         </TextContent>
       </Modal>
       <Modal
