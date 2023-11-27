@@ -96,7 +96,7 @@ export const DeleteQueue: React.FunctionComponent<DeleteQueueProps> = (props: De
         <Button key="cancel" variant="secondary" onClick={() => setShowPurgeModal(false)}>
           Cancel
         </Button>
-      ]}><p>You are about to delete all the messsages in queue <b>{props.queue}</b>.</p>
+      ]}><p>You are about to delete all the messages in queue <b>{props.queue}</b>.</p>
       <p>This operation cannot be undone so please be careful.</p>
     </Modal>
     </>

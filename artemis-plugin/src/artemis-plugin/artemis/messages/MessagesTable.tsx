@@ -9,6 +9,8 @@ import { createQueueObjectName } from '../util/jmx';
 import { Link } from 'react-router-dom';
 import { eventService } from '@hawtio/react';
 import { QueueSelectInput } from './QueueSelect';
+import { SendMessage } from './SendMessage';
+import { Message } from './MessageView';
 
 export type MessageProps = {
   address: string,
@@ -53,6 +55,8 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
   const [selectedTargetQueue, setSelectedTargetQueue] = useState<string>('');
   const [showDeleteMessagesModal, setShowDeleteMessagesModal] = useState(false);
   const [showMoveMessagesModal, setShowMoveMessagesModal] = useState(false);
+  const [showResendModal, setShowResendModal] = useState(false);
+  const [ resendMessage, setResendMessage] = useState<Message | undefined>();
 
   useEffect(() => {
     log.info("rendering Messages table");
@@ -105,6 +109,15 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
         title: 'view',
         onClick: () => {
           if (props.selectMessage) { props.selectMessage(row); }
+        }
+      },
+      {
+        title: 'resend',
+        onClick: () => {
+          if (props.selectMessage) { 
+            setResendMessage(row);
+            setShowResendModal(true);
+          }
         }
       }
     ]
@@ -351,6 +364,19 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
           <QueueSelectInput selectQueue={setSelectedTargetQueue}/>
         </TextContent>
       </Modal>
+      <Modal
+        title="Resend Message"
+        isOpen={showResendModal}
+        variant="small"
+        description={''}
+        onClose={() => setShowResendModal(false)}
+        actions={[
+          <Button key="close" variant="secondary" onClick={() => setShowResendModal(false)}>
+            Cancel
+          </Button>
+        ]}>
+          <SendMessage queue={props.queue} routingType={props.routingType} address={props.address} isAddress={false} message={resendMessage}/>
+        </Modal>
       <Modal
         title="Manage columns"
         isOpen={columnsModalOpen}

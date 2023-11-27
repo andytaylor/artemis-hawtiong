@@ -26,9 +26,11 @@ import { TrashIcon } from '@patternfly/react-icons'
 import { CodeEditor, Language } from '@patternfly/react-code-editor'
 import { eventService } from '@hawtio/react'
 import { artemisService } from '../artemis-service'
+import { Message } from './MessageView'
 
 type SendBodyMessageProps = {
   onBodyChange: (body: string) => void
+  body?: string
 }
 
 type SendMessageProps = {
@@ -36,10 +38,11 @@ type SendMessageProps = {
   routingType: string
   address: string
   isAddress: boolean
+  message?: Message
 }
 
 const MessageBody: React.FunctionComponent<SendBodyMessageProps> = props => {
-  const [messageBody, setMessageBody] = useState<string>('')
+  const [messageBody, setMessageBody] = useState<string>(props.body?props.body:'')
   const [selectedFormat, setSelectedFormat] = useState<Language>(Language.xml)
   const [isDropdownOpen, setDropdownOpen] = useState(false)
   const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor | null>(null)
@@ -115,9 +118,19 @@ const MessageBody: React.FunctionComponent<SendBodyMessageProps> = props => {
 
 type MessageHeadersProps = {
   onHeadersChange: (headers: { name: string; value: string }[]) => void
+  headers?: any
 }
 const MessageHeaders: React.FunctionComponent<MessageHeadersProps> = props => {
-  const [headers, setHeaders] = useState<Array<{ name: string; value: string }>>([])
+  const initialheaders: Array<{ name: string; value: string }> = [];
+  if(props.headers) {
+    Object.keys(props.headers).map((key, index) => {
+      initialheaders.push({
+        name: key,
+        value: props.headers?props.headers[key]:''
+      })
+  })
+  }
+  const [headers, setHeaders] = useState<Array<{ name: string; value: string }>>(initialheaders)
 
   const handleInputChange = (index: number, newValue: string, event: React.FormEvent<HTMLInputElement>) => {
     const updatedHeaders = [...headers]
@@ -189,12 +202,12 @@ const MessageHeaders: React.FunctionComponent<MessageHeadersProps> = props => {
 }
 
 export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: SendMessageProps) => {
-  const [isDurableChecked, setIsDurableChecked] = useState<boolean>(true);
+  const [isDurableChecked, setIsDurableChecked] = useState<boolean>(props.message? props.message.durable:true);
   const [isCreateIDChecked, setIsCreateIDChecked] = useState<boolean>(false);
   const [isUseLogonChecked, setIsUselogonChecked] = useState<boolean>(true);
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('password');
-
+  
   const messageHeaders = useRef<Array<{ name: string; value: string }>>([])
   const messageBody = useRef<string>('')
 
@@ -312,8 +325,8 @@ export const SendMessage: React.FunctionComponent<SendMessageProps> = (props: Se
                 name="password" />
             </FormGroup></>
         }
-        <MessageHeaders onHeadersChange={updateHeaders} />
-        <MessageBody onBodyChange={updateTheMessageBody} />
+        <MessageHeaders onHeadersChange={updateHeaders} headers={props.message?.StringProperties}/>
+        <MessageBody onBodyChange={updateTheMessageBody} body={props.message?.text} />
         <FormGroup>
 
           <Button type='submit' className='pf-m-1-col'>
