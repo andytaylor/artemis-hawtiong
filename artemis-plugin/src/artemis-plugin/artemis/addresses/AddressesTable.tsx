@@ -3,11 +3,11 @@ import { ActiveSort, ArtemisTable, Column, Filter, ToolbarAction } from '../tabl
 import { Navigate } from '../views/ArtemisTabView.js';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
-import { Button, Modal, ModalVariant } from '@patternfly/react-core';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
+import { Button, Icon, Modal, ModalVariant, TextContent, Text } from '@patternfly/react-core';
 import { CreateQueue } from '../queues/CreateQueue';
 import { log } from '../globals';
-import { DeleteAddressModal } from './DeleteAddressModal';
-import { Attributes, Operations } from '@hawtio/react';
+import { Attributes, eventService, Operations, workspace } from '@hawtio/react';
 import { ArtemisContext } from '../context';
 import { CreateAddress } from './CreateAddress';
 import { SendMessage } from '../messages/SendMessage';
@@ -104,6 +104,25 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
     ]
   };
 
+  const handleDeleteAddress = () => {
+    artemisService.deleteAddress(address)
+      .then(() => {
+        setShowDeleteDialog(false);
+        workspace.refreshTree();
+        eventService.notify({
+          type: 'success',
+          message: "Address Successfully Deleted",
+        })
+      })
+      .catch((error: string) => {
+        setShowDeleteDialog(false);
+        eventService.notify({
+          type: 'warning',
+          message: error,
+        })
+      })
+  };
+
   return (
     <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode, findAndSelectNode }}>
       <ArtemisTable getRowActions={getRowActions} allColumns={allColumns} getData={listAddresses} toolbarActions={[createAction]} navigate={navigate.search} filter={navigate.filter}/>
@@ -118,7 +137,33 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
         ]}>
         <CreateQueue address={address}/>
       </Modal>
-      <DeleteAddressModal address={address} show={showDeleteDialog} onClick={setShowDeleteDialog} />
+      <Modal
+        aria-label='delete-address-modal'
+        variant={ModalVariant.medium}
+        isOpen={showDeleteDialog}
+        actions={[
+          <Button key="cancel" variant="secondary" onClick={() => setShowDeleteDialog(false)}>
+            Cancel
+          </Button>,
+          <Button key="delete" variant="primary" onClick={handleDeleteAddress}>
+            Confirm
+          </Button>
+        ]}>
+        <TextContent>
+          <Text component="h2">
+            Confirm Delete Address
+          </Text>
+          <Text component="p">
+            <Icon isInline status='warning'>
+              <ExclamationCircleIcon />
+            </Icon>
+            You are about to delete address {address}
+          </Text>
+          <Text component="p">
+            This operation cannot be undone so please be careful.
+          </Text>
+        </TextContent>
+      </Modal>                        
       <Modal
         aria-label='attributes-modal'
         variant={ModalVariant.medium}

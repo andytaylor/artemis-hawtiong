@@ -5,9 +5,9 @@ import { CreateQueue } from '../queues/CreateQueue';
 import { DeleteAddress } from '../addresses/DeleteAddress';
 import { isAddress as isAnAddress, isQueue } from '../util/jmx'
 import { MessagesTable } from '../messages/MessagesTable';
-import { artemisService } from '../artemis-service';
 import { SendMessage } from '../messages/SendMessage';
 import { Message, MessageView } from '../messages/MessageView';
+import { DeleteQueue } from '../queues/DeleteQueue';
 
 
 export type JMXData = {
@@ -33,17 +33,15 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const [ showMessageDialog, setShowMessageDialog ] = useState<boolean>(false);
   const [ currentMessage, setCurrentMessage ] = useState<Message>(initialMessage);
-
   const isAddress = isAnAddress(data.node)
-
   const isAQueue = isQueue(data.node);
 
   var prop = data.node.getProperty("routing-type");
-  const routingType: string  = prop == undefined?'':prop;
+  const routingType: string  = prop === undefined?'':prop;
   prop = data.node.getProperty("address");
-  const address: string | undefined = prop == undefined?'':prop;
+  const address: string | undefined = prop === undefined?'':prop;
   prop = data.node.getProperty("queue");
-  const queue: string | undefined = prop == undefined?'':prop;
+  const queue: string | undefined = prop === undefined?'':prop;
 
   const handleTabClick = ( event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent, tabIndex: string | number
   ) => {
@@ -81,19 +79,19 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
           <Tab eventKey={3} title={<TabTitleText>Create Queue</TabTitleText>} aria-label="Create Queue">
               {activeTabKey === 3 &&
                 <CreateQueue address={data.node.name}/>
-            }
+              }
           </Tab> 
         }
         { isAddress && 
           <Tab eventKey={4} title={<TabTitleText>Delete Address</TabTitleText>} aria-label="">
               {activeTabKey === 4 &&
                 <DeleteAddress address={data.node.name}/>
-            }
+              }
           </Tab> 
         }
         { isAQueue && 
           <Tab eventKey={5} title={<TabTitleText>Browse</TabTitleText>} aria-label="">
-            <MessagesTable address={address} queue={queue} routingType={routingType} selectMessage={selectMessage} back={undefined}/> 
+            <MessagesTable address={address} queue={queue} routingType={routingType} selectMessage={selectMessage} back={undefined} />
             <Modal
               aria-label='message-view-modal'
               variant={ModalVariant.medium}
@@ -103,9 +101,23 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
                   Close
                 </Button>
               ]}>
-              <MessageView currentMessage={currentMessage}/>
+              <MessageView currentMessage={currentMessage} />
             </Modal>
           </Tab>
+        }
+        { isAQueue && 
+          <Tab eventKey={6} title={<TabTitleText>Delete Queue</TabTitleText>} aria-label="">
+              {activeTabKey === 6 &&
+                <DeleteQueue queue={data.node.name}/>
+              }
+          </Tab> 
+        }
+        { isAQueue && 
+          <Tab eventKey={7} title={<TabTitleText>Send Message</TabTitleText>} aria-label="">
+              {activeTabKey === 7 &&
+                <SendMessage queue={data.node.name} routingType={routingType} address={address} isAddress={false}/>
+              }
+          </Tab> 
         }
       </Tabs> 
     </div>

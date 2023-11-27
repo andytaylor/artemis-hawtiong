@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { TrashIcon, OutlinedQuestionCircleIcon, InfoCircleIcon } from '@patternfly/react-icons'
 import { log } from '../globals';
 import { artemisService } from '../artemis-service';
-import { eventService } from '@hawtio/react';
+import { eventService, workspace } from '@hawtio/react';
 
 type CreateQueueProps = {
     address: string
@@ -46,6 +46,7 @@ export const CreateQueue: React.FunctionComponent<CreateQueueProps> = (props: Cr
         log.info("Creating queue with configuration" + JSON.stringify(queueConfiguration));
         artemisService.createQueue(JSON.stringify(queueConfiguration))
             .then(() => {
+                workspace.refreshTree();
                 eventService.notify({
                     type: 'success',
                     message: "Queue Succcesfully Created",

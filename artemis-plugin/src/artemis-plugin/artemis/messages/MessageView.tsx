@@ -112,70 +112,71 @@ export const MessageView: React.FunctionComponent<MessageProps> = props => {
     <>
     <Title headingLevel="h4">Message ID: {currentMessage.messageID}</Title>
     <Title headingLevel="h4">Displaying Body as : {messageTextMode}</Title>
-    <TextArea autoResize isDisabled value={messageBody}></TextArea>
+    <TextArea id="body" autoResize isDisabled value={messageBody}></TextArea>
     <Title headingLevel="h4">Headers</Title>
     <TableComposable variant="compact" aria-label="Headers Table">
       <Thead>
-        <Tr>
+        <Tr id="heading">
           <Th>key</Th>
           <Th>value</Th>
         </Tr>
       </Thead>
       <Tbody>
-        <Tr>
-          <Td>address</Td>
-          <Td>{currentMessage.address}</Td>
+        <Tr id="address">
+          <Td id="address.key">address</Td>
+          <Td id="address.val">{currentMessage.address}</Td>
         </Tr>
-        <Tr>
+        <Tr id="durable">
           <Td>durable</Td>
           <Td>{currentMessage.address}</Td>
         </Tr>
-        <Tr>
+        <Tr id="exp">
           <Td>expiration</Td>
           <Td>{artemisService.formatExpires(currentMessage.expiration, true)}</Td>
         </Tr>
-        <Tr>
+        <Tr id="large">
           <Td>largeMessage</Td>
           <Td>{"" + currentMessage.largeMessage}</Td>
         </Tr>
-        <Tr>
+        <Tr id="messageID">
           <Td>messageID</Td>
           <Td>{currentMessage.messageID}</Td>
         </Tr>
-        <Tr>
+        <Tr id="persistentSize">
           <Td>persistentSize</Td>
           <Td>{artemisService.formatPersistentSize(currentMessage.persistentSize)}</Td>
         </Tr>
-        <Tr>
+        <Tr id="priority">
           <Td>priority</Td>
           <Td>{currentMessage.priority}</Td>
         </Tr>
-        <Tr>
+        <Tr id="protocol">
           <Td>protocol</Td>
           <Td>{currentMessage.protocol}</Td>
         </Tr>
-        <Tr>
+        <Tr id="redelivered">
           <Td>redelivered</Td>
           <Td>{"" + currentMessage.redelivered}</Td>
         </Tr>
-        <Tr>
+        <Tr id="timestamp">
           <Td>timestamp</Td>
           <Td>{artemisService.formatTimestamp(currentMessage.timestamp)}</Td>
         </Tr>
-        <Tr>
+        <Tr id="type">
           <Td>type</Td>
           <Td>{artemisService.formatType(currentMessage)}</Td>
         </Tr>
-        <Tr>
+        <Tr id="user">
           <Td>userID</Td>
           <Td>{currentMessage.userID}</Td>
         </Tr>
-      </Tbody>
-      <Divider/>
-      <Title headingLevel="h4">Properties</Title>
+      </Tbody>    
+    </TableComposable>
+    <Divider/>
+    <Title headingLevel="h4">Properties</Title>
       <TableComposable variant="compact" aria-label="Properties Table">
       <Thead>
-        <Tr>
+        <Tr id="propsHeaders">
           <Th>key</Th>
           <Th>value</Th>
           <Th>type</Th>
@@ -208,7 +209,6 @@ export const MessageView: React.FunctionComponent<MessageProps> = props => {
       }
       </Tbody>
       </TableComposable>
-    </TableComposable>
     {props.back &&
         <><Button onClick={() => { if (props.back) { props.back(0); } } }>Queues</Button>
         <Button onClick={() => { if (props.back) { props.back(1); } }}>Browse</Button></>
@@ -222,16 +222,16 @@ function getProps(properties: any, type:string): React.ReactNode {
     return Object.keys(properties).map((key, index) => {
       return (
         <>
-          <Tr>
-            <Td>{key}</Td>
-            <Td>{"" + properties[key]}</Td>
-            <Td>{type}</Td>
+          <Tr id={key}>
+            <Td id={key + "key"}>{key}</Td>
+            <Td id={key + "val"}>{"" + properties[key]}</Td>
+            <Td id={key + "type"}>{type}</Td>
           </Tr>
         </>
       );
     }
     )
   } else {
-    return''
+    return '';
   };
 }

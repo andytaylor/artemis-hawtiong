@@ -97,7 +97,8 @@ export const MessagesTable: React.FunctionComponent<MessageProps> = props => {
       {
         title: 'delete',
         onClick: () => {
-          console.log(`clicked on Some action, on row delete ` + row.name);
+          setSelectedMessages([row.messageID]);
+          setShowDeleteMessagesModal(true);
         }
       },
       {
