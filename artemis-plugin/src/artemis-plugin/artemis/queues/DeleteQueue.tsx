@@ -6,10 +6,14 @@ import { artemisService } from '../artemis-service';
 
 type DeleteQueueProps = {
   queue: string
+  address: string
+  routingType: string
 }
 export const DeleteQueue: React.FunctionComponent<DeleteQueueProps> = (props: DeleteQueueProps) => {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showPurgeModal, setShowPurgeModal] = useState(false);
+
 
   const deleteQueue = async (name: string) => {
     await artemisService.deleteQueue(name)
@@ -31,13 +35,38 @@ export const DeleteQueue: React.FunctionComponent<DeleteQueueProps> = (props: De
       });
   };
 
+  const purgeQueue = async () => {
+    await artemisService.purgeQueue(props.queue, props.address, props.routingType)
+      .then((value: unknown) => {
+        setShowPurgeModal(false);
+        eventService.notify({
+          type: 'success',
+          message: 'Queue Purged',
+          duration: 3000,
+        })
+      })
+      .catch((error: string) => {
+        setShowPurgeModal(false);
+        eventService.notify({
+          type: 'danger',
+          message: 'Queue Not Purged: ' + error,
+        })
+      });
+  };
+
   return (
     <>
-      <Title headingLevel="h2">Delete Queue {props.queue}</Title>
-      <ConnectHint text={["This page allows you to delete the chosen Queue on the broker.", "Note that this will only succeed if the queue has no consumers bound to it."]}/>
+      <Title headingLevel="h2">Delete/Purge Queue {props.queue}</Title>
+      <ConnectHint text={["This allows you to delete the chosen Queue on the broker.", "Note that this will only succeed if the queue has no consumers bound to it."]}/>
       <Form>
         <ActionGroup>
           <Button variant="primary" onClick={() => setShowDeleteModal(true)} >Delete</Button>
+        </ActionGroup>
+      </Form>
+      <ConnectHint text={["This allows you to delete all the messages in the chosen Queue on the broker.", ""]}/>
+      <Form>
+        <ActionGroup>
+          <Button variant="primary" onClick={() => setShowPurgeModal(true)} >Purge</Button>
         </ActionGroup>
       </Form>
       <Modal
@@ -53,6 +82,21 @@ export const DeleteQueue: React.FunctionComponent<DeleteQueueProps> = (props: De
           Cancel
         </Button>
       ]}><p>You are about to delete queue <b>{props.queue}</b>.</p>
+      <p>This operation cannot be undone so please be careful.</p>
+    </Modal>
+    <Modal
+      aria-label='queue-purge-modal'
+      variant={ModalVariant.medium}
+      title="Purge Queue?"
+      isOpen={showPurgeModal}
+      actions={[
+        <Button key="confirm" variant="primary" onClick={() => purgeQueue()}>
+          Confirm
+        </Button>,
+        <Button key="cancel" variant="secondary" onClick={() => setShowPurgeModal(false)}>
+          Cancel
+        </Button>
+      ]}><p>You are about to delete all the messsages in queue <b>{props.queue}</b>.</p>
       <p>This operation cannot be undone so please be careful.</p>
     </Modal>
     </>

@@ -108,7 +108,7 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
         { isAQueue && 
           <Tab eventKey={6} title={<TabTitleText>Delete Queue</TabTitleText>} aria-label="">
               {activeTabKey === 6 &&
-                <DeleteQueue queue={data.node.name}/>
+                <DeleteQueue queue={data.node.name} address={address} routingType={routingType}/>
               }
           </Tab> 
         }
