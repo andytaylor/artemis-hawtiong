@@ -70,8 +70,9 @@ module.exports = {
   // For plugin development
   devServer: {
     setupMiddlewares: (middlewares, devServer) => {
-      // Redirect / to /hawtio/
-      devServer.app.get('/', (req, res) => res.redirect('/hawtio/'))
+       // Redirect / or /hawtio to /hawtio/
+       devServer.app.get('/', (_, res) => res.redirect('/hawtio/'))
+       devServer.app.get('/hawtio$', (_, res) => res.redirect('/hawtio/'))
 
       const username = 'developer'
       const login = true

@@ -16,14 +16,14 @@
     <maven.compiler.target>11</maven.compiler.target>
 
     <!-- Versions -->
-    <spring-boot-version>2.7.9</spring-boot-version>
-    <hawtio-version>4.0-M1</hawtio-version>
-    <servlet-api-version>4.0.1</servlet-api-version>
+    <spring-boot-version>2.7.17</spring-boot-version>
+    <hawtio-version>3.0-beta-3</hawtio-version>
+    <servlet-api-version>6.0.0</servlet-api-version>
     <slf4j-version>2.0.7</slf4j-version>
     <logback-version>1.4.6</logback-version>
     <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
     <!-- Jetty 11 doesn't support javax.servlet -->
-    <jetty-version>10.0.14</jetty-version>
+    <jetty-version>11.0.18</jetty-version>
 
     <!-- Path to the Hawtio TypeScript plugin -->
     <plugin.path>artemis-plugin</plugin.path>
@@ -43,8 +43,8 @@
 
     <!-- Servlet API is provided by the container -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
       <version>${servlet-api-version}</version>
       <scope>provided</scope>
     </dependency>

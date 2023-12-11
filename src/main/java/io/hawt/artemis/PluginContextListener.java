@@ -1,7 +1,7 @@
 package io.hawt.artemis;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import io.hawt.web.plugin.HawtioPlugin;
 import org.slf4j.Logger;
@@ -23,9 +23,9 @@ public class PluginContextListener implements ServletContextListener {
          * - module: The path exposed from Webpack ModuleFederationPlugin. See also: sample-plugin/craco.config.js
          */
         plugin = new HawtioPlugin()
-            .url("http://localhost:8161/console")
             .scope("artemisPlugin")
-            .module("./plugin");
+            .module("./plugin")
+            .url("http://localhost:8161");
 
         /*
          * By default, Hawtio expects "plugin" as the name of the Hawtio plugin entry function.
