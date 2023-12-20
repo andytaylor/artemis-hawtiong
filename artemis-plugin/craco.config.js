@@ -78,7 +78,27 @@ module.exports = {
       const login = true
       const proxyEnabled = true
       const plugin = []
-      const hawtconfig = {}
+      const hawtconfig = {
+        "branding": {
+          "appName": "Artemis Management Console 3 ",
+          "appLogoUrl": "img/activemq.png",
+          "css": "/hawtio/css/artemis.css",
+          "favicon": "img/favicon.ico"
+        },
+        "about": {
+          "title": "Artemis Management Console",
+          "description": "An Artemis console based on HawtIO + cdTypeScript + React.",
+          "imgSrc": "img/activemq.png",
+          "productInfo": [
+            {
+              "name": "Artemis",
+              "value": "2.32.0"
+            }
+          ],
+          "copyright": "© Hawtio project"
+        },
+        "disabledRoutes": ["disabled"]
+      }
 
       /**const keycloakEnabled = false
       const keycloakClientConfig = {

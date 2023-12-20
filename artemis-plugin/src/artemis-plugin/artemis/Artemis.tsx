@@ -1,6 +1,5 @@
 import React from 'react'
 import { ArtemisTabs } from './views/ArtemisTabView';
-import './Artemis.css'
 import { PageSection, TextContent, Text, PageSectionVariants } from '@patternfly/react-core';
 import { Grid } from '@patternfly/react-core';
 import { GridItem } from '@patternfly/react-core';

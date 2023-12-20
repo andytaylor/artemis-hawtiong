@@ -3,7 +3,6 @@ import { CubesIcon } from '@patternfly/react-icons'
 import Split from 'react-split'
 import { ArtemisContext, useArtemisTree } from './context';
 import { ArtemisTreeView } from './ArtemisTreeView';
-import './Artemis.css'
 import { PageSection, TextContent, Text, PageSectionVariants, EmptyState, EmptyStateIcon, EmptyStateVariant, Title } from '@patternfly/react-core';
 import { Grid } from '@patternfly/react-core';
 import { GridItem } from '@patternfly/react-core';
