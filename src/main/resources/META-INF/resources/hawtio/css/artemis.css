@@ -2,8 +2,3 @@
 .pf-c-about-modal-box__hero {
   background-image: url(img/background.png) !important;
 }
-
-.artemis-split {
-  display: flex;
-  flex-direction: row;
-}

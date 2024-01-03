@@ -7,12 +7,13 @@ import { PageSection, TextContent, Text, PageSectionVariants, EmptyState, EmptyS
 import { Grid } from '@patternfly/react-core';
 import { GridItem } from '@patternfly/react-core';
 import { ArtemisJMXTabs } from './views/ArtemisJMXTabView';
+import './artemisJMX.css'
 
 
 
 export const ArtemisJMX: React.FunctionComponent = () => {
 
-  const { tree, selectedNode, setSelectedNode, findAndSelectNode } = useArtemisTree();
+  const { tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode } = useArtemisTree();
 
 
   return ( 
@@ -27,7 +28,7 @@ export const ArtemisJMX: React.FunctionComponent = () => {
 
       </Grid>
     </PageSection>
-      <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode, findAndSelectNode }}>
+      <ArtemisContext.Provider value={{ tree, selectedNode,brokerNode, setSelectedNode, findAndSelectNode }}>
     
         <Split className='artemis-split' sizes={[25, 75]} minSize={200} gutterSize={5}>
           <div>

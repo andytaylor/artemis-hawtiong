@@ -23,7 +23,7 @@ export type Navigate = {
 
 export const ArtemisTabs: React.FunctionComponent = () => {
 
-  const { tree, selectedNode, setSelectedNode, findAndSelectNode } = useArtemisTree();
+  const { tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode } = useArtemisTree();
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const[searchFilter, setSearchFilter] = useState<Filter | undefined>();
 
@@ -47,7 +47,7 @@ export const ArtemisTabs: React.FunctionComponent = () => {
   log.info("searching with 2" + searchFilter?.input);
 
   return (
-    <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode, findAndSelectNode }}>
+    <ArtemisContext.Provider value={{ tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode }}>
       <div>
         <Tabs activeKey={activeTabKey}
           onSelect={handleTabClick}

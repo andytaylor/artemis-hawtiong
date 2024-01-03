@@ -12,4 +12,9 @@ export const artemisJMXPluginPath = '/artemisJMX'
 
 export const log = Logger.get(artemisPluginName) 
 export const jmxDomain = 'org.apache.activemq.artemis'
+export const domainNodeType = 'Camel Domain'
+export const contextsType = 'contexts'
+export const contextNodeType = 'context'
+
+export const endpointNodeType = 'endpointNode'
 

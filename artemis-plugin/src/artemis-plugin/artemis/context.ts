@@ -10,6 +10,7 @@ export function useArtemisTree() {
 
     const [tree, setTree] = useState(MBeanTree.createEmpty(artemisPluginName))
     const [loaded, setLoaded] = useState(false)
+    const [brokerNode, setBrokerNode] = useState<MBeanNode>(); 
     const { selectedNode, setSelectedNode } = useContext(PluginNodeSelectionContext)
     const navigate = useNavigate();
 
@@ -19,16 +20,24 @@ export function useArtemisTree() {
         const rootNode = wkspTree.find(node => node.name === jmxDomain)
         if (rootNode && rootNode.children && rootNode.children.length > 0) {
             log.info("rootnode=========================" + rootNode.objectName)
-                  const subTree: MBeanTree = MBeanTree.createFromNodes(artemisPluginName, [rootNode])
+            if (rootNode.children[0].objectName) {
+                rootNode.children[0].addMetadata("type", "brokerType");
+                setBrokerNode(rootNode.children[0]);
+            }
+            if (rootNode.children[1].objectName) {
+                rootNode.children[1].addMetadata("type", "brokerType");
+                setBrokerNode(rootNode.children[1]);
+            }
+            var subTree: MBeanTree = MBeanTree.createFromNodes(artemisPluginName, [rootNode])
             setTree(subTree)
 
         } else {
             setTree(wkspTree)
-            // No camel contexts so redirect to the JMX view and select the first tree node
+            // No Artemis contexts so redirect to the JMX view and select the first tree node
             navigate('jmx')
             eventService.notify({
                 type: 'warning',
-                message: 'No Camel domain detected in target. Redirecting to back to jmx.',
+                message: 'No Artemis domain detected in target. Redirecting to back to jmx.',
             })
         }
     }
@@ -57,7 +66,9 @@ export function useArtemisTree() {
     }, [selectedNode])
 
     const findAndSelectNode = (objectName: string, name: string) => {
-        var node: MBeanNode | null = tree.find(node => { return node.objectName === objectName });
+        var node: MBeanNode | null = tree.find(node => { 
+            return node.getMetadata("type") === "brokerType"
+        });
         if (!node) {
             //need some special sauce here if we are lazy loading to populate the mbean
             const parentNode = tree.find(node => node.name === "addresses");
@@ -67,13 +78,14 @@ export function useArtemisTree() {
         }
         setSelectedNode(node);
     }
-    return { tree, loaded, selectedNode, setSelectedNode, findAndSelectNode }
+    return { tree, loaded, brokerNode, selectedNode, setSelectedNode, findAndSelectNode }
 }
 
 
 type ArtemisTreeContext = {
     tree: MBeanTree
     selectedNode: MBeanNode | null
+    brokerNode: MBeanNode | undefined
     setSelectedNode: (selected: MBeanNode | null) => void
     findAndSelectNode: (objectName: string, name: string) => void
 }
@@ -81,6 +93,7 @@ type ArtemisTreeContext = {
 export const ArtemisContext = createContext<ArtemisTreeContext>({
     tree: MBeanTree.createEmpty(artemisPluginName),
     selectedNode: null,
+    brokerNode: undefined,
     setSelectedNode: () => {
         /* no-op */
     },

@@ -1,8 +1,10 @@
 import { ActiveSort, Filter } from './table/ArtemisTable'
-import { jolokiaService } from '@hawtio/react'
+import { jolokiaService, MBeanNode, MBeanTree, workspace } from '@hawtio/react'
 import { createAddressObjectName, createQueueObjectName } from './util/jmx'
-import { log } from './globals'
+import { contextNodeType, contextsType, domainNodeType, endpointNodeType, jmxDomain, log } from './globals'
 import { Message } from './messages/MessageView'
+import { useContext } from 'react'
+import { ArtemisContext } from './context'
 
 export type BrokerInfo = {
     name: string
@@ -121,6 +123,8 @@ class ArtemisService {
         var search = await jolokiaService.search(BROKER_SEARCH_PATTERN);
         return search[0] ? search[0] : "";
     }
+
+
 
     async createBrokerInfo(): Promise<BrokerInfo> {
         return new Promise<BrokerInfo>(async (resolve, reject) => {
@@ -246,7 +250,7 @@ class ArtemisService {
     async createQueue(queueConfiguration: string) {
         return await jolokiaService.execute(await this.getBrokerObjectName(), CREATE_QUEUE_SIG, [queueConfiguration, false]).then().catch() as string;
     }
-
+    
     async createAddress(address: string, routingType: string) {
         return await jolokiaService.execute(await this.getBrokerObjectName(), CREATE_ADDRESS_SIG, [address, routingType])
     }
@@ -442,6 +446,58 @@ class ArtemisService {
         return (value < 10 ? '0' : '') + value;
     }
 
+    private DEBUG_PRIVS = false;
+    canCreateQueue = (broker: MBeanNode | undefined): boolean => {
+        return (this.DEBUG_PRIVS && broker?.hasInvokeRights(CREATE_QUEUE_SIG)) ?? false
+    }
+
+    canCreateAddress = (node: MBeanNode): boolean => {
+        return node?.hasInvokeRights(CREATE_ADDRESS_SIG) ?? false
+    }
+
+
+    findContext(node: MBeanNode): MBeanNode | null {
+        if (!this.hasDomain(node)) return null
+      
+        if (this.isDomainNode(node)) {
+          // The camel domain node so traverse to context folder & recurse
+          return this.findContext(node.getIndex(0) as MBeanNode)
+        }
+      
+        if (this.isContextsFolder(node)) {
+          if (node.childCount() === 0) return null
+      
+          // Find first context node in the list
+          return node.getIndex(0)
+        }
+      
+        if (this.isContext(node)) {
+          return node
+        }
+      
+        // Node is below a context so navigate up the tree
+        return node.findAncestor(ancestor => this.isContext(ancestor))
+      }
+
+      hasDomain(node: MBeanNode): boolean {
+        return jmxDomain === node.getMetadata('domain')
+      }
+      
+      isContextsFolder(node: MBeanNode): boolean {
+        return this.hasDomain(node) && node.getType() === contextsType
+      }
+
+      isContext(node: MBeanNode): boolean {
+        return this.hasDomain(node) && node.getType() === contextNodeType
+      }
+
+      isDomainNode(node: MBeanNode): boolean {
+        return node.getType() === domainNodeType
+      }
+
+      isEndpointNode(node: MBeanNode): boolean {
+        return this.hasDomain(node) && node.getType() === endpointNodeType
+      }
 }
 
 export const artemisService = new ArtemisService()

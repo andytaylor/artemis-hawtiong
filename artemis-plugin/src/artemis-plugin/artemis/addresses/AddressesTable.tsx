@@ -7,7 +7,7 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclam
 import { Button, Icon, Modal, ModalVariant, TextContent, Text } from '@patternfly/react-core';
 import { CreateQueue } from '../queues/CreateQueue';
 import { log } from '../globals';
-import { Attributes, eventService, Operations, workspace } from '@hawtio/react';
+import { Attributes, eventService, MBeanNode, Operations, workspace } from '@hawtio/react';
 import { ArtemisContext } from '../context';
 import { CreateAddress } from './CreateAddress';
 import { SendMessage } from '../messages/SendMessage';
@@ -35,7 +35,7 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
     return data;
   }
 
-  const { tree, selectedNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext)
+  const { tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext)
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -44,7 +44,8 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   const [showCreateAddressDialog, setShowCreateAddressDialog] = useState(false);
   const [showSendDialog, setShowSendDialog] = useState(false);
   const [address, setAddress] = useState("");
-
+  const canCreateQueue = artemisService.canCreateQueue(brokerNode)
+;
   useEffect(() => {
     log.info("rendering Address Table ");
   }, [address]);
@@ -58,7 +59,8 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   }
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
-    return [
+    findAndSelectNode("null", row.name);
+    var actions: IAction[] = [
       {
         title: 'attributes',
         onClick: async () => {
@@ -80,13 +82,6 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
         }
       },
       {
-        title: 'create queue',
-        onClick: () => {
-          setAddress(row.name);
-          setShowCreateDialog(true);
-        }
-      },
-      {
         title: 'delete address',
         onClick: () => {
           setAddress(row.name);
@@ -101,8 +96,20 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
         }
 
       }
-    ]
+    ];
+
+    if (canCreateQueue) {
+      actions.push({
+        title: 'create queue',
+        onClick: () => {
+          setAddress(row.name);
+          setShowCreateDialog(true);
+        }
+      });
+    }
+    return actions;
   };
+
 
   const handleDeleteAddress = () => {
     artemisService.deleteAddress(address)
@@ -124,7 +131,7 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   };
 
   return (
-    <ArtemisContext.Provider value={{ tree, selectedNode, setSelectedNode, findAndSelectNode }}>
+    <ArtemisContext.Provider value={{ tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode }}>
       <ArtemisTable getRowActions={getRowActions} allColumns={allColumns} getData={listAddresses} toolbarActions={[createAction]} navigate={navigate.search} filter={navigate.filter}/>
       <Modal
         aria-label='create-queue-modal'
