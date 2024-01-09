@@ -25,7 +25,7 @@ public class PluginContextListener implements ServletContextListener {
         plugin = new HawtioPlugin()
             .scope("artemisPlugin")
             .module("./plugin")
-            .url("artemis-plugin");
+            .url("/artemis-plugin");
 
         /*
          * By default, Hawtio expects "plugin" as the name of the Hawtio plugin entry function.

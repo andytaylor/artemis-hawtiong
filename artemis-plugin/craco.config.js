@@ -82,22 +82,22 @@ module.exports = {
       const plugin = []
       const hawtconfig = {
         "branding": {
-          "appName": "Artemis Management Console 3 ",
-          "appLogoUrl": "img/activemq.png",
-          "css": "/hawtio/css/artemis.css",
-          "favicon": "img/favicon.ico"
+          "appName": "Artemis Console",
+          "appLogoUrl": "branding/activemq.png",
+          "css": "branding/app.css",
+          "favicon": "branding/favicon.png"
         },
         "about": {
           "title": "Artemis Management Console",
-          "description": "An Artemis console based on HawtIO + cdTypeScript + React.",
-          "imgSrc": "img/activemq.png",
+          "description": ".",
+          "imgSrc": "branding/activemq.png",
           "productInfo": [
             {
               "name": "Artemis",
-              "value": "2.32.0"
+              "value": "1.0.0"
             }
           ],
-          "copyright": "© Hawtio project"
+          "copyright": ""
         },
         "disabledRoutes": ["disabled"]
       }

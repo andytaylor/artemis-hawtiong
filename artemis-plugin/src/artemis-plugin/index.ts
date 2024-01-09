@@ -29,26 +29,25 @@ configManager.configure(config => {
   config.branding = {
     appName: 'Artemis Console',
     showAppName: true,
-    appLogoUrl: 'img/hawtio-logo.svg',
+    appLogoUrl: '/artemis-plugin/branding/activemq.png',
     css: '/artemis-plugin/branding/app.css',
-    favicon: '/artemis-plugin/branding/favicon.ico',
+    favicon: '/artemis-plugin/branding/favicon.png',
   }
   config.login = {
-    description: 'Login page for Hawtio Sample WAR Plugin application.',
+    description: 'Login page for Artemis Console.',
     links: [
-      { url: '#terms', text: 'Terms of use' },
-      { url: '#help', text: 'Help' },
-      { url: '#privacy', text: 'Privacy policy' },
+      { url: 'https://activemq.apache.org/components/artemis/documentation/', text: 'Documentation' },
+      { url: 'https://activemq.apache.org/', text: 'Website' },
     ],
   }
   config.about = {
-    title: 'Hawtio Sample WAR Plugin',
-    description: 'About page for Hawtio Sample WAR Plugin application.',
+    title: 'ActiveMQ Artemis Management Console',
+    description: '',
     productInfo: [
-      { name: 'artemis-plugin', value: '1.0.0' },
+      { name: 'Artemis', value: '1.0.0' },
     ],
     copyright: '',
-    imgSrc: 'img/hawtio-logo.svg',
+    imgSrc: '/artemis-plugin/branding/activemq.png',
   }
   // If you want to disable specific plugins, you can specify the paths to disable them.
   //config.disabledRoutes = ['/simple-plugin']
