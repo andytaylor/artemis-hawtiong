@@ -106,7 +106,6 @@ const operationOptions = [
   }
   const [filter, setFilter] = useState(broker.filter !== undefined? broker.filter:initialFilter);
 
-  log.info("searching with 3" + filter.input);
   const [filterColumnStatusSelected, setFilterColumnStatusSelected] = useState(columns.find(column => filter.column === column.id)?.name);
   const [filterColumnOperationSelected, setFilterColumnOperationSelected] = useState(operationOptions.find(operation => operation.id === filter.operation)?.name);
   const [inputValue, setInputValue] = useState(filter.input);
@@ -139,7 +138,7 @@ const operationOptions = [
 
   const onFilterColumnOperationToggle = (isExpanded: boolean) => {
     setFilterColumnOperationIsExpanded(isExpanded);
-  };
+  };  
 
   const onSave = () => {
     setIsModalOpen(!isModalOpen);

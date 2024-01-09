@@ -123,11 +123,11 @@ type MessageHeadersProps = {
 const MessageHeaders: React.FunctionComponent<MessageHeadersProps> = props => {
   const initialheaders: Array<{ name: string; value: string }> = [];
   if(props.headers) {
-    Object.keys(props.headers).map((key, index) => {
+    Object.keys(props.headers).forEach((key, index) => {
       initialheaders.push({
         name: key,
         value: props.headers?props.headers[key]:''
-      })
+      });
   })
   }
   const [headers, setHeaders] = useState<Array<{ name: string; value: string }>>(initialheaders)

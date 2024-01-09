@@ -43,8 +43,6 @@ export const ArtemisTabs: React.FunctionComponent = () => {
   useEffect(() => {
 
   }, [searchFilter, activeTabKey])
-  
-  log.info("searching with 2" + searchFilter?.input);
 
   return (
     <ArtemisContext.Provider value={{ tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode }}>

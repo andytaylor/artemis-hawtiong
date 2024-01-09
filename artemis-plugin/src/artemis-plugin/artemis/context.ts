@@ -1,4 +1,5 @@
 import { eventService, EVENT_REFRESH,MBeanNode, MBeanTree, PluginNodeSelectionContext, workspace } from "@hawtio/react";
+import { TreeViewDataItem } from "@patternfly/react-core";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import { artemisPluginName, jmxDomain, log } from "./globals";
@@ -28,8 +29,16 @@ export function useArtemisTree() {
                 rootNode.children[1].addMetadata("type", "brokerType");
                 setBrokerNode(rootNode.children[1]);
             }
+            // Expand the nodes to redisplay the path
+            if (selectedNode) {
+                rootNode.forEach(selectedNode?.path(), (node: MBeanNode) => {
+                    const tvd = node as TreeViewDataItem
+                    tvd.defaultExpanded = true
+                })
+            }
             var subTree: MBeanTree = MBeanTree.createFromNodes(artemisPluginName, [rootNode])
             setTree(subTree)
+            log.info(selectedNode);
 
         } else {
             setTree(wkspTree)
@@ -63,12 +72,10 @@ export function useArtemisTree() {
          * So disable the lint check.
          */
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedNode])
+    }, [])
 
     const findAndSelectNode = (objectName: string, name: string) => {
-        var node: MBeanNode | null = tree.find(node => { 
-            return node.getMetadata("type") === "brokerType"
-        });
+        var node: MBeanNode | null = tree.find(node => { return node.objectName === objectName });
         if (!node) {
             //need some special sauce here if we are lazy loading to populate the mbean
             const parentNode = tree.find(node => node.name === "addresses");

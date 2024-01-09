@@ -1,10 +1,8 @@
 import { ActiveSort, Filter } from './table/ArtemisTable'
-import { jolokiaService, MBeanNode, MBeanTree, workspace } from '@hawtio/react'
+import { jolokiaService, MBeanNode } from '@hawtio/react'
 import { createAddressObjectName, createQueueObjectName } from './util/jmx'
 import { contextNodeType, contextsType, domainNodeType, endpointNodeType, jmxDomain, log } from './globals'
 import { Message } from './messages/MessageView'
-import { useContext } from 'react'
-import { ArtemisContext } from './context'
 
 export type BrokerInfo = {
     name: string
@@ -84,21 +82,21 @@ export type ClusterConnections = {
 
 const BROKER_SEARCH_PATTERN = "org.apache.activemq.artemis:broker=*";
 const LIST_NETWORK_TOPOLOGY_SIG = "listNetworkTopology";
-const SEND_MESSAGE_SIG = "sendMessage(java.util.Map, int, java.lang.String, boolean, java.lang.String, java.lang.String, boolean)";
+const SEND_MESSAGE_SIG = "sendMessage(java.util.Map,int,java.lang.String,boolean,java.lang.String,java.lang.String,boolean)";
 const DELETE_ADDRESS_SIG = "deleteAddress(java.lang.String)";
 const DELETE_MESSAGE_SIG = "removeMessage(long)";
-const MOVE_MESSAGE_SIG = "moveMessage(long, java.lang.String)";
-const CREATE_QUEUE_SIG = "createQueue(java.lang.String, boolean)"
-const CREATE_ADDRESS_SIG = "createAddress(java.lang.String, java.lang.String)"
+const MOVE_MESSAGE_SIG = "moveMessage(long,java.lang.String)";
+const CREATE_QUEUE_SIG = "createQueue(java.lang.String,boolean)"
+const CREATE_ADDRESS_SIG = "createAddress(java.lang.String,java.lang.String)"
 const COUNT_MESSAGES_SIG = "countMessages()";
 const COUNT_MESSAGES_SIG2 = "countMessages(java.lang.String)";
-const BROWSE_SIG = "browse(int, int, java.lang.String)";
-const LIST_PRODUCERS_SIG = "listProducers(java.lang.String, int, int)";
-const LIST_CONNECTIONS_SIG = "listConnections(java.lang.String, int, int)";
-const LIST_SESSIONS_SIG = "listSessions(java.lang.String, int, int)";
-const LIST_CONSUMERS_SIG = "listConsumers(java.lang.String, int, int)";
-const LIST_ADDRESSES_SIG = "listAddresses(java.lang.String, int, int)";
-const LIST_QUEUES_SIG = "listQueues(java.lang.String, int, int)";
+const BROWSE_SIG = "browse(int,int,java.lang.String)";
+const LIST_PRODUCERS_SIG = "listProducers(java.lang.String,int,int)";
+const LIST_CONNECTIONS_SIG = "listConnections(java.lang.String,int,int)";
+const LIST_SESSIONS_SIG = "listSessions(java.lang.String,int,int)";
+const LIST_CONSUMERS_SIG = "listConsumers(java.lang.String,int,int)";
+const LIST_ADDRESSES_SIG = "listAddresses(java.lang.String,int,int)";
+const LIST_QUEUES_SIG = "listQueues(java.lang.String,int,int)";
 const DESTROY_QUEUE_SIG = "destroyQueue(java.lang.String)";
 const REMOVE_ALL_MESSAGES_SIG = "removeAllMessages()";
 const CLOSE_CONNECTION_SIG = "closeConnectionWithID(java.lang.String)";
@@ -446,13 +444,27 @@ class ArtemisService {
         return (value < 10 ? '0' : '') + value;
     }
 
-    private DEBUG_PRIVS = false;
+    private DEBUG_PRIVS = true;
     canCreateQueue = (broker: MBeanNode | undefined): boolean => {
         return (this.DEBUG_PRIVS && broker?.hasInvokeRights(CREATE_QUEUE_SIG)) ?? false
     }
 
-    canCreateAddress = (node: MBeanNode): boolean => {
-        return node?.hasInvokeRights(CREATE_ADDRESS_SIG) ?? false
+    canCreateAddress = (broker: MBeanNode | undefined): boolean => {
+        return (this.DEBUG_PRIVS && broker?.hasInvokeRights(CREATE_ADDRESS_SIG) )?? false
+    }
+
+    canSendMessageToAddress = (broker: MBeanNode | undefined, address: string): boolean => {
+        if(broker) {
+            var addressMBean = broker.parent?.find(node => { 
+                return node.propertyList?.get('component') === 'addresses' && node.propertyList.get('address') === address 
+            })
+            return (this.DEBUG_PRIVS && addressMBean?.hasInvokeRights(SEND_MESSAGE_SIG)) ?? false;
+        }
+        return false;
+    }
+
+    canDeleteAddress = (broker: MBeanNode | undefined): boolean => {
+        return (this.DEBUG_PRIVS && broker?.hasInvokeRights(DELETE_ADDRESS_SIG)) ?? false
     }
 
 

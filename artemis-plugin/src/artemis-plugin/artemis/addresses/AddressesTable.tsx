@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { ActiveSort, ArtemisTable, Column, Filter, ToolbarAction } from '../table/ArtemisTable';
 import { Navigate } from '../views/ArtemisTabView.js';
 import { artemisService } from '../artemis-service';
@@ -6,12 +6,12 @@ import { IAction } from '@patternfly/react-table';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { Button, Icon, Modal, ModalVariant, TextContent, Text } from '@patternfly/react-core';
 import { CreateQueue } from '../queues/CreateQueue';
-import { log } from '../globals';
-import { Attributes, eventService, MBeanNode, Operations, workspace } from '@hawtio/react';
+import { Attributes, eventService, Operations, workspace } from '@hawtio/react';
 import { ArtemisContext } from '../context';
 import { CreateAddress } from './CreateAddress';
 import { SendMessage } from '../messages/SendMessage';
 import { createAddressObjectName } from '../util/jmx';
+import { useNavigate } from 'react-router-dom';
 
 export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   const getQueueFilter = (row: any) => {
@@ -35,7 +35,9 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
     return data;
   }
 
-  const { tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext)
+  const { tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext);
+  const routenavigate = useNavigate();
+
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -44,11 +46,9 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   const [showCreateAddressDialog, setShowCreateAddressDialog] = useState(false);
   const [showSendDialog, setShowSendDialog] = useState(false);
   const [address, setAddress] = useState("");
-  const canCreateQueue = artemisService.canCreateQueue(brokerNode)
-;
-  useEffect(() => {
-    log.info("rendering Address Table ");
-  }, [address]);
+  const canCreateQueue = artemisService.canCreateQueue(brokerNode);
+  const canDeleteAddress = artemisService.canDeleteAddress(brokerNode);
+  const canCreateAddress = artemisService.canCreateAddress(brokerNode);
 
 
   const createAction: ToolbarAction = {
@@ -59,8 +59,17 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
   }
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
-    findAndSelectNode("null", row.name);
     var actions: IAction[] = [
+      {
+        title: 'show in Artemis JMX',
+        onClick: async () => {
+          setAddress(row.name);
+          const brokerObjectName = await artemisService.getBrokerObjectName();
+          const addressObjectName = createAddressObjectName(brokerObjectName, row.name);
+          findAndSelectNode(addressObjectName, row.name);
+          routenavigate('/artemisJMX')
+        }
+      },
       {
         title: 'attributes',
         onClick: async () => {
@@ -80,24 +89,36 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
           findAndSelectNode(addressObjectName, row.name);
           setShowOperationsDialog(true);
         }
-      },
-      {
-        title: 'delete address',
-        onClick: () => {
-          setAddress(row.name);
-          setShowDeleteDialog(true);
-        }
-      },
-      {
-        title: 'send message',
-        onClick: () => {
-          setAddress(row.name);
-          setShowSendDialog(true);
-        }
-
       }
+      
+      
     ];
 
+    if (canDeleteAddress) {
+      actions.push(
+        {
+          title: 'delete address',
+          onClick: () => {
+            setAddress(row.name);
+            setShowDeleteDialog(true);
+          }
+        }
+      );
+    }
+    
+    var canSendMessage = artemisService.canSendMessageToAddress(brokerNode, row.name);
+    if (canSendMessage) {
+      actions.push(
+        {
+          title: 'send message',
+          onClick: () => {
+            setAddress(row.name);
+            setShowSendDialog(true);
+          }
+  
+        }
+      );
+    }
     if (canCreateQueue) {
       actions.push({
         title: 'create queue',
@@ -144,7 +165,7 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
         ]}>
         <CreateQueue address={address}/>
       </Modal>
-      <Modal
+      { canCreateAddress && <Modal
         aria-label='delete-address-modal'
         variant={ModalVariant.medium}
         isOpen={showDeleteDialog}
@@ -170,7 +191,8 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
             This operation cannot be undone so please be careful.
           </Text>
         </TextContent>
-      </Modal>                        
+      </Modal>   
+      }                     
       <Modal
         aria-label='attributes-modal'
         variant={ModalVariant.medium}

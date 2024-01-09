@@ -8,7 +8,6 @@ import { MessagesTable } from '../messages/MessagesTable';
 import { SendMessage } from '../messages/SendMessage';
 import { Message, MessageView } from '../messages/MessageView';
 import { DeleteQueue } from '../queues/DeleteQueue';
-import { artemisService } from '../artemis-service';
 
 
 export type JMXData = {
