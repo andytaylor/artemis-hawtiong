@@ -28,7 +28,7 @@ configManager.addProductInfo('Artemis Plugin', '__PACKAGE_VERSION_PLACEHOLDER__'
 configManager.configure(config => {
   config.branding = {
     appName: 'Artemis Console',
-    showAppName: true,
+    showAppName: false,
     appLogoUrl: '/artemis-plugin/branding/activemq.png',
     css: '/artemis-plugin/branding/app.css',
     favicon: '/artemis-plugin/branding/favicon.png',
@@ -44,7 +44,7 @@ configManager.configure(config => {
     title: 'ActiveMQ Artemis Management Console',
     description: '',
     productInfo: [
-      { name: 'Artemis', value: '1.0.0' },
+      { name: 'Artemis', value: '1.0.1' },
     ],
     copyright: '',
     imgSrc: '/artemis-plugin/branding/activemq.png',
