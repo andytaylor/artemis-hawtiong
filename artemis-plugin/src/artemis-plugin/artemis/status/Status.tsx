@@ -24,11 +24,16 @@ import { Card,
     Modal, 
     ModalVariant, 
     Flex, 
-    FlexItem } from "@patternfly/react-core"
+    FlexItem, 
+    DataList,
+    DataListItemRow,
+    DataListCell,
+    DataListItemCells} from "@patternfly/react-core"
 import { Attributes, eventService, Operations } from '@hawtio/react';
 import { useContext, useEffect, useState } from "react";
 import { Acceptors, artemisService, BrokerInfo, ClusterConnections } from "../artemis-service";
 import { ArtemisContext } from "../context";
+import { TableComposable, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 
 export const Status: React.FunctionComponent = () => {
@@ -147,7 +152,7 @@ export const Status: React.FunctionComponent = () => {
                                     <TextListItem component={TextListItemVariants.dt}>uptime</TextListItem>
                                     <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.uptime}</TextListItem>
                                     <TextListItem component={TextListItemVariants.dt}>started</TextListItem>
-                                    <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.started}</TextListItem>
+                                    <TextListItem component={TextListItemVariants.dd}>{""+brokerInfo?.started}</TextListItem>
                                     <TextListItem component={TextListItemVariants.dt}>HA Policy</TextListItem>
                                     <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.haPolicy}</TextListItem>
                                 </TextList>
@@ -181,40 +186,53 @@ export const Status: React.FunctionComponent = () => {
                 </GridItem>
             </Grid>
             <ExpandableSection toggleTextExpanded="Acceptors" toggleTextCollapsed="Acceptors">
-                <Grid hasGutter span={4}>
+                <Grid hasGutter span={12}>
                     {
                         acceptors?.acceptors.map((acceptor, index) => (
-                            <GridItem >
+                            <GridItem key={index}>
                                 <Card isFullHeight={true}>
 
                                     <CardTitle>{acceptor.Name}</CardTitle>
                                     <CardBody>
+                                    <TableComposable variant="compact" aria-label="Column Management Table">
+                                        <Thead>
+                                            <Tr key={"acceptor-list-row-" + index}>
+                                                <Th key={"acceptor-list-param-key-name" + index}>name</Th>
+                                                <Th key={"acceptor-list-param-key-factory" + index}>factory</Th>
+                                                <Th key={"acceptor-list-param-key-started" + index}>started</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
+                                            <Tr key={"acceptor-list-val-" + index}>
+                                                <Td key={"acceptor-list-value-key-name" + index}>{acceptor.Name}</Td>
+                                                <Td key={"acceptor-list-value-key-factory" + index}>{acceptor.FactoryClassName}</Td>
+                                                <Td key={"acceptor-list-value-key-started" + index}>{""+acceptor.Started}</Td>
+                                            </Tr>
+                                        </Tbody>
+                                    </TableComposable>
+                                    <Divider />
+                                    <Text component={TextVariants.h2}>Parameters</Text>
+                                    <TableComposable variant="compact" aria-label="Column Management Table">
+                                        <Thead>
+                                            <Tr key={"acceptor-list-param-title"}>
+                                                <Th key={"acceptor-list-param-key" + index}>key</Th>
+                                                <Th key={"acceptor-list-param-value" + index}>value</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
+                                        {
+                                            Object.keys(acceptor.Parameters).map((key, index) => {
+                                                return (
+                                                    <Tr key={"acceptor-list-param-val-" + index}>
+                                                        <Td key={"acceptor-params-key-" + key}>{key}</Td>
+                                                        <Td key={"acceptor-params-val-" + key}>{acceptor.Parameters[key]}</Td>
+                                                    </Tr>
 
-                                        <TextContent>
-                                            <TextList component={TextListVariants.dl}>
-                                                <TextListItem component={TextListItemVariants.dt}>name</TextListItem>
-                                                <TextListItem component={TextListItemVariants.dd}>{acceptor.Name}</TextListItem>
-                                                <TextListItem component={TextListItemVariants.dt}>factory</TextListItem>
-                                                <TextListItem component={TextListItemVariants.dd}><Truncate id="factory-trunc" content={acceptor.FactoryClassName} /></TextListItem>
-                                                <TextListItem component={TextListItemVariants.dt}>started</TextListItem>
-                                                <TextListItem component={TextListItemVariants.dd}>{String(acceptor.Started)}</TextListItem>
-                                            </TextList>
-                                            <Divider />
-                                            <Text component={TextVariants.h2}>Parameters</Text>
-                                            <TextList component={TextListVariants.dl}>
-                                                {
-                                                    Object.keys(acceptor.Parameters).map((key, index) => {
-                                                        return (
-                                                            <>
-                                                                <TextListItem component={TextListItemVariants.dt}>{key}</TextListItem>
-                                                                <TextListItem component={TextListItemVariants.dd}>{acceptor.Parameters[key]}</TextListItem>
-                                                            </>
-                                                        )
-                                                    })
-                                                }
-                                            </TextList>
-                                        </TextContent>
-
+                                                )
+                                            })
+                                        }
+                                        </Tbody>
+                                        </TableComposable>
                                     </CardBody>
                                 </Card>
                             </GridItem>
@@ -225,101 +243,64 @@ export const Status: React.FunctionComponent = () => {
             <ExpandableSection toggleText='Broker Network'>
                 <Grid>
                     {
-                        clusterConnections?.clusterConnections.map(clusterConnection => (
-                            <>
-                                <GridItem span={9}>
+                        clusterConnections?.clusterConnections.map((clusterConnection, index) => (
+                                <GridItem key={index} span={12}>
                                     <Card>
                                         <CardTitle>{'Cluster(' + clusterConnection.Name + ')'}</CardTitle>
                                         <CardBody>
-                                            <Flex spaceItems={{ default: 'spaceItemsXl' }}>
-                                                <FlexItem>
-                                                    <TextContent>
-                                                        <TextList component={TextListVariants.dl}>
-                                                            <TextListItem component={TextListItemVariants.dt}>lives</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.networkTopology.getLiveCount()}</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dt}>backups</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{brokerInfo?.networkTopology.getBackupCount()}</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dt}>node id</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{clusterConnection.NodeID}</TextListItem>
-
-                                                        </TextList>
-                                                    </TextContent>
-                                                </FlexItem>
-                                                <Divider
-                                                    orientation={{
-                                                        default: 'vertical'
-                                                    }}
-                                                    inset={{
-                                                        default: 'insetMd',
-                                                        md: 'insetNone',
-                                                        lg: 'insetSm',
-                                                        xl: 'insetXs'
-                                                    }}
-                                                />
-                                                <FlexItem>
-                                                    <TextContent>
-                                                        <TextList component={TextListVariants.dl}>
-                                                            <TextListItem component={TextListItemVariants.dt}>load balancing</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{clusterConnection.MessageLoadBalancingType}</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dt}>duplicate detection</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{String(clusterConnection.DuplicateDetection)}</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dt}>address</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{clusterConnection.Address}</TextListItem>
-                                                        </TextList>
-                                                    </TextContent>
-                                                </FlexItem>
-                                                <Divider
-                                                    orientation={{
-                                                        default: 'vertical'
-                                                    }}
-                                                    inset={{
-                                                        default: 'insetMd',
-                                                        md: 'insetNone',
-                                                        lg: 'insetSm',
-                                                        xl: 'insetXs'
-                                                    }}
-                                                />
-                                                <FlexItem>
-                                                    <TextContent>
-                                                        <TextList component={TextListVariants.dl}>
-                                                            <TextListItem component={TextListItemVariants.dt}>max hops</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{clusterConnection.MaxHops}</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dt}>factory</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{clusterConnection.NodeID}</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dt}>address</TextListItem>
-                                                            <TextListItem component={TextListItemVariants.dd}>{clusterConnection.Address}</TextListItem>
-                                                        </TextList>
-                                                    </TextContent>
-                                                </FlexItem>
-                                            </Flex>
+                                            <TableComposable variant="compact" aria-label="Coluster Table">
+                                            <Thead>
+                                                <Tr key={"cluster-list-row-" + index}>
+                                                    <Th key={"cluster-list-param-key-name" + index}>name</Th>
+                                                    <Th key={"cluster-list-param-key-nodeid" + index}>node id</Th>
+                                                    <Th key={"cluster-list-param-key-address" + index}>address</Th>
+                                                    <Th key={"cluster-list-param-key-started" + index}>started</Th>
+                                                    <Th key={"cluster-list-param-key-lb" + index}>load balancing</Th>
+                                                    <Th key={"cluster-list-param-key-ma" + index}>messages acknowledged</Th>
+                                                    <Th key={"cluster-list-param-key-mh" + index}>max hops</Th>
+                                                    <Th key={"cluster-list-param-key-dd" + index}>duplicate detection</Th>
+                                                </Tr>
+                                            </Thead>
+                                            <Tbody>
+                                                <Tr key={"cluster-list-val-" + index}>
+                                                    <Td key={"cluster-list-value-key-name" + index}>{clusterConnection.Name}</Td>
+                                                    <Td key={"cluster-list-value-key-nodeid" + index}>{clusterConnection.NodeID}</Td>
+                                                    <Td key={"cluster-list-value-key-address" + index}>{clusterConnection.Address}</Td>
+                                                    <Td key={"cluster-list-value-key-started" + index}>{""+clusterConnection.Started}</Td>
+                                                    <Td key={"cluster-list-value-key-lb" + index}>{clusterConnection.MessageLoadBalancingType}</Td>
+                                                    <Td key={"cluster-list-value-key-ma" + index}>{clusterConnection.MessagesAcknowledged}</Td>
+                                                    <Td key={"cluster-list-value-key-mh" + index}>{clusterConnection.MaxHops}</Td>
+                                                    <Td key={"cluster-list-value-key-dd" + index}>{""+clusterConnection.DuplicateDetection}</Td>
+                                                </Tr>
+                                            </Tbody>
+                                            </TableComposable>
                                         </CardBody>
                                     </Card>
                                 </GridItem>
-                            </>
                         ))
                     }
                 </Grid>
                 <Title headingLevel={"h4"}>Network</Title>
                 <Grid hasGutter>
                     {
-                        brokerInfo?.networkTopology.brokers.map(broker => (
-                            <GridItem span={4}>
+                        brokerInfo?.networkTopology.brokers.map((broker, index) => (
+                            <GridItem key={index} span={4}>
                                 <Card>
                                     <CardTitle>{broker.nodeID}</CardTitle>
-                                <Flex>
-                                    <FlexItem>
-                                        <Card>
-                                            <CardTitle>primary</CardTitle>
-                                            <CardBody>{broker.live}</CardBody>
-                                        </Card>
-                                    </FlexItem>
-                                    <FlexItem>
-                                        <Card>
-                                            <CardTitle>backup</CardTitle>
-                                            <CardBody>{broker.backup}</CardBody>
-                                        </Card>
-                                        </FlexItem>
-                                </Flex>
+                                    <TableComposable variant="compact" aria-label="Network Table">
+                                        <Thead>
+                                            <Tr key={"network-row-title-" + index}>
+                                                <Th key={"network-cell-primary-" + index}>primary</Th>
+                                                <Th key={"network-cell-backup-" + index}>backup</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
+                                            <Tr key={"network-row-val-" + index}>
+                                                <Td key={"network-val-primary-" + index}>{broker.live}</Td>
+                                                <Td key={"network-val-backup-" + index}>{broker.backup}</Td>
+                                            </Tr>
+                                        </Tbody>
+                                    </TableComposable>
                                 </Card>
                             </GridItem>
                         ))
