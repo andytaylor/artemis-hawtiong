@@ -456,15 +456,61 @@ class ArtemisService {
     canSendMessageToAddress = (broker: MBeanNode | undefined, address: string): boolean => {
         if(broker) {
             var addressMBean = broker.parent?.find(node => { 
-                return node.propertyList?.get('component') === 'addresses' && node.propertyList.get('address') === address 
+                return node.propertyList?.get('component') === 'addresses' && node.propertyList?.get('subcomponent') === undefined && node.name === address 
             })
-            return (this.DEBUG_PRIVS && addressMBean?.hasInvokeRights(SEND_MESSAGE_SIG)) ?? false;
+            return this.checkCanSendMessageToAddress(addressMBean as MBeanNode);
         }
         return false;
     }
 
+    checkCanSendMessageToAddress = (addressMBean: MBeanNode | undefined): boolean => {
+        return (this.DEBUG_PRIVS && addressMBean?.hasInvokeRights(SEND_MESSAGE_SIG)) ?? false;
+    }
+
     canDeleteAddress = (broker: MBeanNode | undefined): boolean => {
         return (this.DEBUG_PRIVS && broker?.hasInvokeRights(DELETE_ADDRESS_SIG)) ?? false
+    }
+
+    canDeleteQueue = (broker: MBeanNode | undefined): boolean => {
+        return (this.DEBUG_PRIVS && broker?.hasInvokeRights(DESTROY_QUEUE_SIG)) ?? false
+    }
+
+    canPurgeQueue = (broker: MBeanNode | undefined, queue: string): boolean => {
+        if(broker) {
+            var queueMBean = broker.parent?.find(node => { 
+                return node.propertyList?.get('subcomponent') === 'queues' && node.name === queue 
+            })
+            return (this.DEBUG_PRIVS && queueMBean?.hasInvokeRights(REMOVE_ALL_MESSAGES_SIG)) ?? false;
+        }
+        return false;
+    }
+
+    canSendMessageToQueue = (broker: MBeanNode | undefined, queue: string): boolean => {
+        if(broker) {
+            var queueMBean = broker.parent?.find(node => { 
+                return node.propertyList?.get('subcomponent') === 'queues' && node.name === queue 
+            })
+            return this.checkCanSendMessageToQueue(queueMBean as MBeanNode);
+        }
+        return false;
+    }
+
+    checkCanSendMessageToQueue = (queueMBean: MBeanNode | undefined): boolean => {
+        return (this.DEBUG_PRIVS && queueMBean?.hasInvokeRights(SEND_MESSAGE_SIG)) ?? false;
+    }
+
+    canBrowseQueue = (broker: MBeanNode | undefined, queue: string): boolean => {
+        if(broker) {
+            var queueMBean = broker.parent?.find(node => { 
+                return node.propertyList?.get('subcomponent') === 'queues' && node.name === queue 
+            })
+            return this.checkCanBrowseQueue(queueMBean as MBeanNode);
+        }
+        return false;
+    }
+
+    checkCanBrowseQueue = (queueMBean: MBeanNode ): boolean => {
+        return (this.DEBUG_PRIVS && queueMBean?.hasInvokeRights(BROWSE_SIG)) ?? false;
     }
 
 

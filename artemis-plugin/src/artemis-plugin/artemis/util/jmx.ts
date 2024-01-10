@@ -3,7 +3,7 @@ import { jmxDomain } from "../globals";
 
 const ADDRESS_COMPONENT_PART = ",component=addresses,address=\"";
 const ADDRESS_SUBCOMPONENT_PART = "\",subcomponent=queues,routing-type=\"";
-const ADDRESS_TYPE_PART = "\".queue=\"";
+const ADDRESS_TYPE_PART = "\",queue=\"";
 const STRING_DELIMETER = "\"";
 const QUEUE_COMPONENT = "component=queues";
 const ADDRESS_COMPONENT = "component=addresses";

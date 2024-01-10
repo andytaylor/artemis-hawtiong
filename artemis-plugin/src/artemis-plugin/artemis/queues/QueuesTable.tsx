@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { ActiveSort, ArtemisTable, Column, Filter } from '../table/ArtemisTable';
 import { artemisService } from '../artemis-service';
 import { IAction } from '@patternfly/react-table';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { SendMessage } from '../messages/SendMessage';
-import { eventService } from '@hawtio/react';
+import { Attributes, eventService, Operations } from '@hawtio/react';
 import { QueueNavigate } from './QueuesView.js';
+import { ArtemisContext } from '../context';
+import { createQueueObjectName } from '../util/jmx';
+import { useNavigate } from 'react-router-dom';
 
 export const QueuesTable: React.FunctionComponent<QueueNavigate> = navigate => {
   const getAddressFilter = (row: any) => {
@@ -78,7 +81,13 @@ export const QueuesTable: React.FunctionComponent<QueueNavigate> = navigate => {
   const [address, setAddress] = useState("");
   const [routingType, setRoutingType] = useState("");
   const [queueToPurgeAddress, setQueueToPurgeAddress] = useState("");
-  const [queueToPurgeRoutingType, setQueueToPurgeRoutingType] = useState("");
+  const [queueToPurgeRoutingType, setQueueToPurgeRoutingType] = useState(""); 
+  const [showAttributesDialog, setShowAttributesDialog] = useState(false);
+  const [showOperationsDialog, setShowOperationsDialog] = useState(false);
+  const routenavigate = useNavigate();
+  const { tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext);
+
+  const canDeleteQueue = artemisService.canDeleteQueue(brokerNode);
   const [loadData, setLoadData] = useState(0);
 
   const closeDeleteDialog = () => {
@@ -134,41 +143,98 @@ export const QueuesTable: React.FunctionComponent<QueueNavigate> = navigate => {
   };
 
   const getRowActions = (row: any, rowIndex: number): IAction[] => {
-    return [
+    var actions: IAction[] =  [
       {
-        title: 'delete',
-        onClick: () => {
-          setQueue(row.name);
-          setShowDeleteDialog(true);
+        title: 'show in Artemis JMX',
+        onClick: async () => {
+          setAddress(row.name);
+          const brokerObjectName = await artemisService.getBrokerObjectName();
+          const queueObjectName = createQueueObjectName(brokerObjectName,row.address, row.routingType,  row.name);
+          findAndSelectNode(queueObjectName, row.name);
+          routenavigate('/artemisJMX')
         }
       },
       {
-        title: 'purge',
-        onClick: () => {
-          setQueue(row.name);
-          setQueueToPurgeAddress(row.address);
-          setQueueToPurgeRoutingType(row.routingType);
-          setShowPurgeDialog(true);
+        title: 'attributes',
+        onClick: async () => {
+          setAddress(row.name);
+          const brokerObjectName = await artemisService.getBrokerObjectName();
+          const queueObjectName = createQueueObjectName(brokerObjectName,row.address, row.routingType,  row.name);          
+          findAndSelectNode(queueObjectName, row.name);
+          setShowAttributesDialog(true);
         }
       },
       {
-        title: 'send message',
-        onClick: () => {
-          setQueue(row.name);
-          setAddress(row.address);
-          setRoutingType(row.routingType)
-          setShowSendDialog(true);
+        title: 'operations',
+        onClick: async () => {
+          setAddress(row.name);
+          const brokerObjectName = await artemisService.getBrokerObjectName();
+          const queueObjectName = createQueueObjectName(brokerObjectName,row.address, row.routingType,  row.name);
+          findAndSelectNode(queueObjectName, row.name);
+          setShowOperationsDialog(true);
         }
-
-      },
-      {
-        title: 'browse messages',
-        onClick: () => {
-          navigate.selectQueue(row.name, row.address, row.routingType);
-        }
-
       }
     ]
+
+
+    if (canDeleteQueue) {
+      actions.push(
+        {
+          title: 'delete',
+          onClick: () => {
+            setQueue(row.name);
+            setShowDeleteDialog(true);
+          }
+        }
+      );
+    }
+
+    var canSendMessage = artemisService.canSendMessageToQueue(brokerNode, row.name);
+    if (canSendMessage) {
+      actions.push(
+        {
+          title: 'send message',
+          onClick: () => {
+            setQueue(row.name);
+            setAddress(row.address);
+            setRoutingType(row.routingType)
+            setShowSendDialog(true);
+          }
+  
+        }
+      );
+    }
+
+    var canPurgeQueue = artemisService.canPurgeQueue(brokerNode, row.name);
+    if (canPurgeQueue) {
+      actions.push(
+        {
+          title: 'purge',
+          onClick: () => {
+            setQueue(row.name);
+            setQueueToPurgeAddress(row.address);
+            setQueueToPurgeRoutingType(row.routingType);
+            setShowPurgeDialog(true);
+          }
+        }
+      );
+    }
+
+    var canBrowseQueue = artemisService.canBrowseQueue(brokerNode, row.name);
+    if (canBrowseQueue) {
+      actions.push(
+        {
+          title: 'browse messages',
+          onClick: () => {
+            navigate.selectQueue(row.name, row.address, row.routingType);
+          }
+  
+        }
+      );
+    }
+
+
+    return actions;
   };
 
   return (
@@ -187,6 +253,28 @@ export const QueuesTable: React.FunctionComponent<QueueNavigate> = navigate => {
       ]}><p>You are about to delete queue <b>{queue}</b>.</p>
       <p>This operation cannot be undone so please be careful.</p>
     </Modal>
+    <Modal
+        aria-label='attributes-modal'
+        variant={ModalVariant.medium}
+        isOpen={showAttributesDialog}
+        actions={[
+          <Button key="close" variant="primary" onClick={() => setShowAttributesDialog(false)}>
+            Close
+          </Button>
+        ]}>
+        <Attributes />
+      </Modal>
+      <Modal
+        aria-label='operations-modal'
+        variant={ModalVariant.medium}
+        isOpen={showOperationsDialog}
+        actions={[
+          <Button key="close" variant="primary" onClick={() => setShowOperationsDialog(false)}>
+            Close
+          </Button>
+        ]}>
+        <Operations />
+      </Modal>
     <Modal
       aria-label='queue-purge-modal'
       variant={ModalVariant.medium}

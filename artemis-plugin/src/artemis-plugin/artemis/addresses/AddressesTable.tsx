@@ -105,7 +105,7 @@ export const AddressesTable: React.FunctionComponent<Navigate> = (navigate) => {
         }
       );
     }
-    
+
     var canSendMessage = artemisService.canSendMessageToAddress(brokerNode, row.name);
     if (canSendMessage) {
       actions.push(

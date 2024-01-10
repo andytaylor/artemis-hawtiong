@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Tabs, Tab, TabTitleText, Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { Attributes, Chart, MBeanNode, Operations } from '@hawtio/react';
 import { CreateQueue } from '../queues/CreateQueue';
@@ -8,6 +8,8 @@ import { MessagesTable } from '../messages/MessagesTable';
 import { SendMessage } from '../messages/SendMessage';
 import { Message, MessageView } from '../messages/MessageView';
 import { DeleteQueue } from '../queues/DeleteQueue';
+import { artemisService } from '../artemis-service';
+import { ArtemisContext } from '../context';
 
 
 export type JMXData = {
@@ -35,6 +37,7 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
   const [ currentMessage, setCurrentMessage ] = useState<Message>(initialMessage);
   const isAddress = isAnAddress(data.node)
   const isAQueue = isQueue(data.node);
+  const { tree, selectedNode, brokerNode, setSelectedNode, findAndSelectNode } = useContext(ArtemisContext);
 
   var prop = data.node.getProperty("routing-type");
   const routingType: string  = prop === undefined?'':prop;
@@ -75,46 +78,55 @@ export const ArtemisJMXTabs: React.FunctionComponent<JMXData> = (data: JMXData) 
           <Chart/>
         }
         </Tab>
-        { isAddress && 
+        { isAddress && artemisService.canCreateQueue(brokerNode) &&
           <Tab eventKey={3} title={<TabTitleText>Create Queue</TabTitleText>} aria-label="Create Queue">
               {activeTabKey === 3 &&
                 <CreateQueue address={data.node.name}/>
               }
           </Tab> 
         }
-        { isAddress && 
+        { isAddress && artemisService.canDeleteAddress(brokerNode) &&
           <Tab eventKey={4} title={<TabTitleText>Delete Address</TabTitleText>} aria-label="">
               {activeTabKey === 4 &&
                 <DeleteAddress address={data.node.name}/>
               }
           </Tab> 
         }
-        { isAQueue && 
-          <Tab eventKey={5} title={<TabTitleText>Browse</TabTitleText>} aria-label="">
-            <MessagesTable address={address} queue={queue} routingType={routingType} selectMessage={selectMessage} back={undefined} />
-            <Modal
-              aria-label='message-view-modal'
-              variant={ModalVariant.medium}
-              isOpen={showMessageDialog}
-              actions={[
-                <Button key="close" variant="secondary" onClick={() => setShowMessageDialog(false)}>
-                  Close
-                </Button>
-              ]}>
-              <MessageView currentMessage={currentMessage} />
-            </Modal>
+        {
+          isAddress && artemisService.checkCanSendMessageToAddress(selectedNode as MBeanNode) &&
+          <Tab eventKey={5} title={<TabTitleText>Send Message</TabTitleText>} aria-label="">
+              {activeTabKey === 5 &&
+                <SendMessage queue={queue} routingType={routingType} address={address} isAddress={true}/>
+              }
+          </Tab> 
+        }
+        { isAQueue && artemisService.checkCanBrowseQueue(selectedNode as MBeanNode) &&
+          <Tab eventKey={6} title={<TabTitleText>Browse</TabTitleText>} aria-label="">
+             {activeTabKey === 6 &&
+             <><MessagesTable address={address} queue={queue} routingType={routingType} selectMessage={selectMessage} back={undefined} /><Modal
+                aria-label='message-view-modal'
+                variant={ModalVariant.medium}
+                isOpen={showMessageDialog}
+                actions={[
+                  <Button key="close" variant="secondary" onClick={() => setShowMessageDialog(false)}>
+                    Close
+                  </Button>
+                ]}>
+                <MessageView currentMessage={currentMessage} />
+              </Modal></>
+           }
           </Tab>
         }
-        { isAQueue && 
-          <Tab eventKey={6} title={<TabTitleText>Delete Queue</TabTitleText>} aria-label="">
-              {activeTabKey === 6 &&
+        { isAQueue && artemisService.canDeleteQueue(brokerNode) &&
+          <Tab eventKey={7} title={<TabTitleText>Delete Queue</TabTitleText>} aria-label="">
+              {activeTabKey === 7 &&
                 <DeleteQueue queue={data.node.name} address={address} routingType={routingType}/>
               }
           </Tab> 
         }
-        { isAQueue && 
-          <Tab eventKey={7} title={<TabTitleText>Send Message</TabTitleText>} aria-label="">
-              {activeTabKey === 7 &&
+        { isAQueue && artemisService.checkCanSendMessageToQueue(selectedNode as MBeanNode) &&
+          <Tab eventKey={8} title={<TabTitleText>Send Message</TabTitleText>} aria-label="">
+              {activeTabKey === 8 &&
                 <SendMessage queue={data.node.name} routingType={routingType} address={address} isAddress={false}/>
               }
           </Tab> 
