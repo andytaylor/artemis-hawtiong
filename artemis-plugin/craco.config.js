@@ -32,7 +32,7 @@ module.exports = {
             },
             '@hawtio/react': {
               singleton: true,
-              requiredVersion: dependencies['@hawtio/react'],
+              requiredVersion: "^1.1.0",
             },
           },
         }),
@@ -50,7 +50,7 @@ module.exports = {
       // For suppressing sourcemap warnings from dependencies
       webpackConfig.ignoreWarnings = [/Failed to parse source map/]
 
-       // To resolve errors for @module-federation/utilities 2.x
+      // To resolve errors for @module-federation/utilities 2.x
       // https://github.com/module-federation/universe/issues/827
       webpackConfig.resolve = {
         ...webpackConfig.resolve,
@@ -72,16 +72,16 @@ module.exports = {
   // For plugin development
   devServer: {
     setupMiddlewares: (middlewares, devServer) => {
-       // Enabling branding in dev mode
-       devServer.app.use((req, _, next) => {
+      // Enabling branding in dev mode
+      devServer.app.use((req, _, next) => {
         if (req.url.startsWith('/artemis-plugin')) {
           req.url = req.url.replace(/\/artemis-plugin(.*)/, '/hawtio$1')
         }
         next()
       })
-       // Redirect / or /hawtio to /hawtio/
-       devServer.app.get('/', (_, res) => res.redirect('/hawtio/'))
-       devServer.app.get('/hawtio$', (_, res) => res.redirect('/hawtio/'))
+      // Redirect / or /hawtio to /hawtio/
+      devServer.app.get('/', (_, res) => res.redirect('/hawtio/'))
+      devServer.app.get('/hawtio$', (_, res) => res.redirect('/hawtio/'))
 
       const username = 'developer'
       const proxyEnabled = true
@@ -114,9 +114,9 @@ module.exports = {
       })
       devServer.app.get('/hawtio/proxy/enabled', (_, res) => res.send(String(proxyEnabled)))
       devServer.app.get('/hawtio/plugin', (_, res) => res.send(JSON.stringify(plugin)))
-     // devServer.app.get('/hawtio/keycloak/enabled', (_, res) => res.send(String(keycloakEnabled)))
-     // devServer.app.get('/hawtio/keycloak/client-config', (_, res) => res.send(JSON.stringify(keycloakClientConfig)))
-     // devServer.app.get('/hawtio/keycloak/validate-subject-matches', (_, res) => res.send('true'))
+      // devServer.app.get('/hawtio/keycloak/enabled', (_, res) => res.send(String(keycloakEnabled)))
+      // devServer.app.get('/hawtio/keycloak/client-config', (_, res) => res.send(JSON.stringify(keycloakClientConfig)))
+      // devServer.app.get('/hawtio/keycloak/validate-subject-matches', (_, res) => res.send('true'))
 
       // hawtconfig.json mock
       devServer.app.get('/hawtio/hawtconfig.json', (_, res) => res.send(JSON.stringify(hawtconfig)))
