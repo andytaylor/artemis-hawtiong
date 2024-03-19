@@ -41,13 +41,13 @@ configManager.configure(config => {
     ],
   }
   config.about = {
-    title: 'ActiveMQ Artemis Management Console',
-    description: '',
-    productInfo: [
-      { name: 'Artemis', value: '1.0.1' },
-    ],
-    copyright: '',
-    imgSrc: '/artemis-plugin/branding/activemq.png',
+    ...config.about,
+    ...{
+      title: 'ActiveMQ Artemis Management Console',
+      description: '',
+      copyright: '',
+      imgSrc: '/artemis-plugin/branding/activemq.png',
+    }
   }
   // If you want to disable specific plugins, you can specify the paths to disable them.
   //config.disabledRoutes = ['/simple-plugin']
